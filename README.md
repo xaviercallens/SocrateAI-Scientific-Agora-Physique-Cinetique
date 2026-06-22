@@ -24,9 +24,17 @@ L'essaim a combiné la réponse linéaire quantique de l'Agent Godfrin avec l'in
 Aucune approximation numérique n'a été utilisée. Ces séquences constituent le point de départ de la formalisation Lean 4.
 
 ## 🚀 Utilisation
+
+### 1. Protocole QVE-02 (Écho Quantique de Volterra)
 ```bash
 # Lancer la simulation collaborative multi-agents
 python simulations/qve_02_quantum_echo.py
+```
+
+### 2. Protocole Q-RHK-02 (Noyaux de Chaleur Fractionnaires de Rotons)
+```bash
+# Calculer les bornes et la décroissance de l'Information de Fisher pour les rotons
+python simulations/q_rhk_02_roton_fisher.py
 ```
 
 *Les données générées sont archivées de manière permanente dans `/alexandrie_data/`. Consultez le dossier `/docs/` pour la monographie scientifique détaillée en PDF.*
