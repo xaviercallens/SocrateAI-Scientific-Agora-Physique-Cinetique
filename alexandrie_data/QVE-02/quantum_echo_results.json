@@ -1,0 +1,18 @@
+{
+    "protocol": "QVE-02",
+    "description": "Exact rational sequence of the O(eps^2) Quantum Non-Linear Plasma Echo",
+    "lean4_sequence_target": [
+        "0",
+        "0",
+        "1/2",
+        "0",
+        "-1/18",
+        "0",
+        "13/4050",
+        "0",
+        "-4/33075",
+        "0",
+        "73/22325625",
+        "0"
+    ]
+}
