@@ -1,7 +1,7 @@
 {
     "protocol": "Q-RHK-02",
     "theorem": "Villani 2025, Theorem 22.6",
-    "sigma_beta_exact": "-271450 + 331550*exp(-1/5)",
-    "gamma_bound_exact": "sqrt(3)*exp(-1/10)",
+    "sigma_beta_exact": "pi*(910 - 1110*exp(-1/5))/2",
+    "gamma_bound_exact": "((-10 + 3*sqrt(11))**2/2 + 1/2)*exp(-11/10 + 3*sqrt(11)/10) + 3/2",
     "conclusion": "Fisher Information monotonically decays for Pitaevskii plateau roton scattering."
 }

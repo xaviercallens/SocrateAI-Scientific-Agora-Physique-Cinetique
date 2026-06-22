@@ -13,10 +13,12 @@ class AgentGodfrin:
         linear density response $\rho^{(1)}(t)$ over $\mathbb{Q}$.
         """
         print(f"⚛️  [{self.name}] Computing pure quantum linear density response rho^(1)(t)...")
-        # In the purely algebraic model, the response is formulated as a rational sequence
-        # representing the Taylor coefficients of the correlation function.
-        t = sp.Symbol('t')
-        seq = [sp.Rational(1, 2**i) if i % 2 == 0 else sp.Rational(0, 1) for i in range(order)]
+        import math
+        seq = [sp.Rational(0, 1)] * order
+        for k in range(order):
+            if k % 2 == 0:
+                n = k // 2
+                seq[k] = sp.Rational((-1)**n, math.factorial(2*n + 1))
         return seq
 
     def extract_roton_scattering_kernel(self):
@@ -32,20 +34,27 @@ class AgentGodfrin:
 
     def extract_lindhard_base(self, order=10):
         """
-        Computes the exact rational Taylor expansion of the 1D/3D Lindhard function
-        using true symbolic integration, avoiding hardcoded stubs.
+        Computes the exact rational Taylor expansion of the 3D Lindhard function
+        using true symbolic expansion, avoiding hardcoded stubs.
         """
         print(f"⚛️  [{self.name}] Attempting true analytic integration of the Lindhard density response...")
         try:
-            # We compute moments M_n = int_{-1}^1 k^n dk to represent the
-            # exact algebraic Taylor expansion coefficients of the Fermi sphere.
-            k = sp.Symbol('k')
+            # The 3D Lindhard function proportional term:
+            # f(z) = 1 + (1-z^2)/(2z) * ln((z+1)/(z-1))
+            # We expand in x = 1/z around x=0
+            x = sp.Symbol('x')
+            f_x = 1 + (x**2 - 1)/(2*x) * sp.log((1+x)/(1-x))
+            
+            # Use sympy to get the series expansion up to O(x^{2*order})
+            series_expansion = sp.series(f_x, x, 0, 2*order).removeO()
+            
             seq = [sp.Rational(0, 1)] * order
             for n in range(order):
-                moment = sp.integrate(k**n, (k, -1, 1))
-                seq[n] = moment
+                # The series only has even powers of x
+                coeff = series_expansion.coeff(x, 2*n)
+                seq[n] = coeff
                 
-            print(f"   -> [Godfrin] True algebraic moments derived from Fermi sphere integration: {seq[:5]}...")
+            print(f"   -> [Godfrin] True algebraic moments derived from 3D Lindhard expansion: {seq[:5]}...")
             return seq
         except Exception as e:
             raise ScientificHonestyException("Analytic integration failed. Refusing to return stubbed sequence.")
