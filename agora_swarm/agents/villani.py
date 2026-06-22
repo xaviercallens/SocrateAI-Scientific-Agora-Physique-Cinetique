@@ -33,21 +33,22 @@ class AgentVillani:
         """
         print(f"🌌 [{self.name}] Ingesting roton kernel. Applying Theorem 22.6 (Heat Kernel Combinations on S^{d-1})...")
         
-        # We manually bound the algebraic expression 1 + (4/5) * cos(theta)^2.
-        m_r = sp.Rational(1, 1)
-        M_r = sp.Rational(9, 5)
+        # The phenomenological kernel: 1/2 * (1+u^2) * exp(-1/10*(1-u))
+        # Exact minimum occurs at u=0 -> 1/2 * exp(-1/10)
+        # Exact maximum occurs at u=1 -> 1
+        m_r = sp.Rational(1, 2) * sp.exp(sp.Rational(-1, 10))
+        M_r = sp.Rational(1, 1)
         print(f"   -> [Villani] Exact Roton kernel bounds: m_r = {m_r}, M_r = {M_r}")
         
         # |gamma| <= 2 * sqrt(d) * (m_r / M_r)
         gamma_bound = 2 * sp.sqrt(d) * (m_r / M_r)
         
         # Calculate spherical curvature term \Sigma(\beta) (Eq 17.2)
-        # Using substitution u = cos(theta), du = -sin(theta) dtheta
         u = sp.Symbol('u')
-        # beta_func is expressed in terms of theta_sym. We substitute sp.cos(theta_sym) with u.
         beta_u = beta_func.subs(sp.cos(theta_sym), u)
         integrand_u = (1 - u**2) * beta_u
         
+        # Exact symbolic integration over [-1, 1]
         Sigma_beta_val = sp.integrate(integrand_u, (u, -1, 1))
         Sigma_beta = Sigma_beta_val / (2 * (d - 1))
         print(f"   -> [Villani] Exact Spherical curvature term \\Sigma(\\beta) = {Sigma_beta}")

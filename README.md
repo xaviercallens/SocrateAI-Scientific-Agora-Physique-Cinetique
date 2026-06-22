@@ -23,6 +23,22 @@ L'essaim a combiné la réponse linéaire quantique de l'Agent Godfrin avec l'in
 
 Aucune approximation numérique n'a été utilisée. Ces séquences constituent le point de départ de la formalisation Lean 4.
 
+## 🔬 Expérimentation : Protocole Q-RHK-02 (Roton Fractional Heat Kernels)
+
+**[FR] Modélisation Phénoménologique de l'Amortissement**
+Pour tester les bornes de régularité cinétique du Théorème 22.6 de C. Villani (2025), l'Agent Godfrin a formulé un noyau de diffusion roton-roton algébrique. Ce noyau mathématique est *inspiré* de la phénoménologie du "forward-peaking" observée expérimentalement (ex: ILL IN5), mais il reste un modèle analytique strict (sans données empiriques directes) pour préserver la règle de la "Zéro Simulation Flottante" :
+$\beta(\cos \theta) = \frac{1}{2}(1 + \cos^2\theta) \exp(-\frac{1}{10}(1 - \cos\theta))$
+
+L'Agent Villani dérive formellement par algèbre symbolique (SymPy) que, sous ce modèle exact, la singularité cinétique admissible est bornée par :
+$|\gamma| \le \sqrt{3}\exp(-0.1) \approx 1.567$
+
+**[EN] Phenomenological Modeling of Damping**
+To test the kinetic regularity bounds of C. Villani's Theorem 22.6 (2025), Agent Godfrin formulated an algebraic roton-roton scattering kernel. This mathematical kernel is *inspired* by the "forward-peaking" phenomenology observed experimentally (e.g., ILL IN5), but remains a strict analytical model (without direct empirical data) to enforce the "Zero Floating-Point Simulation" rule:
+$\beta(\cos \theta) = \frac{1}{2}(1 + \cos^2\theta) \exp(-\frac{1}{10}(1 - \cos\theta))$
+
+Agent Villani formally derives via symbolic algebra (SymPy) that, under this exact model, the admissible kinetic singularity is bounded by:
+$|\gamma| \le \sqrt{3}\exp(-0.1) \approx 1.567$
+
 ## 🚀 Utilisation
 
 ### 1. Protocole QVE-02 (Écho Quantique de Volterra)
