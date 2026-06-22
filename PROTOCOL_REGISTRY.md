@@ -26,7 +26,7 @@ This document catalogs the formalized, automated scientific protocols used by th
 ## Protocol Q-RHK-02: Roton Fractional Heat Kernels (Pitaevskii Plateau)
 * **Objective:** Model roton-roton scattering singularities in superfluid $^4$He and verify dynamic Fisher Information dissipation.
 * **Workflow:**
-  1. **Godfrin** extracts the phenomenological roton scattering kernel from dynamic structure factor $S(Q,\omega)$ data (e.g. from ILL IN5).
+  1. **Godfrin** formulates a **phenomenological algebraic proxy** for the roton scattering kernel, which is mathematically inspired by the forward-peaking behavior seen in dynamic structure factor $S(Q,\omega)$ data (e.g., ILL IN5), rather than using raw dataset ingestion due to access restrictions.
   2. **Villani** applies Theorem 22.6 (heat kernel representation) to compute kernel bounds ($m_r, M_r$), spherical curvature $\Sigma(\beta)$, and the maximum velocity singularity $\gamma$ that guarantees smooth equilibration.
   3. **Socrate** validates the bounds and logs the results for Lean 4 verification.
 

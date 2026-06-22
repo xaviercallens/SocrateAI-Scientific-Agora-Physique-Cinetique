@@ -33,7 +33,11 @@ L'Agent Villani dérive formellement par algèbre symbolique (SymPy) que, sous c
 $|\gamma| \le \sqrt{3}\exp(-0.1) \approx 1.567$
 
 **[EN] Phenomenological Modeling of Damping**
-To test the kinetic regularity bounds of C. Villani's Theorem 22.6 (2025), Agent Godfrin formulated an algebraic roton-roton scattering kernel. This mathematical kernel is *inspired* by the "forward-peaking" phenomenology observed experimentally (e.g., ILL IN5), but remains a strict analytical model (without direct empirical data) to enforce the "Zero Floating-Point Simulation" rule:
+To test the kinetic regularity bounds of C. Villani's Theorem 22.6 (2025), Agent Godfrin formulated an algebraic roton-roton scattering kernel. 
+
+> [!WARNING]
+> This mathematical kernel is *inspired* by the "forward-peaking" phenomenology observed experimentally (e.g., ILL IN5), but remains a strict **analytical phenomenological model** (without direct empirical data validation) to enforce the "Zero Floating-Point Simulation" rule due to institutional data access restrictions.
+
 $\beta(\cos \theta) = \frac{1}{2}(1 + \cos^2\theta) \exp(-\frac{1}{10}(1 - \cos\theta))$
 
 Agent Villani formally derives via symbolic algebra (SymPy) that, under this exact model, the admissible kinetic singularity is bounded by:
@@ -42,9 +46,9 @@ $|\gamma| \le \sqrt{3}\exp(-0.1) \approx 1.567$
 ## 🚀 Utilisation
 
 ### 1. Protocole QVE-02 (Écho Quantique de Volterra)
+*(Le script de simulation flottante a été supprimé pour respecter la règle de la Zéro Simulation Flottante. Utilisez les agents pour l'extraction algébrique).*
 ```bash
-# Lancer la simulation collaborative multi-agents
-python simulations/qve_02_quantum_echo.py
+# L'extraction s'effectue via l'orchestrateur de l'essaim.
 ```
 
 ### 2. Protocole Q-RHK-02 (Noyaux de Chaleur Fractionnaires de Rotons)

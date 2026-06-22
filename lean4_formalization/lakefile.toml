@@ -9,4 +9,6 @@ name = "AgoraPhysics"
 name = "agoraphysics"
 root = "Main"
 
-
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
