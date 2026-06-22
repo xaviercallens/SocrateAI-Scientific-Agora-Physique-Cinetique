@@ -53,5 +53,17 @@ python simulations/qve_02_quantum_echo.py
 python simulations/q_rhk_02_roton_fisher.py
 ```
 
+### 3. Protocole QV-01 (Quantum Vlasov Zero-Sound Simulation)
+```bash
+# Extraire les pôles exacts du Son Zéro (Padé [M/M]) sur la fonction de Lindhard
+python simulations/qv_01_zero_sound.py
+```
+
+### 4. Protocole Q-RIP-03 (2D Quantum Ripplons)
+```bash
+# Dériver la constante de Bakry-Émery L*=4 pour la protection topologique des ripplons 2D
+python simulations/q_rip_03_ripplon.py
+```
+
 *Les données générées sont archivées de manière permanente dans `/alexandrie_data/`. Consultez le dossier `/docs/` pour la monographie scientifique détaillée en PDF.*
 

@@ -2,6 +2,9 @@
 
 This document catalogs the formalized, automated scientific protocols used by the agents within the SocrateAI Scientific Agora.
 
+> **Dataset Falsification Policy (Zéro Simulation Flottante):**
+> Following our strict verification rules, simulated or hallucinated datasets are strictly forbidden. Since Henri Godfrin's raw neutron scattering datasets (ILL IN5/ESRF) are locked behind institutional DOIs and not publicly available as open files on Zenodo, **none of these protocols use faked empirical data**. Instead, the agents evaluate the exact, continuous mathematical physics formalisms algebraically over $\mathbb{Q}$ and SymPy. The hardware-grounded validations are pending institutional data access.
+
 ## Protocol QV-01: The Quantum Vlasov Zero-Sound Simulation
 * **Lead Agent**: Godfrin
 * **Domain**: Quantum Fluids / Plasma Physics

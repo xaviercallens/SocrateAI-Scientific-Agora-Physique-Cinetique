@@ -40,3 +40,46 @@ class AgentSocrate:
         with open("alexandrie_data/QVE-02/quantum_echo_results.json", "w") as f:
             json.dump(payload, f, indent=4)
         print("\n✅ Sequence successfully committed to Alexandrie Vault for Lean 4 Formalization.")
+
+    def execute_protocol_qv_01(self):
+        print(f"🏛️  [{self.name}] INITIATING PROTOCOL QV-01: QUANTUM VLASOV ZERO-SOUND SIMULATION\n")
+        godfrin = AgentGodfrin()
+        villani = AgentVillani()
+        
+        lindhard_seq = godfrin.extract_lindhard_base(order=6)
+        print(f"   -> [Godfrin Output] Lindhard Sequence: {[str(c) for c in lindhard_seq]} ...\n")
+        
+        poles = villani.compute_pade_zero_sound(lindhard_seq)
+        
+        print(f"\n🏛️  [{self.name}] Protocol Complete. Zero-Sound poles extracted exactly over Q.")
+        
+        os.makedirs("alexandrie_data/QV-01", exist_ok=True)
+        payload = {
+            "protocol": "QV-01",
+            "description": "Exact rational Padé approximant poles for 3He Zero-Sound.",
+            "poles_exact": [str(p) for p in poles]
+        }
+        with open("alexandrie_data/QV-01/zero_sound_results.json", "w") as f:
+            json.dump(payload, f, indent=4)
+        print("\n✅ Sequence successfully committed to Alexandrie Vault for Lean 4 Formalization.")
+
+    def execute_protocol_q_rip_03(self):
+        print(f"🏛️  [{self.name}] INITIATING PROTOCOL Q-RIP-03: 2D QUANTUM RIPPLONS & THE OPTIMAL L*=4\n")
+        godfrin = AgentGodfrin()
+        villani = AgentVillani()
+        
+        topology = godfrin.formulate_2d_ripplon_topology()
+        
+        L_star = villani.evaluate_bakry_emery_L_star(topology, d=2)
+        
+        print(f"\n🏛️  [{self.name}] Protocol Complete. 2D Quantum Ripplon phase-mixing constant exactly derived.")
+        
+        os.makedirs("alexandrie_data/Q-RIP-03", exist_ok=True)
+        payload = {
+            "protocol": "Q-RIP-03",
+            "description": "Exact differential Bakry-Émery curvature-dimension constant L*.",
+            "L_star_exact": str(L_star)
+        }
+        with open("alexandrie_data/Q-RIP-03/ripplon_results.json", "w") as f:
+            json.dump(payload, f, indent=4)
+        print("\n✅ Sequence successfully committed to Alexandrie Vault for Lean 4 Formalization.")
