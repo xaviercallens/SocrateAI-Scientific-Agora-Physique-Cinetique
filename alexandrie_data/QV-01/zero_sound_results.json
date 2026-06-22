@@ -2,7 +2,7 @@
     "protocol": "QV-01",
     "description": "Exact rational Pad\u00e9 approximant poles for 3He Zero-Sound.",
     "poles_exact": [
-        "-sqrt(15)*I/3",
-        "sqrt(15)*I/3"
+        "-sqrt(15)/3",
+        "sqrt(15)/3"
     ]
 }
