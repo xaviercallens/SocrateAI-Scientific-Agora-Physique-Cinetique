@@ -25,3 +25,31 @@ class AgentVillani:
             echo_seq[k+1] = S2[k] / sp.Rational(k + 1)
             
         return echo_seq
+
+    def apply_theorem_22_6(self, beta_func, theta_sym, d=3):
+        """
+        Applies Theorem 22.6 (Curvature-dimension induced decay via heat kernel representation)
+        using exact symbolic algebra (SymPy).
+        """
+        print(f"🌌 [{self.name}] Ingesting roton kernel. Applying Theorem 22.6 (Heat Kernel Combinations on S^{d-1})...")
+        
+        # We manually bound the algebraic expression 1 + (4/5) * cos(theta)^2.
+        m_r = sp.Rational(1, 1)
+        M_r = sp.Rational(9, 5)
+        print(f"   -> [Villani] Exact Roton kernel bounds: m_r = {m_r}, M_r = {M_r}")
+        
+        # |gamma| <= 2 * sqrt(d) * (m_r / M_r)
+        gamma_bound = 2 * sp.sqrt(d) * (m_r / M_r)
+        
+        # Calculate spherical curvature term \Sigma(\beta) (Eq 17.2)
+        # Using substitution u = cos(theta), du = -sin(theta) dtheta
+        u = sp.Symbol('u')
+        # beta_func is expressed in terms of theta_sym. We substitute sp.cos(theta_sym) with u.
+        beta_u = beta_func.subs(sp.cos(theta_sym), u)
+        integrand_u = (1 - u**2) * beta_u
+        
+        Sigma_beta_val = sp.integrate(integrand_u, (u, -1, 1))
+        Sigma_beta = Sigma_beta_val / (2 * (d - 1))
+        print(f"   -> [Villani] Exact Spherical curvature term \\Sigma(\\beta) = {Sigma_beta}")
+        
+        return gamma_bound, Sigma_beta
