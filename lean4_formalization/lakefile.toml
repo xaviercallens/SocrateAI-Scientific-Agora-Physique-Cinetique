@@ -1,0 +1,10 @@
+name = "AgoraPhysics"
+version = "0.1.0"
+defaultTargets = ["agoraphysics"]
+
+[[lean_lib]]
+name = "AgoraPhysics"
+
+[[lean_exe]]
+name = "agoraphysics"
+root = "Main"
