@@ -87,6 +87,7 @@ We prove that L_* = 4 in this exact topology.
 def BakryEmery_L_star (d : Nat) : Nat :=
   2 * d
 
+-- VACUOUS (see RETRACTIONS.md R3): with `BakryEmery_L_star d := 2 * d` this states 2 * 2 = 4 and nothing more.
 theorem ripplon_L_star_is_4 : BakryEmery_L_star 2 = 4 := by
   rfl
 
@@ -110,6 +111,7 @@ def gamma_bound : Rat := 16063 / 8232
 
 -- We establish the mathematical assertion that |γ| must be bounded by the critical rational threshold
 -- to guarantee Fisher Information monotonic decay, preventing finite-time blow-ups.
+-- VACUOUS (see RETRACTIONS.md R3): the hypothesis `h` is the conclusion, since `gamma_bound := 16063 / 8232`.
 theorem admissible_singularity_limit (gamma : Rat) (h : gamma < gamma_bound) : gamma < (16063 / 8232 : Rat) := by
   exact h
 
