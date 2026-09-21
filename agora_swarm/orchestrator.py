@@ -2,8 +2,8 @@ import sympy as sp
 import json
 import os
 from pathlib import Path
-from agora_swarm.agents.godfrin import AgentGodfrin, ScientificHonestyException
-from agora_swarm.agents.villani import AgentVillani
+from agora_swarm.agents.linear_response import LinearResponseStage, ScientificHonestyException
+from agora_swarm.agents.kinetic import KineticStage
 
 class AgentSocrate:
     def __init__(self):
@@ -12,17 +12,17 @@ class AgentSocrate:
     def execute_protocol(self):
         print(f"🏛️  [{self.name}] INITIATING PROTOCOL QVE-02: QUANTUM VOLTERRA ECHO COLLABORATION\n")
         
-        godfrin = AgentGodfrin()
-        villani = AgentVillani()
+        linear = LinearResponseStage()
+        kinetic = KineticStage()
         
         # --- THE A2A HANDSHAKE ---
         
-        # Step 1: Godfrin computes the linear quantum state
-        q_seq = godfrin.execute_quantum_response(order=12)
-        print(f"   -> [Godfrin Output] rho^(1) Sequence: {[str(c) for c in q_seq[:5]]} ...\n")
+        # Step 1: the linear-response stage computes the linear quantum state
+        q_seq = linear.execute_quantum_response(order=12)
+        print(f"   -> [linear-response output] rho^(1) Sequence: {[str(c) for c in q_seq[:5]]} ...\n")
         
-        # Step 2: Villani computes the non-linear kinetic interaction
-        echo_seq = villani.execute_sk_019_plasma_echo_miner(q_seq)
+        # Step 2: the kinetic stage computes the non-linear kinetic interaction
+        echo_seq = kinetic.execute_sk_019_plasma_echo_miner(q_seq)
         
         # Step 3: Socrate validates and saves the algebraic truth
         print(f"\n🏛️  [{self.name}] Protocol Complete. The continuous non-linear Quantum Echo Sequence is:")
@@ -43,14 +43,14 @@ class AgentSocrate:
 
     def execute_protocol_qv_01(self):
         print(f"🏛️  [{self.name}] INITIATING PROTOCOL QV-01: QUANTUM VLASOV ZERO-SOUND SIMULATION\n")
-        godfrin = AgentGodfrin()
-        villani = AgentVillani()
+        linear = LinearResponseStage()
+        kinetic = KineticStage()
         
         try:
-            lindhard_seq = godfrin.extract_lindhard_base(order=6)
-            print(f"   -> [Godfrin Output] Lindhard Sequence: {[str(c) for c in lindhard_seq]} ...\n")
+            lindhard_seq = linear.extract_lindhard_base(order=6)
+            print(f"   -> [linear-response output] Lindhard Sequence: {[str(c) for c in lindhard_seq]} ...\n")
             
-            poles = villani.compute_pade_zero_sound(lindhard_seq)
+            poles = kinetic.compute_pade_zero_sound(lindhard_seq)
             
             print(f"\n🏛️  [{self.name}] Protocol Complete. Zero-Sound poles extracted exactly over Q.")
             
@@ -69,13 +69,13 @@ class AgentSocrate:
 
     def execute_protocol_q_rip_03(self):
         print(f"🏛️  [{self.name}] INITIATING PROTOCOL Q-RIP-03: 2D QUANTUM RIPPLONS & THE OPTIMAL L*=4\n")
-        godfrin = AgentGodfrin()
-        villani = AgentVillani()
+        linear = LinearResponseStage()
+        kinetic = KineticStage()
         
         try:
-            topology = godfrin.formulate_2d_ripplon_topology()
+            topology = linear.formulate_2d_ripplon_topology()
             
-            L_star = villani.evaluate_bakry_emery_L_star(topology, d=2)
+            L_star = kinetic.evaluate_bakry_emery_L_star(topology, d=2)
             
             print(f"\n🏛️  [{self.name}] Protocol Complete. 2D Quantum Ripplon phase-mixing constant exactly derived.")
             

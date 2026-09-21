@@ -1,3 +1,7 @@
+> **Status (2026-09-21): under correction.** Several claims below have been retracted — see
+> [`RETRACTIONS.md`](RETRACTIONS.md). Pipeline stages are no longer named after scientists, none of whom has
+> reviewed or endorsed this code.
+
 # 🏛️ Agora-Physique-Cinetique : Modélisation Neuro-Symbolique et Échos Quantiques
 
 Bienvenue dans le dépôt open source du projet **Agora-Physique-Cinetique**, un sous-ensemble du laboratoire SocrateAI dédié à l'extraction algébrique et à la vérification formelle en physique cinétique (Fluides Quantiques & Plasmas).

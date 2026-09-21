@@ -8,21 +8,21 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from agora_swarm.orchestrator import AgentSocrate
-from agora_swarm.agents.godfrin import AgentGodfrin
-from agora_swarm.agents.villani import AgentVillani
+from agora_swarm.agents.linear_response import LinearResponseStage
+from agora_swarm.agents.kinetic import KineticStage
 
 class RotonProtocolOrchestrator(AgentSocrate):
     def execute_protocol(self):
         print(f"🏛️  [{self.name}] INITIATING PROTOCOL Q-RHK-02: ROTON FRACTIONAL HEAT KERNELS\n")
         
-        godfrin = AgentGodfrin()
-        villani = AgentVillani()
+        linear = LinearResponseStage()
+        kinetic = KineticStage()
         
-        # 1. Godfrin provides Quantum Fluid Data (Algebraic Stub)
-        beta_roton, theta_sym = godfrin.extract_roton_scattering_kernel()
+        # 1. The linear-response stage provides Quantum Fluid Data (Algebraic Stub)
+        beta_roton, theta_sym = linear.extract_roton_scattering_kernel()
         
-        # 2. Villani applies 2025 Fisher Information math with EXACT symbolic algebra
-        gamma_bound, sigma = villani.apply_theorem_22_6(beta_roton, theta_sym, d=3)
+        # 2. The kinetic stage applies the 2025 Fisher Information math with EXACT symbolic algebra
+        gamma_bound, sigma = kinetic.apply_theorem_22_6(beta_roton, theta_sym, d=3)
         
         # 3. Verdict
         print(f"\n🏛️  [{self.name}] PROTOCOL VERDICT:")

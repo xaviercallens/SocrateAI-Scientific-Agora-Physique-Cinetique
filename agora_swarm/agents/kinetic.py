@@ -1,8 +1,8 @@
 import sympy as sp
-from agora_swarm.agents.godfrin import ScientificHonestyException
+from agora_swarm.agents.linear_response import ScientificHonestyException
 
-class AgentVillani:
-    def __init__(self, name="Cédric Villani (Mathematical Physicist)"):
+class KineticStage:
+    def __init__(self, name="kinetic stage"):
         self.name = name
 
     def execute_sk_019_plasma_echo_miner(self, linear_seq):
@@ -36,7 +36,7 @@ class AgentVillani:
         
         # 1. Evaluate Gamma bound algebraically
         limit_val = sp.limit(beta_roton, theta_sym, 0)
-        print(f"   -> [Villani] Limit of scattering kernel at theta->0 = {limit_val}")
+        print(f"   -> [kinetic] Limit of scattering kernel at theta->0 = {limit_val}")
         
         # Extract algebraic bounds m_r and M_r
         u = sp.Symbol('u')
@@ -47,21 +47,21 @@ class AgentVillani:
         vals = [beta_u.subs(u, p) for p in pts]
         m_r = min(vals)
         M_r = max(vals)
-        print(f"   -> [Villani] Infimum Bound m_r = {m_r}")
-        print(f"   -> [Villani] Supremum Bound M_r = {M_r}")
+        print(f"   -> [kinetic] Infimum Bound m_r = {m_r}")
+        print(f"   -> [kinetic] Supremum Bound M_r = {M_r}")
         
         # 2. Evaluate Sigma(beta) the spherical integral
-        print(f"   -> [Villani] Executing exact transcendental integration over S^{d-1}...")
+        print(f"   -> [kinetic] Executing exact transcendental integration over S^{d-1}...")
         integrand = beta_roton * sp.sin(theta_sym)
         # Add 2*pi for azimuthal integration on S^2
         Sigma_beta_val = 2 * sp.pi * sp.integrate(integrand, (theta_sym, 0, sp.pi))
         
         Sigma_beta = Sigma_beta_val / (2 * (d - 1))
-        print(f"   -> [Villani] Exact Spherical curvature term \Sigma(\beta) = {Sigma_beta}")
+        print(f"   -> [kinetic] Exact Spherical curvature term \Sigma(\beta) = {Sigma_beta}")
         
         # Exact algebraic bound for gamma
         gamma_bound = (m_r / M_r) + sp.Rational(3, 2)
-        print(f"   -> [Villani] Maximum Admissible Kinetic Singularity |gamma| <= {gamma_bound}")
+        print(f"   -> [kinetic] Maximum Admissible Kinetic Singularity |gamma| <= {gamma_bound}")
         
         return gamma_bound, Sigma_beta
 
@@ -100,7 +100,7 @@ class AgentVillani:
             Q_actual = 1 + q1_val*t + q2_val*t**2
             roots = sp.solve(Q_actual, t)
             
-        print(f"   -> [Villani] Exact Zero-Sound algebraic poles found: {roots}")
+        print(f"   -> [kinetic] Exact Zero-Sound algebraic poles found: {roots}")
         return roots
 
     def evaluate_bakry_emery_L_star(self, topology, d=2):
@@ -129,7 +129,7 @@ class AgentVillani:
             dim_algebraic = m.dim
             
             L_star_expr = 2 * dim_algebraic
-            print(f"   -> [Villani] Exact algebraic tensor reduction of flat metric yielded L_* = {L_star_expr}")
+            print(f"   -> [kinetic] Exact algebraic tensor reduction of flat metric yielded L_* = {L_star_expr}")
             return L_star_expr
         except Exception as e:
             raise ScientificHonestyException("Analytic tensor derivation failed. Refusing to return stubbed constant.")

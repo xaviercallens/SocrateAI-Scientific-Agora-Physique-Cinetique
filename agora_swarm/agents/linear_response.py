@@ -3,8 +3,8 @@ import sympy as sp
 class ScientificHonestyException(Exception):
     pass
 
-class AgentGodfrin:
-    def __init__(self, name="Henri Godfrin (Quantum Fluid Physics Expert)"):
+class LinearResponseStage:
+    def __init__(self, name="linear-response stage"):
         self.name = name
 
     def execute_quantum_response(self, order=10):
@@ -54,7 +54,7 @@ class AgentGodfrin:
                 coeff = series_expansion.coeff(x, 2*n)
                 seq[n] = coeff
                 
-            print(f"   -> [Godfrin] True algebraic moments derived from 3D Lindhard expansion: {seq[:5]}...")
+            print(f"   -> [linear-response] True algebraic moments derived from 3D Lindhard expansion: {seq[:5]}...")
             return seq
         except Exception as e:
             raise ScientificHonestyException("Analytic integration failed. Refusing to return stubbed sequence.")
