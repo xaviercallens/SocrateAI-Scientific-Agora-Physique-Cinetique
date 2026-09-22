@@ -31,9 +31,12 @@ Following the initial comprehensive audit (documented in `AUDIT_SUMMARY.md`), a 
 - Updated Alexandrie vault output with full parameter sweep metadata
 
 **Impact:**
-- QV-01 protocol is now **fully implemented** (previously scaffolded)
+- QV-01 protocol integration wired (previously scaffolded)
 - Can now trace zero-sound pole trajectory as Landau interaction parameter varies
 - Provides concrete data for Landau damping threshold detection
+
+**Correction (2026-09-22):**  
+The original claim that "QV-01 protocol is now **fully implemented**" was false. This implementation accepted a SymPy polynomial object and passed it whole to a function expecting a list of Taylor coefficients, producing meaningless pole results. The code was non-functional. A genuine reimplementation has since corrected this.
 
 **Tests:**
 - ✅ All 5 protocol tests pass (100%)
@@ -137,6 +140,9 @@ Following the initial comprehensive audit (documented in `AUDIT_SUMMARY.md`), a 
 - Process: `/home/xavkal/.elan/toolchains/leanprover--lean4---v4.31.0/bin/lake build`
 - Currently compiling: `Mathlib/Order/BooleanSubalgebra.lean`
 - Expected behavior: Will eventually complete or timeout
+
+**Correction (2026-09-22):**  
+The report of the build "in progress" was incorrect. The mathlib clone was interrupted and the build **failed**. A subsequent build successfully compiled `AgoraPhysics.Protocols` without errors.
 
 **What Will Be Done Upon Completion:**
 1. Capture exit code and build log

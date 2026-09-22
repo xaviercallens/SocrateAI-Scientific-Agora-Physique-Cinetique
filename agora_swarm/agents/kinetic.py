@@ -27,12 +27,26 @@ class KineticStage:
             
         return echo_seq
 
-    def apply_theorem_22_6(self, beta_roton, theta_sym, d=3):
+    def kernel_regularity_bounds(self, beta_roton, theta_sym, d=3):
         r"""
-        Applies Theorem 22.6 (Villani 2025/2009) to compute the Fisher Information
-        Monotonicity bounds $\gamma$ and the spherical curvature term $\Sigma(\beta)$.
+        Computes, exactly and symbolically, three quantities of the angular
+        scattering kernel beta(cos theta):
+
+          * m_r = inf beta and M_r = sup beta for cos(theta) in [-1, 1];
+          * the spherical term Sigma(beta) = 2 pi Int_0^pi beta sin(theta) dtheta / (2(d-1));
+          * the combination gamma_bound = m_r / M_r + 3/2.
+
+        The first two are plain symbolic computations. The third is the
+        expression this project has used as an "admissible singularity" bound
+        and previously attributed to "Theorem 22.6" of Villani (arXiv:2501.00925).
+
+        WARNING: that attribution is UNVERIFIED -- the formula has never been
+        checked against the cited source (RETRACTIONS.md R4). The returned value
+        must therefore be read as "the quantity this pipeline computes", not as
+        a consequence of a published theorem. This method was renamed from
+        apply_theorem_22_6 so that the API itself stops asserting the citation.
         """
-        print(f"🌌 [{self.name}] Applying Fisher Information bounds (Thm 22.6) to exact Roton kernel...")
+        print(f"🌌 [{self.name}] Computing exact kernel regularity bounds (attribution unverified)...")
         
         # 1. Evaluate Gamma bound algebraically
         limit_val = sp.limit(beta_roton, theta_sym, 0)
@@ -65,43 +79,113 @@ class KineticStage:
         
         return gamma_bound, Sigma_beta
 
-    def compute_pade_zero_sound(self, seq):
+    def pade_diagonal(self, coeffs, M, var=None):
+        r"""
+        Exact diagonal [M/M] Pade approximant of the series
+        A(u) = sum_{n>=0} coeffs[n] u^n, computed entirely over Q.
+
+        Returns (P, Q, var) with P/Q matching A through order u^{2M}, i.e.
+        A(u) Q(u) - P(u) = O(u^{2M+1}), and Q(0) = 1.
+
+        Requires len(coeffs) >= 2M+1.
         """
-        Implements a purely rational [M/M] Padé approximant solver using SymPy
-        to locate the Zero-Sound poles, avoiding float64 entirely.
+        if var is None:
+            var = sp.Symbol('u')
+        if len(coeffs) < 2 * M + 1:
+            raise ScientificHonestyException(
+                f"[M/M] Pade with M={M} needs {2*M+1} series coefficients, got {len(coeffs)}."
+            )
+        a = [sp.nsimplify(c, rational=True) for c in coeffs]
+        qsyms = sp.symbols(f'q1:{M+1}')
+
+        # Order conditions for n = M+1 .. 2M determine q_1..q_M.
+        eqs = []
+        for n in range(M + 1, 2 * M + 1):
+            expr = a[n] + sum(qsyms[j - 1] * a[n - j] for j in range(1, M + 1))
+            eqs.append(sp.Eq(expr, 0))
+        sol = sp.solve(eqs, qsyms, dict=True)
+        if not sol:
+            raise ScientificHonestyException(
+                f"No exact [M/M] Pade solution at M={M}; refusing to return an approximation."
+            )
+        sol = sol[0]
+        qv = [sp.Integer(1)] + [sp.Rational(sol[s]) for s in qsyms]
+
+        # Numerator coefficients follow from the matching conditions n = 0..M.
+        pv = [sp.Rational(sum(qv[j] * a[n - j] for j in range(0, min(n, M) + 1)))
+              for n in range(M + 1)]
+
+        P = sp.expand(sum(pv[i] * var**i for i in range(M + 1)))
+        Q = sp.expand(sum(qv[j] * var**j for j in range(M + 1)))
+        print(f"   -> [kinetic] exact [{M}/{M}] Pade over Q:  P = {P},  Q = {Q}")
+        return P, Q, var
+
+    def solve_zero_sound_root(self, kernel_coeffs, F0s, M=2):
+        r"""
+        Extracts the zero-sound mode from the Landau dispersion relation
+
+            chi(s) = 1 / F_0^s,        u = 1/s^2,
+
+        by replacing chi with its exact diagonal [M/M] Pade approximant and
+        solving Q(u) - F_0^s P(u) = 0 exactly over Q.
+
+        An undamped zero-sound mode requires s > 1, i.e. a real root
+        u in (0, 1). Roots outside (0,1) correspond to a phase velocity inside
+        the particle-hole continuum, where this expansion is not valid.
+
+        Returns a dict with the exact algebraic root and s = 1/sqrt(u), or
+        {'root_found': False, ...} when no admissible root exists. The absence
+        of a root is a real outcome of the method, not an error: the kernel has
+        a logarithmic branch point at u = 1, so a Pade approximant built at
+        u = 0 places no root in (0,1) for small F_0^s.
         """
-        print(f"🌌 [{self.name}] Computing exact rational Padé approximant to locate Zero-Sound poles...")
-        t = sp.Symbol('t')
-        
-        poly = sum(c * t**i for i, c in enumerate(seq))
-        
-        q1, q2, p0, p1, p2 = sp.symbols('q1 q2 p0 p1 p2')
-        Q_poly = 1 + q1*t + q2*t**2
-        P_poly = p0 + p1*t + p2*t**2
-        
-        eq = sp.expand(poly * Q_poly)
-        coeffs = [eq.coeff(t, i) for i in range(5)]
-        
-        eqs = [
-            coeffs[0] - p0,
-            coeffs[1] - p1,
-            coeffs[2] - p2,
-            coeffs[3],
-            coeffs[4]
-        ]
-        
-        sol = sp.solve(eqs, (q1, q2, p0, p1, p2))
-        roots = []
-        if isinstance(sol, dict) and sol:
-            Q_actual = 1 + sol.get(q1, 0)*t + sol.get(q2, 0)*t**2
-            roots = sp.solve(Q_actual, t)
-        elif isinstance(sol, list) and sol:
-            q1_val, q2_val, _, _, _ = sol[0]
-            Q_actual = 1 + q1_val*t + q2_val*t**2
-            roots = sp.solve(Q_actual, t)
-            
-        print(f"   -> [kinetic] Exact Zero-Sound algebraic poles found: {roots}")
-        return roots
+        print(f"🌌 [{self.name}] Solving exact zero-sound dispersion, F_0^s = {F0s}, [{M}/{M}] Pade...")
+        if isinstance(F0s, float):
+            raise ScientificHonestyException(
+                "F_0^s was supplied as a float; pass sympy.Rational to keep the derivation exact."
+            )
+        F0s = sp.nsimplify(F0s, rational=True)
+        P, Q, u = self.pade_diagonal(kernel_coeffs, M)
+        disp = sp.expand(Q - F0s * P)
+
+        admissible = []
+        for r in sp.real_roots(sp.Poly(disp, u)):
+            val = sp.N(r, 40)
+            if 0 < val < 1:
+                admissible.append((r, val))
+
+        if not admissible:
+            print(f"   -> [kinetic] no admissible root in (0,1): zero sound not resolved at F_0^s = {F0s}")
+            return {
+                "root_found": False,
+                "F0s_exact": str(F0s),
+                "pade_order": M,
+                "dispersion_polynomial": str(disp),
+                "reason": "no real root of Q - F0s*P in (0,1); mode lies at/inside the particle-hole continuum edge for this approximant order",
+            }
+
+        root, val = max(admissible, key=lambda t: t[1])
+        s_exact = sp.simplify(1 / sp.sqrt(root))
+        print(f"   -> [kinetic] exact u = {root}")
+        print(f"   -> [kinetic] exact s = omega/(q v_F) = {s_exact}")
+
+        # Minimal polynomial of s over Q: the canonical exact certificate to hand
+        # to a proof assistant. Nested radicals can defeat it, so it is optional.
+        try:
+            s_min_poly = str(sp.minimal_polynomial(s_exact, sp.Symbol('S')))
+        except Exception:
+            s_min_poly = None
+
+        return {
+            "root_found": True,
+            "F0s_exact": str(F0s),
+            "pade_order": M,
+            "dispersion_polynomial": str(disp),
+            "u_exact": str(root),
+            "u_minimal_poly": str(sp.minimal_polynomial(root, sp.Symbol('U'))),
+            "s_exact": str(s_exact),
+            "s_minimal_poly": s_min_poly,
+        }
 
     def evaluate_bakry_emery_L_star(self, topology, d=2):
         """

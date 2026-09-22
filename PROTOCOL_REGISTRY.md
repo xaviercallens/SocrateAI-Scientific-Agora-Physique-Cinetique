@@ -5,30 +5,67 @@ This document catalogs the formalized, automated scientific protocols used by th
 > **Dataset Falsification Policy (Zéro Simulation Flottante):**
 > Following our strict verification rules, simulated or hallucinated datasets are strictly forbidden. Since Henri Godfrin's raw neutron scattering datasets (ILL IN5/ESRF) are locked behind institutional DOIs and not publicly available as open files on Zenodo, **none of these protocols use faked empirical data**. Instead, the agents evaluate the exact, continuous mathematical physics formalisms algebraically over $\mathbb{Q}$ and SymPy. The hardware-grounded validations are pending institutional data access.
 
-## Protocol QV-01: The Quantum Vlasov Zero-Sound Simulation
-* **Domain**: Quantum Fluids / Plasma Physics
-* **Objective**: Extract the continuous Taylor sequence of the Random Phase Approximation (RPA) density response in $^3$He and use rational Padé approximants to detect the Zero-Sound wave velocity and the Landau Damping threshold.
-* **Status**: Partially implemented. Lindhard extraction and Padé computation work; RPA loop with Landau interaction parameter $F_0^s$ is scaffolded but requires integration.
+## Protocol QV-01: Zero sound from the exact Landau dispersion relation
+* **Domain**: Quantum fluids / kinetic theory
+* **Objective**: Obtain the zero-sound phase velocity $s = \omega/(q v_F)$ as an exact algebraic number,
+  with a certificate (minimal polynomial over $\mathbb{Q}$) suitable for a proof assistant.
+* **Status**: **Implemented and validated in the strong-coupling regime; provably out of reach in weak
+  coupling** (see Limitation below).
+* **Kernel**: the Landau zero-sound kernel
+  $\chi(s) = \frac{s}{2}\ln\frac{s+1}{s-1} - 1 = \sum_{k\ge1}\frac{u^k}{2k+1}$, with $u = 1/s^2$.
+  Coefficients $a_k = 1/(2k+1)$ are tested against this closed form, not against a stored table.
+  *Do not confuse this with* $g(x) = 1 + \frac{x^2-1}{2x}\ln\frac{1+x}{1-x} = \sum\frac{2}{4k^2-1}x^{2k}$,
+  a different function implemented separately as `legacy_algebraic_kernel`; earlier revisions conflated
+  the two (RETRACTIONS.md R4, R6).
 * **Methodology**:
-  1. Evaluate the Continuous Base Response (Lindhard function) using exact closed-form rational coefficients: $\chi_0(z) = \sum_k \frac{2}{4k^2-1} z^{2k}$.
-  2. Interacting Response generated via Landau's Fermi-liquid RPA: $\chi_{RPA}(z) = \frac{\chi_0(z)}{1 - F_0^s \chi_0(z)}$ where $F_0^s \approx 0.1$ for $^3$He at $T=0$.
-  3. Compute Diagonal $[M/M]$ Padé approximants strictly over $\mathbb{Q}$ using SymPy.
-  4. Extract algebraic poles from the denominator $1 - F_0^s \chi_0(z)$ to locate the Zero-Sound mode.
-  5. Track the pole trajectory as $F_0^s$ varies to pinpoint the Landau Damping threshold.
+  1. Emit exact rational kernel coefficients $a_k = 1/(2k+1)$.
+  2. Build the diagonal $[M/M]$ Padé approximant $P/Q$ by solving the order conditions exactly over
+     $\mathbb{Q}$; refuse to return an approximant if the system is singular.
+  3. Impose the dispersion relation $\chi(s) = 1/F_0^s$, which becomes the polynomial equation
+     $Q(u) - F_0^s P(u) = 0$ with rational coefficients. $F_0^s$ must be an exact `Rational`; a float
+     raises `ScientificHonestyException`.
+  4. Extract real roots exactly and keep those in $(0,1)$, i.e. $s > 1$ (undamped mode above the
+     particle–hole continuum). Report the absence of such a root explicitly.
+  5. Return $u$, $s = 1/\sqrt{u}$ and their minimal polynomials.
+* **Verified result**: at $F_0^s = 93/10$ ($^3$He-like), $[1/1]$ gives the closed form $u = 10/37$,
+  $s = \sqrt{37/10}$; $[4/4]$ agrees with a 60-digit solution of the transcendental relation to
+  $6.8\times10^{-10}$ (and to $7.7\times10^{-14}$ at $F_0^s = 30$).
+* **Limitation (negative result)**: for small $F_0^s$ the mode is exponentially close to the continuum
+  edge, $s-1 \simeq 2e^{-2-2/F_0^s}$. Since $\chi$ has a logarithmic branch point at $u=1$, a Padé
+  approximant built at $u=0$ places **no** root in $(0,1)$; at $[1/1]$ this happens as soon as
+  $F_0^s < 6/5$. The previously registered step *"track the velocity ratio drop into the Landau damping
+  continuum"* is **not attainable by this method** and was never implemented. The threshold is instead
+  characterised analytically and validated to 10 digits.
 
-## Protocol QVE-02: The Quantum Volterra Echo (A2A Collaboration)
-* **Objective:** Demonstrate cross-domain A2A integration by extracting the exact rational sequence of the $\mathcal{O}(\epsilon^2)$ non-linear density echo in a continuous Quantum Fermi Liquid.
+## Protocol QVE-02: Second-order Volterra response (formerly "Quantum Volterra Echo")
+* **Objective:** Extract the exact rational $\mathcal{O}(\epsilon^2)$ density response of a
+  Fermi-liquid-like model by exact Cauchy convolution.
+* **Status:** Implemented and exact. **The "echo" interpretation is retracted** (RETRACTIONS.md R2).
 * **Workflow:**
-  1. **Godfrin** generates the $\mathcal{O}(\epsilon^1)$ linear density perturbation sequence $\rho^{(1)}(t)$ representing the high-frequency continuous response of a 1D-projected Fermi sphere.
-  2. **Villani** ingests $\rho^{(1)}(t)$, computes the induced electric field $E^{(1)}(t)$, and evaluates the exact Cauchy product of the non-linear source term $S^{(2)} = \rho^{(1)} \cdot E^{(1)}$. He then integrates this to output the exact $\mathcal{O}(\epsilon^2)$ echo sequence $\rho^{(2)}(t)$.
-  3. **Socrate** validates that 0 floating-point operations occurred and persists the exact $\mathbb{Q}$ sequence to the Alexandrie vault for Lean 4 formalization.
+  1. `LinearResponseStage` emits $\rho^{(1)}(t) = \operatorname{sinc} t$ as exact rational Taylor
+     coefficients.
+  2. `KineticStage` forms $E^{(1)} = \int\rho^{(1)}$, evaluates the exact Cauchy product
+     $S^{(2)} = \rho^{(1)}E^{(1)}$, and integrates once more to obtain $\rho^{(2)}$.
+  3. `AgentSocrate` persists the exact $\mathbb{Q}$ sequence to the Alexandrie vault.
+* **What it is:** the Taylor series of $\mathrm{Si}(t)^2/2$, asserted term by term in the test suite.
+  It is **not** a plasma echo: an echo is a large-time phenomenon at $t = \tau k_2/(k_2-k_1)$ requiring
+  two pulses with distinct wavenumbers and a phase space, none of which appears here, and a Taylor
+  expansion about $t=0$ cannot contain one.
 
-## Protocol Q-RHK-02: Roton Fractional Heat Kernels (Pitaevskii Plateau)
-* **Objective:** Model roton-roton scattering singularities in superfluid $^4$He and verify dynamic Fisher Information dissipation.
+## Protocol Q-RHK-02: Symbolic bounds for a forward-peaked angular kernel
+* **Objective:** Compute exact symbolic bounds for an analytic model of roton–roton angular scattering.
+* **Status:** Implemented and exact. **The theorem attribution is unverified** (see below).
 * **Workflow:**
-  1. **Godfrin** formulates a **phenomenological algebraic proxy** for the roton scattering kernel, which is mathematically inspired by the forward-peaking behavior seen in dynamic structure factor $S(Q,\omega)$ data (e.g., ILL IN5), rather than using raw dataset ingestion due to access restrictions.
-  2. **Villani** applies Theorem 22.6 (heat kernel representation) to compute kernel bounds ($m_r, M_r$), spherical curvature $\Sigma(\beta)$, and the maximum velocity singularity $\gamma$ that guarantees smooth equilibration.
-  3. **Socrate** validates the bounds and logs the results for Lean 4 verification.
+  1. `LinearResponseStage` formulates the analytic model kernel
+     $\beta(\cos\theta) = \frac12(1+\cos^2\theta)e^{-\frac1{10}(1-\cos\theta)}$, shaped after
+     forward-peaking phenomenology (e.g. ILL IN5) but using **no measured data**.
+  2. `KineticStage.kernel_regularity_bounds` computes exactly $m_r$, $M_r$, the spherical term
+     $\Sigma(\beta) = \pi(910-1110e^{-1/5})/2$, and $\gamma_{\text{bound}} = m_r/M_r + 3/2 = 1.95128766\ldots$
+  3. `AgentSocrate` persists the exact symbolic expressions.
+* **Unverified attribution:** $\gamma_{\text{bound}}$ was previously attributed to "Theorem 22.6" of
+  Villani (arXiv:2501.00925). That has never been checked against the source and **is not asserted**;
+  the method was renamed from `apply_theorem_22_6` accordingly. The Lean development carries the
+  rational surrogate $16063/8232$, which differs from the exact value by $\approx 2\times10^{-9}$.
 
 ## Protocol Q-RIP-03: 2D Quantum Ripplons & The Optimal $L_*=4$ Constant
 * **Objective:** Conjecture topological protection of 2D liquid $^3$He ripplons (capillary waves) on graphite substrates.

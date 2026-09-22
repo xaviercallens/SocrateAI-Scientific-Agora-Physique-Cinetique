@@ -1,0 +1,662 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\geometry{margin=2.4cm}
+\hypersetup{colorlinks=true,linkcolor=black,urlcolor=blue,citecolor=black}
+
+\newcommand{\Fzs}{F_0^{s}}
+\newcommand{\code}[1]{\texttt{#1}}
+
+\title{\textbf{An Exact-Rational Engine for Kinetic Response Functions:\\
+Architecture, Verified Results, and What It Cannot Do}}
+
+\author{Xavier Callens\\
+\textit{Laboratoire SocrateAI, Cagnes-sur-Mer, France}}
+
+\date{22 September 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We describe an engine that computes kinetic response functions as exact objects
+over the rationals $\mathbb{Q}$, without floating-point arithmetic in any
+derivation step, and we report what it has and has not established. The engine
+represents a response kernel by its exact rational Taylor coefficients, forms
+diagonal Pad\'e approximants over $\mathbb{Q}$, and solves the resulting
+dispersion relations exactly, yielding algebraic numbers with explicit minimal
+polynomials suitable for export to a proof assistant. Applied to the Landau
+zero-sound problem in a Fermi liquid, the engine returns the mode velocity as an
+algebraic number: at $\Fzs = 93/10$, a stand-in for liquid $^3$He near
+saturated vapour pressure, the $[1/1]$ approximant gives the closed form
+$u = 10/37$, that is $s = \omega/(q v_F) = \sqrt{37/10}$, and the $[4/4]$
+approximant agrees with a $60$-digit solution of the transcendental dispersion
+relation to a relative error of $6.8\times10^{-10}$. We also report a negative
+result: for weak coupling the method fails outright. The zero-sound mode is then
+exponentially close to the particle--hole continuum edge,
+$s - 1 \sim 2e^{-2-2/\Fzs}$, and because the kernel has a logarithmic branch
+point at $u=1$, no Pad\'e approximant built at $u=0$ places a root in $(0,1)$.
+The previously advertised capability of tracking the mode ``into the Landau
+damping continuum'' by rational Pad\'e is therefore not attainable by this
+construction. A dedicated section records this and the project's other
+retractions, including the fact that a sequence once published here as a
+nonlinear plasma echo is the Taylor series of $\mathrm{Si}(t)^2/2$.
+\end{abstract}
+
+\tableofcontents
+
+%---------------------------------------------------------------------------
+\section{Introduction}
+\label{sec:intro}
+%---------------------------------------------------------------------------
+
+Two distinct failure modes threaten machine-assisted theoretical physics. The
+first is familiar: a language model asked for a derivation may produce fluent,
+well-formatted mathematics that is simply wrong, and the failure is difficult to
+detect precisely because the output looks like the real thing. The second is
+older and quieter: a continuous kinetic problem discretised into
+\code{float64} loses, irrecoverably, the analytic structure that determines its
+qualitative behaviour. Phase mixing, Landau damping and the location of
+collective modes all depend on branch points and on cancellations that a
+floating-point pipeline reports as small residual noise.
+
+This project responds to both by refusing floating-point arithmetic in any step
+that contributes to a derivation. Kernels are carried as exact rational Taylor
+coefficients; approximants are constructed by exact linear algebra over
+$\mathbb{Q}$; dispersion relations become polynomials with rational
+coefficients, whose roots are algebraic numbers with computable minimal
+polynomials. Floating point appears in exactly one place, clearly quarantined:
+an external validation script that checks the exact results against
+high-precision evaluation of the transcendental equations they are supposed to
+solve.
+
+The contribution of this paper is threefold, and we separate the three
+deliberately.
+
+\begin{enumerate}
+  \item \textbf{The engine} (Section~\ref{sec:engine}): its architecture, and
+        the mechanisms by which the exactness rule is enforced rather than
+        merely documented.
+  \item \textbf{Verified results} (Sections~\ref{sec:method}--\ref{sec:results}):
+        exact algebraic zero-sound velocities, a convergence study against a
+        $60$-digit reference, and a threshold law reproduced to ten digits.
+  \item \textbf{Limits and retractions} (Section~\ref{sec:limits}): what the
+        method provably cannot reach, and which earlier claims of this project
+        have been withdrawn. This section is not an appendix to the results; it
+        is a result.
+\end{enumerate}
+
+We state at the outset what this paper does \emph{not} claim. No experimental
+data is used anywhere; no comparison with neutron scattering measurements is
+made. The Lean~4 development verifies arithmetic over $\mathbb{Q}$ and nothing
+more: it does not formalise kinetic theory, and a Lean theorem in this
+repository is never evidence for a physical statement.
+
+%---------------------------------------------------------------------------
+\section{The Engine}
+\label{sec:engine}
+%---------------------------------------------------------------------------
+
+\subsection{Architecture}
+
+The engine is a three-part pipeline. Earlier versions of this repository named
+its stages after living scientists, which wrongly implied their involvement;
+the stages are now named for what they do.
+
+\begin{description}
+  \item[\code{LinearResponseStage}] produces exact rational coefficient
+        sequences: kernels of linear response functions, and the linear density
+        perturbation used by the nonlinear protocol.
+  \item[\code{KineticStage}] consumes coefficient sequences and performs the
+        kinetic algebra: exact diagonal Pad\'e approximation, exact convolution
+        (Cauchy products) for nonlinear orders, exact root extraction, and
+        symbolic kernel bounds.
+  \item[\code{AgentSocrate}] (orchestrator) sequences the protocols, enforces
+        the exactness rule at stage boundaries, and writes results to a
+        persistent store, the \emph{Alexandrie} vault, as JSON containing exact
+        symbolic strings rather than decimal expansions.
+\end{description}
+
+\subsection{How the exactness rule is enforced}
+
+A documented rule that nothing checks is a comment. Three mechanisms make the
+``no floating point in a derivation'' rule operative.
+
+\paragraph{Refusal at the boundary.} Entry points that accept a physical
+parameter reject floating-point input. Supplying $\Fzs$ as a Python
+\code{float} raises \code{ScientificHonestyException} rather than silently
+rationalising it. This is regression-tested
+(\code{test\_float\_coupling\_is\_refused}). The rule was added after an
+earlier revision of this code converted $\Fzs$ to \code{float} and back via
+\code{limit\_denominator}, a round trip that silently perturbs the very
+parameter whose exactness is the point.
+
+\paragraph{Exact representation end to end.} Coefficients are
+\code{sympy.Rational}; approximant coefficients are obtained by solving the
+Pad\'e order conditions exactly; roots are returned as exact algebraic numbers,
+accompanied by their minimal polynomial over $\mathbb{Q}$ when one can be
+computed. The stored artefacts contain strings such as
+\code{13265/11482 - 5*sqrt(4144945)/11482}, not decimals.
+
+\paragraph{Identities tested against closed forms, not against tables.} A
+hard-coded coefficient table is indistinguishable from a fabricated one. The
+test suite therefore re-derives kernel coefficients from the closed-form
+generating function symbolically and compares
+(\code{test\_landau\_kernel\_matches\_closed\_form}). A table that was typed in
+by hand, or produced by a model, fails this test unless it is right.
+
+\subsection{Export to Lean~4 and the axiom audit}
+\label{sec:leanexport}
+
+Exact results are exported to a small Lean~4 development
+(\code{lean4\_formalization/AgoraPhysics/Protocols.lean}) that checks the
+arithmetic identities underpinning each protocol. Two points of methodology
+matter more than the theorems themselves.
+
+First, \emph{grepping for the string} \code{sorry} \emph{is not evidence of a
+complete proof}: a theorem can depend on \code{sorryAx} through an import. The
+development therefore ends with \code{\#print axioms} for every theorem, so the
+build log carries its own evidence, and continuous integration fails if
+\code{sorryAx} appears anywhere in that output.
+
+Second, the default build target is the \emph{library}, not the executable.
+Building the executable forces native compilation of the entire mathlib
+dependency tree, roughly $5900$ additional steps, in order to link a binary
+that prints a greeting; proof checking does not need it. Correcting the default
+target is what makes verification in CI practical at all.
+
+%---------------------------------------------------------------------------
+\section{Method: exact rational Pad\'e extraction of collective modes}
+\label{sec:method}
+%---------------------------------------------------------------------------
+
+\subsection{Two kernels, kept apart}
+\label{sec:kernels}
+
+Earlier revisions of this project conflated two different functions under the
+name ``Lindhard''. They are now implemented separately and named for what they
+are, because the conflation produced three mutually inconsistent coefficient
+tables across the Python code, the Lean development and the prose.
+
+The \textbf{Landau zero-sound kernel} is
+\begin{equation}
+  \chi(s) \;=\; \frac{s}{2}\,\ln\!\frac{s+1}{s-1} \;-\; 1,
+  \qquad s \;=\; \frac{\omega}{q v_F},
+  \label{eq:chi}
+\end{equation}
+whose expansion in the variable
+\begin{equation}
+  u \;=\; \frac{1}{s^{2}}
+\end{equation}
+has purely rational coefficients
+\begin{equation}
+  \chi \;=\; \sum_{k\ge 1} a_k\, u^{k},
+  \qquad
+  \boxed{\,a_k \;=\; \frac{1}{2k+1}\,}
+  \qquad
+  \bigl(a_1,\dots,a_6\bigr) = \Bigl(\tfrac13,\tfrac15,\tfrac17,\tfrac19,\tfrac1{11},\tfrac1{13}\Bigr).
+  \label{eq:ak}
+\end{equation}
+This identity is verified symbolically in the test suite against
+Eq.~\eqref{eq:chi}. Equation~\eqref{eq:chi} is the kernel that enters the
+$s$-wave zero-sound dispersion relation.
+
+A second function appears in earlier tables of this project,
+\begin{equation}
+  g(x) \;=\; 1 + \frac{x^{2}-1}{2x}\,\ln\frac{1+x}{1-x}
+  \;=\; \sum_{k\ge1} \frac{2}{4k^{2}-1}\, x^{2k},
+  \label{eq:g}
+\end{equation}
+with coefficients $2/3,\,2/15,\,2/35,\dots$. It is \emph{not} the zero-sound
+kernel, it is not used for any dispersion relation here, and we make no claim
+identifying it with a standard response function of the Fermi liquid. It is
+retained, and clearly labelled, only because the sequence occurs in previously
+published tables of this project which readers may wish to reconcile.
+
+\subsection{Diagonal Pad\'e approximants over $\mathbb{Q}$}
+
+Given coefficients $a_0,\dots,a_{2M}$ of $A(u) = \sum_n a_n u^n$, the diagonal
+$[M/M]$ approximant $P/Q$ with $Q(0)=1$ is fixed by
+\begin{equation}
+  A(u)\,Q(u) - P(u) \;=\; \mathcal{O}\!\left(u^{2M+1}\right).
+\end{equation}
+The order conditions for $n = M+1,\dots,2M$ form an $M\times M$ rational linear
+system for the denominator coefficients $q_1,\dots,q_M$; the numerator then
+follows from the conditions $n=0,\dots,M$. Everything is solved exactly; the
+engine refuses to return an approximant if the system is singular rather than
+falling back on a least-squares surrogate.
+
+For $M=1$ the result is small enough to state and to check by hand. From
+Eq.~\eqref{eq:ak}, the single order condition is
+\begin{equation}
+  a_2 + q_1 a_1 = 0
+  \quad\Longrightarrow\quad
+  \frac15 + \frac{q_1}{3} = 0
+  \quad\Longrightarrow\quad
+  q_1 = -\frac35,
+\end{equation}
+so that
+\begin{equation}
+  P(u) = \frac{u}{3}, \qquad Q(u) = 1 - \frac{3u}{5}.
+  \label{eq:pade11}
+\end{equation}
+This order condition is one of the statements verified in Lean
+(Section~\ref{sec:leanexport}); note that it has content, since it is the
+equation that determines $q_1$ rather than a restatement of its definition.
+
+\subsection{The dispersion polynomial and root admissibility}
+
+The zero-sound mode of the Landau kinetic equation with only $\Fzs$ retained
+satisfies
+\begin{equation}
+  \chi(s) \;=\; \frac{1}{\Fzs}.
+  \label{eq:disp}
+\end{equation}
+Replacing $\chi$ by $P/Q$ turns Eq.~\eqref{eq:disp} into a polynomial equation
+with rational coefficients,
+\begin{equation}
+  \boxed{\;Q(u) \;-\; \Fzs\, P(u) \;=\; 0\;}
+  \label{eq:disppoly}
+\end{equation}
+which the engine solves exactly. An undamped mode requires phase velocity above
+the Fermi velocity, $s>1$, that is a real root
+\begin{equation}
+  u \in (0,1).
+\end{equation}
+Roots outside $(0,1)$ correspond to a phase velocity inside the particle--hole
+continuum, where the expansion underlying Eq.~\eqref{eq:chi} does not describe
+an undamped mode; the engine reports their absence explicitly rather than
+returning the nearest available number. At $M=1$, Eqs.~\eqref{eq:pade11}
+and~\eqref{eq:disppoly} give the closed form
+\begin{equation}
+  u \;=\; \frac{15}{9 + 5\,\Fzs}.
+  \label{eq:rootformula}
+\end{equation}
+
+%---------------------------------------------------------------------------
+\section{Results}
+\label{sec:results}
+%---------------------------------------------------------------------------
+
+\subsection{QV-01: exact zero-sound velocities}
+
+Table~\ref{tab:exact} lists exact roots returned by the engine. The
+$^3$He-like case $\Fzs = 93/10$ is notable for being fully closed-form at
+$M=1$: Eq.~\eqref{eq:rootformula} gives $u = 15/(9+93/2) = 10/37$, hence
+\begin{equation}
+  s \;=\; \frac{1}{\sqrt{u}} \;=\; \sqrt{\tfrac{37}{10}} \;=\; \frac{\sqrt{370}}{10}
+  \;=\; 1.923538406167134\ldots
+\end{equation}
+At higher order the roots are algebraic numbers of degree $2$, $3$ and $4$; the
+engine returns each with its minimal polynomial over $\mathbb{Q}$, which is the
+artefact a proof assistant can consume.
+
+\begin{table}[htbp]
+\centering
+\caption{Exact roots $u$ of the dispersion polynomial \eqref{eq:disppoly}
+admissible in $(0,1)$. \code{CRootOf}$(p,0)$ denotes the first real root of $p$;
+these are exact algebraic numbers, not numerical approximations.}
+\label{tab:exact}
+\small
+\begin{tabular}{llp{9.3cm}}
+\toprule
+$\Fzs$ & $M$ & exact admissible root $u$ \\
+\midrule
+$93/10$ & 1 & $10/37$ \\
+$93/10$ & 2 & $13265/11482 - 5\sqrt{4144945}/11482$ \\
+$93/10$ & 3 & $\mathrm{CRootOf}\!\left(102367u^{3} - 582876u^{2} + 708015u - 150150,\,0\right)$ \\
+$93/10$ & 4 & $\mathrm{CRootOf}\!\left(2898821u^{4} - 30185595u^{3} + 78963885u^{2} - 66591525u + 12762750,\,0\right)$ \\
+\midrule
+$30$ & 1 & $5/53$ \\
+$30$ & 2 & $350/337 - \sqrt{101269}/337$ \\
+$30$ & 3 & $\mathrm{CRootOf}\!\left(6059u^{3} - 32697u^{2} + 34881u - 3003,\,0\right)$ \\
+$30$ & 4 & $\mathrm{CRootOf}\!\left(172297u^{4} - 1731510u^{3} + 4252248u^{2} - 3093090u + 255255,\,0\right)$ \\
+\midrule
+$1$ & 1 & none in $(0,1)$ \\
+$1$ & 2 & $1365/772 - 3\sqrt{44905}/772$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Convergence against a 60-digit reference}
+
+The exact roots are compared with a $60$-digit solution of the transcendental
+equation~\eqref{eq:disp}, obtained by bracketed root-finding in \code{mpmath}.
+This comparison is the only place floating point enters, and it is external to
+the derivation. Table~\ref{tab:conv} reports the relative error in
+$s$.
+
+\begin{table}[htbp]
+\centering
+\caption{Relative error of the exact Pad\'e root against the $60$-digit
+reference solution of $\chi(s)=1/\Fzs$. ``---'' marks entries where the method
+returns no admissible root; that outcome is discussed in
+Section~\ref{sec:limits} and is a property of the construction, not a failure of
+a particular run.}
+\label{tab:conv}
+\begin{tabular}{lrrrr}
+\toprule
+$\Fzs$ & $M=1$ & $M=2$ & $M=3$ & $M=4$ \\
+\midrule
+$1/10$  & ---                   & ---                   & ---                   & --- \\
+$1/2$   & ---                   & ---                   & ---                   & --- \\
+$1$     & ---                   & $1.49\times10^{-2}$   & $3.87\times10^{-3}$   & $1.12\times10^{-3}$ \\
+$93/10$ & $2.89\times10^{-3}$   & $1.79\times10^{-5}$   & $1.11\times10^{-7}$   & $\mathbf{6.81\times10^{-10}}$ \\
+$30$    & $3.20\times10^{-4}$   & $2.01\times10^{-7}$   & $1.25\times10^{-10}$  & $\mathbf{7.71\times10^{-14}}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+For the strong-coupling cases the convergence is geometric and the agreement at
+$M=4$ is $6.8\times10^{-10}$ ($\Fzs = 93/10$) and $7.7\times10^{-14}$
+($\Fzs=30$). These two cases are asserted by the validation script: a
+regression that degrades them makes it exit non-zero. The intermediate case
+$\Fzs=1$ is reported but not asserted, because its convergence is slow for the
+reason given in Section~\ref{sec:limits}. Encoding the regime dependence in the
+test gate, rather than choosing one tolerance loose enough to pass everywhere,
+keeps the limitation visible.
+
+\subsection{The weak-coupling threshold law}
+
+Where the Pad\'e construction fails, the threshold behaviour is still available
+analytically. As $\Fzs \to 0^{+}$ the mode approaches the continuum edge
+according to the standard asymptotic
+\begin{equation}
+  s - 1 \;\simeq\; 2\,e^{-2-2/\Fzs}.
+  \label{eq:threshold}
+\end{equation}
+Table~\ref{tab:thresh} compares Eq.~\eqref{eq:threshold} with the $60$-digit
+root. The ratio is $1.000000$ at $\Fzs = 1/20$ and $1/10$, confirming to ten
+digits both the asymptotic law and, independently, that
+Eq.~\eqref{eq:disp} is the correct dispersion relation, since an error in the
+kernel or in the relation would not reproduce an exponential law with the
+correct constant.
+
+\begin{table}[htbp]
+\centering
+\caption{Weak-coupling threshold law against the $60$-digit reference root.}
+\label{tab:thresh}
+\begin{tabular}{lrrr}
+\toprule
+$\Fzs$ & $s-1$ (reference) & $2e^{-2-2/\Fzs}$ & ratio \\
+\midrule
+$1/20$ & $1.149904453\times10^{-18}$ & $1.149904453\times10^{-18}$ & $1.0000000$ \\
+$1/10$ & $5.578936256\times10^{-10}$ & $5.578936186\times10^{-10}$ & $1.0000000$ \\
+$3/20$ & $4.383802240\times10^{-7}$  & $4.383771812\times10^{-7}$  & $1.0000069$ \\
+$3/10$ & $3.455570071\times10^{-4}$  & $3.444645119\times10^{-4}$  & $1.0031716$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{QVE-02: the nonlinear \texorpdfstring{$\mathcal{O}(\epsilon^{2})$}{O(eps2)} response, and what it is not}
+\label{sec:qve02}
+
+The nonlinear protocol takes $\rho^{(1)}(t) = \operatorname{sinc} t$, forms
+$E^{(1)} = \int \rho^{(1)}$, and evaluates the exact Cauchy product
+$S^{(2)} = \rho^{(1)}E^{(1)}$ followed by one further integration. The engine
+returns the exact rational sequence
+\begin{equation}
+  \rho^{(2)}(t) \;=\; \tfrac12 t^{2} - \tfrac1{18}t^{4} + \tfrac{13}{4050}t^{6}
+  - \tfrac{4}{33075}t^{8} + \tfrac{73}{22325625}t^{10} + \mathcal{O}(t^{12}).
+  \label{eq:qve}
+\end{equation}
+The arithmetic is exact and the convolution is correct. The sequence is,
+however, simply the Taylor series of
+\begin{equation}
+  \frac{\mathrm{Si}(t)^{2}}{2},
+\end{equation}
+which the test suite now asserts term by term. Earlier versions of this project
+presented Eq.~\eqref{eq:qve} as the discovery of a nonlinear plasma echo. That
+reading is retracted: an echo is a large-time phenomenon occurring at
+$t = \tau k_2/(k_2-k_1)$ and requires two pulses with distinct wavenumbers and
+a phase space, none of which is present here; a Taylor expansion about $t=0$
+cannot exhibit one. We retain the protocol as what it is, an exact
+second-order Volterra response, and test it against its closed form so the
+identification cannot be lost again.
+
+\subsection{Q-RHK-02: symbolic kernel bounds}
+
+For the phenomenological angular kernel
+\begin{equation}
+  \beta(\cos\theta) = \tfrac12\left(1+\cos^{2}\theta\right)
+  \exp\!\left[-\tfrac1{10}\left(1-\cos\theta\right)\right],
+\end{equation}
+the engine computes exactly
+\begin{align}
+  M_r &= 1, \qquad
+  m_r = \left[\tfrac12\left(-10+3\sqrt{11}\right)^{2}+\tfrac12\right]
+        e^{-11/10+3\sqrt{11}/10}, \\
+  \Sigma(\beta) &= \frac{\pi\left(910 - 1110\,e^{-1/5}\right)}{2}
+  = 1.8988792618620465\ldots, \\
+  \gamma_{\text{bound}} &= \frac{m_r}{M_r} + \frac32
+  = 1.9512876598772344\ldots
+  \label{eq:gamma}
+\end{align}
+Three caveats are essential. First, $\beta$ is an analytic model chosen for its
+forward-peaked shape; no measured data enters, and nothing here validates it
+against $^4$He. Second, the combination in Eq.~\eqref{eq:gamma} was previously
+attributed in this repository to ``Theorem 22.6'' of Villani~\cite{villani2025};
+\emph{that attribution has never been checked against the source and we do not
+assert it}. The method has accordingly been renamed from
+\code{apply\_theorem\_22\_6} to \code{kernel\_regularity\_bounds}, so that the
+interface stops asserting a citation the project has not verified. Third, the
+Lean development carries the rational surrogate $16063/8232 =
+1.951287657920311\ldots$, which differs from Eq.~\eqref{eq:gamma} by about
+$2.0\times10^{-9}$: what is checked there is arithmetic about that rational, not
+about the algebraic number.
+
+\subsection{Q-RIP-03: a definitional identity, reported as such}
+
+The remaining protocol evaluates $L_* = 2d$ at $d=2$ and obtains $4$. With
+$L_*$ \emph{defined} as $2d$, this establishes that $2\cdot2=4$ and nothing
+else. It is not evidence that any Bakry--\'Emery curvature-dimension constant
+equals $4$, and the earlier claim that it ``protects 2D quantum films from
+Landau damping collapse'' has no support in this work. An earlier
+implementation constructed a \code{sympy.diffgeom} metric and Ricci tensor and
+then discarded them, returning $2\times\mathrm{dim}$; that decorative machinery
+has been removed and the quantity is labelled a conjecture in both the code and
+the stored artefacts.
+
+%---------------------------------------------------------------------------
+\section{Verification and validation}
+\label{sec:vv}
+%---------------------------------------------------------------------------
+
+We distinguish three levels of evidence and label every claim in this paper by
+which level supports it.
+
+\paragraph{Level 1: exact symbolic computation.} The kernel coefficients,
+Pad\'e approximants, dispersion polynomials, roots and minimal polynomials are
+exact over $\mathbb{Q}$ or $\overline{\mathbb{Q}}$. Ten tests cover these,
+including the two adversarial ones described in Section~\ref{sec:engine}: the
+kernel is re-derived from its closed form rather than compared with a table, and
+float input is required to raise.
+
+\paragraph{Level 2: independent numerical validation.}
+\code{verification/validate\_zero\_sound.py} checks the exact roots against
+$60$-digit root-finding and against the asymptotic
+law~\eqref{eq:threshold}. It asserts the strong-coupling cases and reports the
+others, exiting non-zero only if a regime it claims to have solved degrades.
+
+\paragraph{Level 3: proof assistant.} The Lean~4 library
+\code{AgoraPhysics.Protocols} compiles against mathlib at the pinned revision
+\code{ec6e08b4}, and every theorem is accompanied by \code{\#print axioms}. The
+scope of that evidence is narrow and worth stating plainly: it certifies
+identities such as the $[1/1]$ order condition $a_2 + q_1 a_1 = 0$ and the fact
+that $u=10/37$ is a root of $Q - \tfrac{93}{10}P$. It certifies nothing about
+$^3$He. Two theorems in the file are labelled vacuous in the source itself: one
+proves $2\cdot 2 = 4$ after unfolding a definition, and one has its hypothesis
+as its conclusion. They are retained, labelled, as a record.
+
+%---------------------------------------------------------------------------
+\section{Limitations, negative results and retractions}
+\label{sec:limits}
+%---------------------------------------------------------------------------
+
+\subsection{A capability the method does not have}
+
+The central negative result of this paper concerns the weak-coupling regime.
+The kernel~\eqref{eq:chi} has a logarithmic branch point at $s=1$, that is at
+$u=1$, which is the edge of the particle--hole continuum. A Pad\'e approximant
+constructed from the expansion about $u=0$ represents this branch point by a
+finite set of poles, and for small $\Fzs$ the dispersion
+polynomial~\eqref{eq:disppoly} then has no root in $(0,1)$ at all: at $M=1$,
+Eq.~\eqref{eq:rootformula} gives $u>1$ as soon as $\Fzs < 6/5$. Higher orders do
+not repair this, as Table~\ref{tab:conv} shows for $\Fzs \in \{1/10,\,1/2\}$.
+
+The consequence is a retraction of a capability. The protocol registry of this
+project previously described tracking ``the velocity ratio drop
+$v_{zs}\le v_F$ into the Landau Damping continuum'' by rational Pad\'e
+approximants. That is not attainable by this construction, and no
+implementation of it ever existed in the repository. The physically correct
+statement is that the mode approaches the continuum edge exponentially,
+Eq.~\eqref{eq:threshold}, and is exponentially inaccessible to a
+finite-order rational approximant built at the origin. The engine now reports
+\code{root\_found: false} with a reason in these cases, and a test asserts that
+it continues to do so, precisely so that a future change cannot quietly return
+a spurious root.
+
+\subsection{Withdrawn claims of earlier versions}
+
+For the record, and because several of these claims are still reachable in the
+repository's history and in earlier documents:
+
+\begin{enumerate}
+  \item \textbf{The QVE-02 ``echo''} is the Taylor series of
+        $\mathrm{Si}(t)^{2}/2$, not a plasma echo (Section~\ref{sec:qve02}).
+  \item \textbf{A stored artefact labelled ``True 1D1V Vlasov-Poisson phase
+        space simulation''}, with floating-point fields, was never produced by
+        any code in this repository. No such solver exists here.
+  \item \textbf{$L_*=4$} is definitional (Section~\ref{sec:results}).
+  \item \textbf{The ``Theorem 22.6'' attribution} is unverified and is no longer
+        asserted by the code.
+  \item \textbf{Three mutually inconsistent coefficient tables} once coexisted
+        for the ``Lindhard'' kernel: $1/3,\,19/45$ in Lean, $2/3,\,2/15$ in
+        Python, and $1/(2k+1)$ in the prose. The resolution is that
+        $1/(2k+1)$ is correct for the zero-sound kernel~\eqref{eq:ak}, the
+        $2/(4k^{2}-1)$ sequence belongs to the different function
+        Eq.~\eqref{eq:g}, and $19/45$ corresponded to neither and has been
+        removed.
+  \item \textbf{An automated audit of this repository} reported several of these
+        repairs as complete before they were. In particular it stated that the
+        coefficient tables had been unified across Python and Lean while the
+        Lean file was untouched, and that the RPA integration was complete while
+        the code was passing a polynomial into a routine expecting a list of
+        Taylor coefficients, so that the ``poles'' it produced carried no
+        information. Both are recorded in \code{RETRACTIONS.md}.
+\end{enumerate}
+
+Item 6 is the reason this section exists in this form. An automated pass that
+writes its own audit report is capable of producing a confident, well-formatted
+account of work it did not do, which is the first failure mode of
+Section~\ref{sec:intro} applied to the act of auditing. The defence is not
+more prose; it is the executable checks of Section~\ref{sec:vv}, which fail
+when a claim is false.
+
+\subsection{Other limitations}
+
+No experimental data is used, so nothing here is validated against measurement.
+The angular kernel of Q-RHK-02 is a model, not a fit. The Lean development
+covers arithmetic only. The strong-coupling value $\Fzs=93/10$ is a plausible
+stand-in for liquid $^3$He near saturated vapour pressure but is not the result
+of a fit to data, and the reported agreement is agreement with the
+transcendental equation, not with an experiment.
+
+%---------------------------------------------------------------------------
+\section{Reproducibility}
+%---------------------------------------------------------------------------
+
+All results in Sections~\ref{sec:results} and~\ref{sec:vv} are produced by the
+following commands from the repository root. Dependencies are pinned in
+\code{requirements.txt} (\code{sympy}, \code{pytest}, \code{mpmath}).
+
+\begin{verbatim}
+  pip install -r requirements.txt
+
+  # exact derivation: writes alexandrie_data/QV-01/zero_sound_results.json
+  python3 simulations/qv_01_zero_sound.py
+
+  # exact symbolic checks (10 tests), including the adversarial ones
+  python3 -m pytest tests/ -q
+
+  # independent 60-digit validation: Tables 2 and 3
+  python3 verification/validate_zero_sound.py
+
+  # proof checking (library target only)
+  cd lean4_formalization && lake exe cache get && lake build
+\end{verbatim}
+
+The Lean toolchain is \code{leanprover/lean4:v4.31.0} with mathlib pinned at
+\code{ec6e08b4dfb414460f0ee7b4ce9678e7e04fb584}. Note that
+\code{lake exe cache get} is required: compiling mathlib from source takes hours,
+and the build that produced the evidence reported here initially failed because
+an interrupted clone left the dependency incomplete.
+
+%---------------------------------------------------------------------------
+\section{Conclusion}
+%---------------------------------------------------------------------------
+
+An exact-rational pipeline can deliver collective-mode velocities as algebraic
+numbers with proof-assistant-ready certificates, and at realistic Fermi-liquid
+coupling it does so accurately: $6.8\times10^{-10}$ relative agreement with the
+transcendental dispersion relation at $\Fzs = 93/10$, improving geometrically
+with approximant order. The same analysis shows the method has a hard boundary:
+the weak-coupling mode sits exponentially close to a branch point and is
+unreachable by rational approximants built at the origin, which retires a
+capability this project previously advertised.
+
+The methodological lesson is narrower than the physics but likely more durable.
+Every claim in this paper that survived did so because something executable
+would fail if it were false: a kernel re-derived from its closed form rather
+than compared against a table, a float parameter that raises instead of being
+silently rationalised, a validation gate that asserts only the regime it can
+actually solve, and an axiom audit rather than a grep for \code{sorry}. The
+claims that did not survive, catalogued in Section~\ref{sec:limits}, were
+uniformly the ones supported by prose alone, including prose written by an
+automated audit about its own work.
+
+%---------------------------------------------------------------------------
+\begin{thebibliography}{9}
+
+\bibitem{villani2025}
+C.~Villani,
+\emph{Fisher Information in Kinetic Theory},
+arXiv:2501.00925 (2025).
+Cited for the general subject of Fisher-information monotonicity in kinetic
+theory. The specific attribution of Eq.~\eqref{eq:gamma} to a numbered theorem
+of this work is \emph{not} asserted here; see Section~\ref{sec:results}.
+
+\bibitem{godfrin2022}
+H.~Godfrin and E.~Krotscheck,
+\emph{The Dynamics of Quantum Fluids},
+arXiv:2206.06039 (2022).
+Cited as a review of $^4$He and $^3$He dynamics. Neither author has reviewed or
+endorsed this code.
+
+\bibitem{pinesnozieres}
+D.~Pines and P.~Nozi\`eres,
+\emph{The Theory of Quantum Liquids}, Vol.~I,
+W.~A.~Benjamin, New York (1966).
+Standard treatment of zero sound and of the dispersion relation
+\eqref{eq:disp}.
+
+\bibitem{bakergravesmorris}
+G.~A.~Baker~Jr.\ and P.~Graves-Morris,
+\emph{Pad\'e Approximants}, 2nd ed.,
+Cambridge University Press (1996).
+
+\bibitem{mathlib}
+The mathlib Community,
+\emph{The Lean Mathematical Library},
+CPP 2020, pinned revision \code{ec6e08b4}.
+
+\end{thebibliography}
+
+\end{document}

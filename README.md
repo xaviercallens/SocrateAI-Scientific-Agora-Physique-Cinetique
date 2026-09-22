@@ -1,79 +1,158 @@
-> **Status (2026-09-21): under correction.** Several claims below have been retracted — see
-> [`RETRACTIONS.md`](RETRACTIONS.md). Pipeline stages are no longer named after scientists, none of whom has
-> reviewed or endorsed this code.
+> **Status (2026-09-22).** Several claims once made in this README have been retracted; each one is
+> recorded in [`RETRACTIONS.md`](RETRACTIONS.md). Pipeline stages are no longer named after living
+> scientists, none of whom has reviewed or endorsed this code. Their published work is cited, as
+> citations.
+>
+> The engine, the verified results and the limits of the method are written up in
+> [`docs/agora_engine_paper.pdf`](docs/agora_engine_paper.pdf).
 
-# 🏛️ Agora-Physique-Cinetique : Modélisation Neuro-Symbolique et Échos Quantiques
+# 🏛️ Agora-Physique-Cinetique — exact-rational kinetic response functions
 
-Bienvenue dans le dépôt open source du projet **Agora-Physique-Cinetique**, un sous-ensemble du laboratoire SocrateAI dédié à l'extraction algébrique et à la vérification formelle en physique cinétique (Fluides Quantiques & Plasmas).
+An engine that computes kinetic response functions as **exact objects over $\mathbb{Q}$**, with no
+floating-point arithmetic in any derivation step, and exports the results to Lean 4.
 
-## 🌌 Vision du Projet
-L'application de l'Intelligence Artificielle à la physique théorique se heurte à deux problèmes critiques :
-1. L'hallucination sémantique des modèles de langage (LLMs).
-2. L'altération de la dynamique continue par la discrétisation numérique flottante (Float64), qui fausse des phénomènes complexes comme l'amortissement Landau.
+## 🌌 Why
 
-Ce projet impose une **règle épistémologique stricte : la "Zéro Simulation Flottante"**. Les équations continues sont réduites à des invariants algébriques et des séries de Taylor / produits de Cauchy calculés de manière exacte sur le corps des rationnels ($\mathbb{Q}$). Ces séquences pures sont ensuite formatées pour être prouvées avec 0 axiome non-vérifié ("0 sorry") dans le compilateur **Lean 4**.
+Two failure modes motivate the design:
 
-## 🤖 L'Essaim Collaboratif (Architecture A2A)
-Ce dépôt implémente une collaboration inter-domaines automatisée via trois étapes de traitement :
-* ⚛️ **LinearResponseStage (Extraction Quantique) :** Extrait la dynamique continue de la sphère de Fermi via séries de Taylor exactes.
-* 🌌 **KineticStage (Analyse Cinétique) :** Applique les intégrations cinétiques non-linéaires (perturbations de Volterra, équation de Vlasov).
-* 🏛️ **AgentSocrate (Orchestrateur Épistémologique) :** Garantit la pureté algébrique des échanges et archive les résultats dans la voûte *Alexandrie*.
+1. **Semantic hallucination.** A language model can produce fluent mathematics that is wrong, and the
+   output looks like the real thing.
+2. **Discretisation damage.** A continuous kinetic problem pushed through `float64` loses the analytic
+   structure — branch points, cancellations — that decides its qualitative behaviour.
 
-**Note:** Les noms d'agents ont été supprimés par respect envers les scientifiques réels dont les travaux sont cités. Voir `RETRACTIONS.md` pour les corrections mises en œuvre.
+The response is the **"Zéro Simulation Flottante"** rule: exact rational Taylor coefficients, exact
+Cauchy products, exact Padé approximants, exact root extraction. Floating point appears in exactly one
+quarantined place — an external validation script that checks the exact results against high-precision
+evaluation of the transcendental equations they claim to solve.
 
-## 🔬 Découverte : Protocole QVE-02 (Quantum Volterra Echo)
-Un fluide de Fermi purement quantique peut-il produire un écho plasma non-linéaire continu ?
-L'essaim a combiné la réponse linéaire quantique de l'Agent Godfrin avec l'intégrateur non-linéaire de Volterra $\mathcal{O}(\epsilon^2)$ de l'Agent Villani pour extraire la séquence temporelle algébrique exacte de cet écho :
+The rule is **enforced, not just documented**: passing a `float` where a physical parameter belongs
+raises `ScientificHonestyException`, and a test asserts that it does.
 
-`Termes t^2 à t^{10} : [1/2, -1/18, 13/4050, -4/33075, 73/22325625]`
+## 🤖 Pipeline stages
 
-Aucune approximation numérique n'a été utilisée. Ces séquences constituent le point de départ de la formalisation Lean 4.
+* ⚛️ **`LinearResponseStage`** — produces exact rational coefficient sequences (response kernels, the
+  linear density perturbation).
+* 🌌 **`KineticStage`** — the kinetic algebra: diagonal Padé over $\mathbb{Q}$, Cauchy products for
+  nonlinear orders, exact root extraction, symbolic kernel bounds.
+* 🏛️ **`AgentSocrate`** — orchestrates protocols, enforces exactness at stage boundaries, writes exact
+  symbolic strings (never decimals) to the *Alexandrie* vault.
 
-## 🔬 Expérimentation : Protocole Q-RHK-02 (Roton Fractional Heat Kernels)
+## 🔬 QV-01 — zero sound, exactly
 
-**[FR] Modélisation Phénoménologique de l'Amortissement**
-Pour tester les bornes de régularité cinétique du Théorème 22.6 de C. Villani (2025), l'Agent Godfrin a formulé un noyau de diffusion roton-roton algébrique. Ce noyau mathématique est *inspiré* de la phénoménologie du "forward-peaking" observée expérimentalement (ex: ILL IN5), mais il reste un modèle analytique strict (sans données empiriques directes) pour préserver la règle de la "Zéro Simulation Flottante" :
-$\beta(\cos \theta) = \frac{1}{2}(1 + \cos^2\theta) \exp(-\frac{1}{10}(1 - \cos\theta))$
+The Landau zero-sound kernel is
 
-L'Agent Villani dérive formellement par algèbre symbolique (SymPy) que, sous ce modèle exact, la singularité cinétique admissible est bornée par :
-$|\gamma| \le 1.9513$ (valeur numérique exacte : $16063/8232$)
+$$\chi(s) = \frac{s}{2}\ln\frac{s+1}{s-1} - 1 = \sum_{k\ge1}\frac{u^k}{2k+1}, \qquad u = 1/s^2, \quad s = \omega/(q v_F)$$
 
-**[EN] Phenomenological Modeling of Damping**
-To test the kinetic regularity bounds of C. Villani's Theorem 22.6 (2025), Agent Godfrin formulated an algebraic roton-roton scattering kernel. 
+and the mode satisfies $\chi(s) = 1/F_0^s$. Replacing $\chi$ by its exact $[M/M]$ Padé approximant turns
+this into a polynomial with rational coefficients, solved exactly.
+
+**Result.** At $F_0^s = 93/10$ (a stand-in for liquid $^3$He near SVP), the $[1/1]$ approximant gives a
+fully closed form:
+
+$$u = \frac{15}{9+5F_0^s} = \frac{10}{37}, \qquad s = \sqrt{\tfrac{37}{10}} = \frac{\sqrt{370}}{10} = 1.923538\ldots$$
+
+Higher orders give algebraic numbers with explicit minimal polynomials. Compared against a 60-digit
+solution of the transcendental relation:
+
+| $F_0^s$ | $M=1$ | $M=2$ | $M=3$ | $M=4$ |
+|---|---|---|---|---|
+| $93/10$ | $2.9\times10^{-3}$ | $1.8\times10^{-5}$ | $1.1\times10^{-7}$ | **$6.8\times10^{-10}$** |
+| $30$ | $3.2\times10^{-4}$ | $2.0\times10^{-7}$ | $1.3\times10^{-10}$ | **$7.7\times10^{-14}$** |
+
+**Negative result (important).** For **weak** coupling the method fails outright: no admissible root
+exists at any order. The mode is then exponentially close to the particle–hole continuum edge,
+$s-1 \simeq 2e^{-2-2/F_0^s}$ (confirmed to 10 digits), and the kernel's logarithmic branch point at
+$u=1$ means a Padé approximant built at $u=0$ places no root in $(0,1)$. The capability once advertised
+here — tracking the mode *"into the Landau damping continuum"* by rational Padé — **is not attainable by
+this construction**, and no implementation of it ever existed.
+
+## 🔬 QVE-02 — second-order Volterra response (*not* an echo)
+
+From $\rho^{(1)} = \operatorname{sinc} t$, $E^{(1)} = \int\rho^{(1)}$, and the exact Cauchy product
+$S^{(2)} = \rho^{(1)}E^{(1)}$, the engine returns
+
+`t^2 … t^10 : [1/2, -1/18, 13/4050, -4/33075, 73/22325625]`
+
+The arithmetic is exact and correct. **This sequence is the Taylor series of $\mathrm{Si}(t)^2/2$**, which
+the test suite now asserts term by term. It was once presented here as the discovery of a nonlinear
+plasma echo; that reading is **retracted**. An echo is a large-time phenomenon at
+$t = \tau k_2/(k_2-k_1)$ requiring two pulses with distinct wavenumbers and a phase space — none of
+which is present — and a Taylor expansion about $t=0$ cannot contain one.
+
+## 🔬 Q-RHK-02 — symbolic kernel bounds
+
+For the forward-peaked analytic model kernel
+
+$$\beta(\cos\theta) = \tfrac12(1+\cos^2\theta)\exp\left[-\tfrac1{10}(1-\cos\theta)\right]$$
+
+the engine computes exactly $M_r = 1$, $\Sigma(\beta) = \pi(910-1110e^{-1/5})/2 = 1.8988792\ldots$, and
+
+$$\gamma_{\text{bound}} = \frac{m_r}{M_r} + \frac32 = 1.9512876598772344\ldots$$
 
 > [!WARNING]
-> This mathematical kernel is *inspired* by the "forward-peaking" phenomenology observed experimentally (e.g., ILL IN5), but remains a strict **analytical phenomenological model** (without direct empirical data validation) to enforce the "Zero Floating-Point Simulation" rule due to institutional data access restrictions.
+> Three caveats. (1) $\beta$ is an **analytic model**, shaped after forward-peaking phenomenology
+> (e.g. ILL IN5) but using **no measured data**; nothing here validates it against $^4$He.
+> (2) This combination was previously attributed to *"Theorem 22.6"* of Villani (arXiv:2501.00925).
+> **That attribution has never been checked against the source and is not asserted.** The method was
+> renamed from `apply_theorem_22_6` to `kernel_regularity_bounds` so the API stops asserting it.
+> (3) The Lean file carries the rational surrogate $16063/8232 = 1.9512876579\ldots$, which differs from
+> the exact value above by $\approx 2\times10^{-9}$.
 
-$\beta(\cos \theta) = \frac{1}{2}(1 + \cos^2\theta) \exp(-\frac{1}{10}(1 - \cos\theta))$
+## 🔬 Q-RIP-03 — a definitional identity
 
-Agent Villani formally derives via symbolic algebra (SymPy) that, under this exact model, the admissible kinetic singularity is bounded by:
-$|\gamma| \le \sqrt{3}\exp(-0.1) \approx 1.567$
+This protocol evaluates $L_* = 2d$ at $d=2$ and obtains $4$. With $L_*$ *defined* as $2d$, that
+establishes $2\cdot2=4$ and nothing more. It is **not** evidence that any Bakry–Émery
+curvature–dimension constant equals 4, and the earlier claim that it "protects 2D quantum films from
+Landau damping collapse" has no support here. Labelled a conjecture in the code and in the vault.
 
-## 🚀 Utilisation
+## 🚀 Usage
 
-### 1. Protocole QVE-02 (Écho Quantique de Volterra)
-*(Le script de simulation flottante a été supprimé pour respecter la règle de la Zéro Simulation Flottante. Utilisez les agents pour l'extraction algébrique).*
 ```bash
-# L'extraction s'effectue via l'orchestrateur de l'essaim.
+pip install -r requirements.txt
+
+# exact derivations -> alexandrie_data/
+python3 simulations/qv_01_zero_sound.py        # QV-01 zero sound (exact algebraic roots)
+python3 simulations/q_rhk_02_roton_fisher.py   # Q-RHK-02 kernel bounds
+python3 simulations/q_rip_03_ripplon.py        # Q-RIP-03 (definitional; see above)
+
+# exact symbolic checks, incl. kernel-vs-closed-form and float refusal
+python3 -m pytest tests/ -q
+
+# independent 60-digit validation of the QV-01 roots + threshold law
+python3 verification/validate_zero_sound.py
+
+# proof checking (library target only; the exe target would native-compile all of mathlib)
+cd lean4_formalization && lake exe cache get && lake build
 ```
 
-### 2. Protocole Q-RHK-02 (Noyaux de Chaleur Fractionnaires de Rotons)
-```bash
-# Calculer les bornes et la décroissance de l'Information de Fisher pour les rotons
-python simulations/q_rhk_02_roton_fisher.py
-```
+## ✅ What "verified" means here
 
-### 3. Protocole QV-01 (Quantum Vlasov Zero-Sound Simulation)
-```bash
-# Extraire les pôles exacts du Son Zéro (Padé [M/M]) sur la fonction de Lindhard
-python simulations/qv_01_zero_sound.py
-```
+Claims in this repository are labelled by the evidence that supports them:
 
-### 4. Protocole Q-RIP-03 (2D Quantum Ripplons)
-```bash
-# Dériver la constante de Bakry-Émery L*=4 pour la protection topologique des ripplons 2D
-python simulations/q_rip_03_ripplon.py
-```
+| Level | Evidence | Scope |
+|---|---|---|
+| 1 | exact symbolic computation + tests | coefficients, Padé, roots, minimal polynomials |
+| 2 | 60-digit independent validation | agreement with the transcendental equations |
+| 3 | Lean 4 + `#print axioms` | **arithmetic over $\mathbb{Q}$ only** |
 
-*Les données générées sont archivées de manière permanente dans `/alexandrie_data/`. Consultez le dossier `/docs/` pour la monographie scientifique détaillée en PDF.*
+Level 3 deserves emphasis: a Lean theorem here certifies identities such as the $[1/1]$ order condition
+$a_2 + q_1a_1 = 0$, or that $u=10/37$ solves $Q - \tfrac{93}{10}P$. **It certifies nothing about $^3$He.**
+Two theorems in that file are labelled vacuous in the source itself and retained as a record.
 
+Note also that grepping for `sorry` is *not* evidence of a complete proof — a theorem can reach
+`sorryAx` through an import. The Lean file therefore ends with `#print axioms` for every theorem, and CI
+fails if `sorryAx` appears.
+
+## 📄 Documents
+
+* [`docs/agora_engine_paper.pdf`](docs/agora_engine_paper.pdf) — the engine, the verified results, and a
+  dedicated section on limits, negative results and retractions.
+* [`RETRACTIONS.md`](RETRACTIONS.md) — every withdrawn claim, including claims made by an automated
+  audit of this repository about its own work.
+* [`PROTOCOL_REGISTRY.md`](PROTOCOL_REGISTRY.md) — protocol definitions and implementation status.
+
+Generated artefacts are archived in [`alexandrie_data/`](alexandrie_data/).
+
+## 📜 License
+
+MIT — see [`LICENSE`](LICENSE).

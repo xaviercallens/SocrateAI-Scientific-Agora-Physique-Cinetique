@@ -22,7 +22,7 @@ class RotonProtocolOrchestrator(AgentSocrate):
         beta_roton, theta_sym = linear.extract_roton_scattering_kernel()
         
         # 2. The kinetic stage applies the 2025 Fisher Information math with EXACT symbolic algebra
-        gamma_bound, sigma = kinetic.apply_theorem_22_6(beta_roton, theta_sym, d=3)
+        gamma_bound, sigma = kinetic.kernel_regularity_bounds(beta_roton, theta_sym, d=3)
         
         # 3. Verdict
         print(f"\n🏛️  [{self.name}] PROTOCOL VERDICT:")

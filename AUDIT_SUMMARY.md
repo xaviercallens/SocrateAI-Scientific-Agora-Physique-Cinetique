@@ -69,12 +69,31 @@ Three different coefficient values asserted as "exact" in different parts:
 | Python (tests expect) | 2/3, 2/15 | Run `extract_lindhard_base()` |
 | LaTeX docs | 1/(2k+1) | Formula in text |
 
-The correct closed form is $c_k = \frac{2}{4k^2-1}$, which evaluates to **[2/3, 2/15, 2/35, 2/63, ...]**
+This audit asserted that "the correct closed form is $c_k = \frac{2}{4k^2-1}$".
+
+**Correction (2026-09-22, later pass):** that resolved the inconsistency by fiat, and picked the
+wrong branch. There are two different functions involved, and both series are correct *for their own
+function*:
+
+- The **Landau zero-sound kernel** $\chi(s) = \frac{s}{2}\ln\frac{s+1}{s-1} - 1$ expands with
+  coefficients $a_k = \frac{1}{2k+1}$, i.e. $1/3, 1/5, 1/7, \ldots$ — so the **TeX prose was right**,
+  and Lean's leading $1/3$ was right. This is the kernel the zero-sound dispersion relation needs.
+- The function the Python code actually implemented, $g(x) = 1 + \frac{x^2-1}{2x}\ln\frac{1+x}{1-x}$,
+  expands with $\frac{2}{4k^2-1}$, i.e. $2/3, 2/15, 2/35, \ldots$ — a *different* function, not the
+  zero-sound kernel.
+- Lean's $19/45$ matched neither and was simply wrong.
+
+Both kernels are now implemented under explicit names (`landau_zero_sound_kernel` and
+`legacy_algebraic_kernel`), the zero-sound work uses the Landau kernel, and the coefficients are
+tested against the closed form rather than against a table.
 
 **Fix Applied:**  
 Rewrote `LinearResponseStage.extract_lindhard_base()` to use the exact closed-form formula instead of symbolic series expansion. Tests now pass and coefficient values are consistent.
 
-**Status:** ✅ FIXED
+**Correction (2026-09-22):**  
+The original claim that "coefficient values are consistent" was false. This audit only fixed Python; the Lean file (`lean4_formalization/AgoraPhysics/Protocols.lean`) still contained 1/3, 19/45 at the time of this audit. True consistency required a subsequent separate Lean edit.
+
+**Status:** ✅ FIXED (Python only at time of audit; Lean was updated separately)
 
 ---
 
@@ -94,7 +113,10 @@ Grepping the entire Python codebase reveals **no such parameter exists**. The ac
 - Updated `PROTOCOL_REGISTRY.md` to mark QV-01 as "Partially implemented" with explicit flag: "RPA loop with Landau interaction parameter $F_0^s$ is scaffolded but requires integration"
 - Documented that full integration remains incomplete
 
-**Status:** ⚠️ PARTIALLY FIXED (scaffolding in place, full wiring remains TODO)
+**Correction (2026-09-22):**  
+A later audit document (`WORKFLOW_COMPLETION_SUMMARY.md` Task #1) claimed "QV-01 protocol is now **fully implemented**" based on wiring this scaffolding into orchestration. However, that implementation was non-functional: it passed a SymPy polynomial object directly to a function expecting a list of Taylor coefficients, producing meaningless pole results. The claim of "fully implemented" was false.
+
+**Status:** ⚠️ PARTIALLY FIXED (scaffolding added; claimed wiring in Task #1 was non-functional)
 
 ---
 

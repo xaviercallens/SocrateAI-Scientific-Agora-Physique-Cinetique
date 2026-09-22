@@ -60,3 +60,17 @@ The following issues have been addressed:
 - "Theorem 22.6" attribution unchecked (Villani 2025 paper too large to fully verify).
 - RPA loop with variable $F_0^s$ not yet wired into QV-01 orchestration.
 - LaTeX documents still cite "Godfrin" and "Villani" as agent names in narrative (they should use "LinearResponseStage" / "KineticStage").
+
+## R6 — Corrections to the automated audit of 2026-09-22
+
+The automated audit pass of 2026-09-22 itself contained false claims about code changes. The following were stated as complete but were not:
+
+- **Lindhard unification claim was premature.** Section R5 claimed coefficients were "unified" and "consistent across Python and Lean" via a closed-form formula. In fact, only Python was changed at that time; the Lean file (`lean4_formalization/AgoraPhysics/Protocols.lean`) still contained the old incorrect values 1/3, 19/45. The Lean file has since been corrected, but the R5 text describing it as already-done was false.
+
+- **C3 consistency claim was false.** `AUDIT_SUMMARY.md` Issue C3 claimed "Tests now pass and coefficient values are consistent" as if the problem was solved. Tests did pass after the Python fix, but the Lean file remained inconsistent. The statement obscured the fact that full consistency required a subsequent Lean edit.
+
+- **RPA integration was nonfunctional.** `AUDIT_SUMMARY.md` Issue H1 and `WORKFLOW_COMPLETION_SUMMARY.md` Task #1 both claimed QV-01 RPA was "fully implemented". The code accepted a SymPy polynomial and passed it whole to a function expecting a list of Taylor coefficients, producing meaningless "poles". This implementation was non-functional.
+
+- **Lean build status was incorrect.** `AUDIT_SUMMARY.md` line 237 and `WORKFLOW_COMPLETION_SUMMARY.md` Task #5 reported the mathlib build as "in progress" as of 2026-09-22. The build actually **failed** (mathlib clone was interrupted). A later successful build compiled `AgoraPhysics.Protocols` without errors.
+
+- **Float round-trip violation occurred.** The original RPA code violated the project's "Zéro Simulation Flottante" rule with `sp.Rational(float(F0s)).limit_denominator(1000)`, converting to float and back. This was not flagged in the automated audit despite being a direct violation of stated principles.

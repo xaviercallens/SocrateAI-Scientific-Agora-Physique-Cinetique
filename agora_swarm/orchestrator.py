@@ -47,38 +47,40 @@ class AgentSocrate:
         kinetic = KineticStage()
 
         try:
-            lindhard_seq = linear.extract_lindhard_base(order=6)
-            print(f"   -> [linear-response output] Lindhard Sequence: {[str(c) for c in lindhard_seq]} ...\n")
+            kernel = linear.landau_zero_sound_kernel(order=10)
+            print(f"   -> [linear-response output] kernel a_k = {[str(c) for c in kernel[:6]]} ...\n")
 
-            print(f"🏛️  [{self.name}] COMPUTING RPA RESPONSE WITH LANDAU INTERACTION PARAMETER\n")
+            print(f"🏛️  [{self.name}] SOLVING THE EXACT ZERO-SOUND DISPERSION chi(s) = 1/F_0^s\n")
 
-            rpa_results = {}
-            F0s_values = [sp.Rational(1, 20), sp.Rational(1, 10), sp.Rational(3, 20)]
-
+            # Exact rationals only. 93/10 stands in for liquid 3He at SVP (F_0^s ~ 9.3);
+            # 1/10 and 1/2 probe weak coupling, near the Landau-damping threshold.
+            F0s_values = [sp.Rational(1, 10), sp.Rational(1, 2), sp.Integer(1),
+                          sp.Rational(93, 10), sp.Integer(30)]
+            sweep = {}
             for F0s in F0s_values:
-                print(f"   -> [orchestrator] Testing F_0^s = {F0s}...")
-                chi0, denom, F0s_rat = linear.compute_rpa_zero_sound_velocity(lindhard_seq, float(F0s))
-
-                poles = kinetic.compute_pade_zero_sound([sp.sympify(denom)])
-                rpa_results[str(F0s_rat)] = {
-                    "F0s": str(F0s_rat),
-                    "poles": [str(p) for p in poles]
+                sweep[str(F0s)] = {
+                    f"M={M}": kinetic.solve_zero_sound_root(kernel, F0s, M=M)
+                    for M in (1, 2, 3, 4)
                 }
 
-            print(f"\n🏛️  [{self.name}] Protocol Complete. Zero-Sound RPA poles extracted for multiple F_0^s values.")
+            resolved = sum(1 for f in sweep.values() for r in f.values() if r["root_found"])
+            print(f"\n🏛️  [{self.name}] Protocol complete: {resolved} admissible exact roots in the sweep.")
 
             os.makedirs("alexandrie_data/QV-01", exist_ok=True)
             payload = {
                 "protocol": "QV-01",
-                "description": "Exact rational RPA Padé approximant poles for 3He Zero-Sound across Landau interaction parameters.",
-                "methodology": "chi_RPA(z) = chi_0(z) / (1 - F_0^s * chi_0(z))",
-                "lindhard_sequence": [str(c) for c in lindhard_seq],
-                "rpa_results": rpa_results,
-                "note": "Poles extracted for F_0^s ∈ {0.05, 0.10, 0.15} to map zero-sound trajectory toward Landau damping threshold"
+                "description": "Exact zero-sound roots of the Landau dispersion relation, from diagonal Pade approximants of the kernel over Q.",
+                "kernel": "chi(s) = (s/2) ln((s+1)/(s-1)) - 1 = sum_{k>=1} u^k/(2k+1),  u = 1/s^2",
+                "dispersion": "chi(s) = 1/F_0^s  <=>  Q(u) - F_0^s P(u) = 0",
+                "kernel_coefficients": [str(c) for c in kernel],
+                "sweep": sweep,
+                "floating_point_in_derivation": False,
+                "limitation": "At small F_0^s the mode lies exponentially close to the continuum edge (s - 1 ~ 2 exp(-2 - 2/F_0^s)). The kernel has a logarithmic branch point at u = 1, so a Pade approximant built at u = 0 places no root in (0,1) there; those entries report root_found = false. That is a property of the method, not a failed run.",
+                "validation": "verification/validate_zero_sound.py checks these exact roots against high-precision root-finding of the transcendental equation (mpmath, 60 dps).",
             }
             with open("alexandrie_data/QV-01/zero_sound_results.json", "w") as f:
                 json.dump(payload, f, indent=4)
-            print("\n✅ RPA response successfully committed to Alexandrie Vault for Lean 4 Formalization.")
+            print("\n✅ Exact zero-sound roots committed to the Alexandrie vault.")
         except ScientificHonestyException as e:
             print(f"\n🚫 [{self.name}] SCIENTIFIC HONESTY EXCEPTION RAISED: {str(e)}")
             print(f"   -> Protocol QV-01 aborted. Zero Simulation Flottante rule enforced.")
