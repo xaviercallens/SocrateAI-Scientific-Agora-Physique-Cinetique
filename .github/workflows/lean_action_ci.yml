@@ -14,3 +14,4 @@ jobs:
       - uses: leanprover/lean-action@v1
         with:
           lake-package-directory: lean4_formalization
+          axiom-audit: true
