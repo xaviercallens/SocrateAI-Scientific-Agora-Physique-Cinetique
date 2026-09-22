@@ -5,13 +5,15 @@ from agora_swarm.agents.kinetic import KineticStage
 
 def test_lindhard_base_expansion():
     linear = LinearResponseStage()
-    seq = linear.extract_lindhard_base(order=3)
-    
-    # Lindhard base Taylor expansion in x = 1/z around x=0
-    # Expected: 0, 2/3, 2/15
+    seq = linear.extract_lindhard_base(order=4)
+
+    # Lindhard base Taylor expansion: chi_0(z) = sum_k [2/(4k^2-1)] z^{2k}
+    # Coefficients c_k = 2/(4k^2-1) for k=1,2,3,...
+    # Expected (from closed form): seq[0]=0, seq[1]=2/3, seq[2]=2/15, seq[3]=2/35
     assert seq[0] == 0
     assert seq[1] == sp.Rational(2, 3)
     assert seq[2] == sp.Rational(2, 15)
+    assert seq[3] == sp.Rational(2, 35)
 
 def test_qve_02_echo_extraction():
     linear = LinearResponseStage()

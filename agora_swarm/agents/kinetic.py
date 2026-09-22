@@ -28,8 +28,8 @@ class KineticStage:
         return echo_seq
 
     def apply_theorem_22_6(self, beta_roton, theta_sym, d=3):
-        """
-        Applies Theorem 22.6 (Villani 2025/2009) to compute the Fisher Information 
+        r"""
+        Applies Theorem 22.6 (Villani 2025/2009) to compute the Fisher Information
         Monotonicity bounds $\gamma$ and the spherical curvature term $\Sigma(\beta)$.
         """
         print(f"🌌 [{self.name}] Applying Fisher Information bounds (Thm 22.6) to exact Roton kernel...")
@@ -57,7 +57,7 @@ class KineticStage:
         Sigma_beta_val = 2 * sp.pi * sp.integrate(integrand, (theta_sym, 0, sp.pi))
         
         Sigma_beta = Sigma_beta_val / (2 * (d - 1))
-        print(f"   -> [kinetic] Exact Spherical curvature term \Sigma(\beta) = {Sigma_beta}")
+        print(f"   -> [kinetic] Exact Spherical curvature term Sigma(beta) = {Sigma_beta}")
         
         # Exact algebraic bound for gamma
         gamma_bound = (m_r / M_r) + sp.Rational(3, 2)
@@ -105,31 +105,36 @@ class KineticStage:
 
     def evaluate_bakry_emery_L_star(self, topology, d=2):
         """
-        Evaluates the differential Bakry-Émery curvature-dimension constant L_*
-        for optimal transport phase-mixing using exact tensor calculus algebraic relations.
+        Evaluates the Bakry-Émery curvature-dimension constant L_*
+        for the given topology dimension.
+
+        For a flat d-dimensional manifold, the curvature bound is Ricci ≥ (L_*/d) * Id.
+        In the context of kinetic theory phase-mixing on a flat torus T^d,
+        the optimal transport constant is L_* = 2*d (the dimension of the phase space).
+
+        However, this is a CONJECTURE for the specific topology {topology['manifold']}.
+        The actual geometric derivation requires full Ricci tensor computation,
+        which depends on the specific metric structure and is NOT proven here.
+
+        Args:
+            topology: Dict with 'manifold' and 'dimension' keys
+            d: Dimension parameter (should match topology['dimension'])
+
+        Returns:
+            The conjectured value 2*d, or raises exception if derivation unavailable
         """
-        print(f"🌌 [{self.name}] Attempting Bakry-Émery Ricci tensor derivation for {topology['manifold']}...")
+        print(f"🌌 [{self.name}] Evaluating Bakry-Émery constant for topology {topology['manifold']}...")
         try:
-            from sympy.diffgeom import Manifold, Patch, CoordSystem, TensorProduct
-            
-            # Define a flat 2D manifold (T^2 locally)
-            m = Manifold('T^2', 2)
-            patch = Patch('P', m)
-            from sympy import Symbol
-            rect = CoordSystem('rect', patch, [Symbol('x', real=True), Symbol('y', real=True)])
-            x, y = rect.coord_functions()
-            dx, dy = rect.base_oneforms()
-            
-            # Metric tensor g = dx*dx + dy*dy
-            g = TensorProduct(dx, dx) + TensorProduct(dy, dy)
-            
-            # In a flat space, Ricci curvature is 0. 
-            # The Bakry-Emery dimension parameter for kinetic phase-mixing L_* = 2d 
-            # We can extract the dimension from the manifold metric algebraically.
-            dim_algebraic = m.dim
-            
-            L_star_expr = 2 * dim_algebraic
-            print(f"   -> [kinetic] Exact algebraic tensor reduction of flat metric yielded L_* = {L_star_expr}")
-            return L_star_expr
+            dim_stated = topology.get('dimension', d)
+            if dim_stated != d:
+                print(f"   WARNING: dimension mismatch {dim_stated} vs {d}, using {d}")
+
+            # For a flat d-dimensional space, the Bakry-Émery bound is conjectured
+            # to be L_* = 2*d based on optimal transport theory
+            L_star_conjecture = 2 * d
+
+            print(f"   -> [kinetic] For flat {d}D manifold, conjectured Bakry-Émery constant: L_* = {L_star_conjecture}")
+            print(f"   -> [kinetic] NOTE: This is a CONJECTURE, not a formal derivation. Full Ricci tensor analysis required.")
+            return L_star_conjecture
         except Exception as e:
-            raise ScientificHonestyException("Analytic tensor derivation failed. Refusing to return stubbed constant.")
+            raise ScientificHonestyException("Topology evaluation failed. Refusing to return unverified constant.")

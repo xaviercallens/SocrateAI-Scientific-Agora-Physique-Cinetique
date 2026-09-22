@@ -6,15 +6,15 @@ This document catalogs the formalized, automated scientific protocols used by th
 > Following our strict verification rules, simulated or hallucinated datasets are strictly forbidden. Since Henri Godfrin's raw neutron scattering datasets (ILL IN5/ESRF) are locked behind institutional DOIs and not publicly available as open files on Zenodo, **none of these protocols use faked empirical data**. Instead, the agents evaluate the exact, continuous mathematical physics formalisms algebraically over $\mathbb{Q}$ and SymPy. The hardware-grounded validations are pending institutional data access.
 
 ## Protocol QV-01: The Quantum Vlasov Zero-Sound Simulation
-* **Lead Agent**: Godfrin
 * **Domain**: Quantum Fluids / Plasma Physics
 * **Objective**: Extract the continuous Taylor sequence of the Random Phase Approximation (RPA) density response in $^3$He and use rational Padé approximants to detect the Zero-Sound wave velocity and the Landau Damping threshold.
+* **Status**: Partially implemented. Lindhard extraction and Padé computation work; RPA loop with Landau interaction parameter $F_0^s$ is scaffolded but requires integration.
 * **Methodology**:
-  1. Evaluate the Continuous Base Response (Lindhard function) using an exact infinite rational series expansion.
-  2. Interacting Response generated via Landau's Fermi-liquid parameters.
+  1. Evaluate the Continuous Base Response (Lindhard function) using exact closed-form rational coefficients: $\chi_0(z) = \sum_k \frac{2}{4k^2-1} z^{2k}$.
+  2. Interacting Response generated via Landau's Fermi-liquid RPA: $\chi_{RPA}(z) = \frac{\chi_0(z)}{1 - F_0^s \chi_0(z)}$ where $F_0^s \approx 0.1$ for $^3$He at $T=0$.
   3. Compute Diagonal $[M/M]$ Padé approximants strictly over $\mathbb{Q}$ using SymPy.
-  4. Extract algebraic poles from the sequence to locate the Zero-Sound mode.
-  5. Track the velocity ratio drop ($v_{zs} \le v_F$) into the Landau Damping continuum.
+  4. Extract algebraic poles from the denominator $1 - F_0^s \chi_0(z)$ to locate the Zero-Sound mode.
+  5. Track the pole trajectory as $F_0^s$ varies to pinpoint the Landau Damping threshold.
 
 ## Protocol QVE-02: The Quantum Volterra Echo (A2A Collaboration)
 * **Objective:** Demonstrate cross-domain A2A integration by extracting the exact rational sequence of the $\mathcal{O}(\epsilon^2)$ non-linear density echo in a continuous Quantum Fermi Liquid.
@@ -31,8 +31,10 @@ This document catalogs the formalized, automated scientific protocols used by th
   3. **Socrate** validates the bounds and logs the results for Lean 4 verification.
 
 ## Protocol Q-RIP-03: 2D Quantum Ripplons & The Optimal $L_*=4$ Constant
-* **Objective:** Verify topological protection of 2D liquid $^3$He ripplons (capillary waves) on graphite substrates.
+* **Objective:** Conjecture topological protection of 2D liquid $^3$He ripplons (capillary waves) on graphite substrates.
+* **Status:** Conjecture stage. The formula $L_* = 2d$ is conjectured; full Ricci tensor derivation is incomplete.
 * **Workflow:**
-  1. **Godfrin** provides the 2D film density scans and capillary wave dispersion metrics.
-  2. **Villani** models the phase-mixing and evaluates the differential Bakry-Émery constant $L_*$ in $d=2$ flat topology ($\mathbb{RP}^1$).
-  3. **Socrate** verifies that the constant is exactly $L_*=4$, protecting the 2D quantum ripplons from immediate Landau damping.
+  1. Define the 2D flat topology (torus $T^2$).
+  2. For a flat $d$-dimensional manifold, conjecture $L_* = 2d$ based on optimal transport theory.
+  3. For $d=2$: $L_* = 4$. **Note:** This is a conjecture pending formal Riemannian geometry derivation.
+  4. The claim that this "protects ripplons from Landau damping" requires separate kinetic theory justification.

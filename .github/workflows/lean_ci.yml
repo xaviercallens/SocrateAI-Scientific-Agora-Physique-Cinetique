@@ -1,0 +1,26 @@
+name: Lean CI
+
+on:
+  push:
+    paths:
+      - 'lean4_formalization/**'
+      - '.github/workflows/lean_ci.yml'
+  pull_request:
+    paths:
+      - 'lean4_formalization/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: lean4_formalization
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+      - name: Verify "0 sorry" — no axioms
+        run: |
+          grep -r "sorry" . && echo "FAILED: sorry found in codebase" && exit 1
+          echo "SUCCESS: No sorry axioms found"

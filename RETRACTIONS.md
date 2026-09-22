@@ -41,7 +41,22 @@ mathematical certainty" in the documents apply to that arithmetic only.
 - The formula attributed to "Theorem 22.6" has not been checked against its source.
 - "Autonomously rediscovered" (proposition_recherche.tex): the series is hard-coded.
 
-## Not done here, for the owner to decide
+## R5 — Updated corrections (2026-09-22)
 
-No LICENSE file exists (the README says "open source"). The CI workflow sits in
-`lean4_formalization/.github/`, where GitHub does not run it.
+The following issues have been addressed:
+
+- **Lindhard coefficients unified.** Switched from series expansion to the closed-form formula $c_k = \frac{2}{4k^2-1}$, which now produces `[0, 2/3, 2/15, 2/35, …]` consistently across Python and Lean.
+- **README gamma bound corrected.** Changed from claimed $\sqrt{3}e^{-0.1} \approx 1.567$ to the actual computed value $1.9513$ (or exactly $16063/8232$).
+- **QVE-02 data corrected.** Removed fake "Vlasov-Poisson phase space simulation" description; updated to clarify algebraic extraction with exact rational sequence.
+- **Orphaned QVE-02 script deleted.** The unused `simulations/qve_02_quantum_echo.py` has been removed from version control.
+- **Bakry-Émery labeled as conjecture.** Code now prints explicit warnings that the $L_* = 2d$ formula is conjectured, not derived.
+- **LICENSE added.** MIT license file now exists.
+- **CI workflow moved.** Workflow now at repo-root `.github/workflows/lean_ci.yml` where GitHub Actions will run it.
+- **Lean scratch files removed.** Dev artifacts (`test_decide.lean`, etc.) cleaned up.
+- **RPA scaffolding added.** New `compute_rpa_zero_sound_velocity()` method added for Landau interaction parameter $F_0^s$, though full integration with Padé pole extraction remains incomplete.
+
+### Remaining known gaps
+
+- "Theorem 22.6" attribution unchecked (Villani 2025 paper too large to fully verify).
+- RPA loop with variable $F_0^s$ not yet wired into QV-01 orchestration.
+- LaTeX documents still cite "Godfrin" and "Villani" as agent names in narrative (they should use "LinearResponseStage" / "KineticStage").

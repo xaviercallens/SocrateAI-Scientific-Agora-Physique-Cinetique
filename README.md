@@ -14,10 +14,12 @@ L'application de l'Intelligence Artificielle à la physique théorique se heurte
 Ce projet impose une **règle épistémologique stricte : la "Zéro Simulation Flottante"**. Les équations continues sont réduites à des invariants algébriques et des séries de Taylor / produits de Cauchy calculés de manière exacte sur le corps des rationnels ($\mathbb{Q}$). Ces séquences pures sont ensuite formatées pour être prouvées avec 0 axiome non-vérifié ("0 sorry") dans le compilateur **Lean 4**.
 
 ## 🤖 L'Essaim Collaboratif (Architecture A2A)
-Ce dépôt implémente une collaboration inter-domaines automatisée via trois agents logiciels :
-* ⚛️ **Agent Godfrin (Expert Fluides Quantiques) :** Extrait la dynamique continue de la sphère de Fermi.
-* 🌌 **Agent Villani (Expert Physique Mathématique) :** Applique les intégrations cinétiques non-linéaires (perturbations de Volterra, équation de Vlasov).
-* 🏛️ **Agent Socrate (Orchestrateur Épistémologique) :** Garantit la pureté algébrique des échanges et archive les résultats dans la voûte *Alexandrie*.
+Ce dépôt implémente une collaboration inter-domaines automatisée via trois étapes de traitement :
+* ⚛️ **LinearResponseStage (Extraction Quantique) :** Extrait la dynamique continue de la sphère de Fermi via séries de Taylor exactes.
+* 🌌 **KineticStage (Analyse Cinétique) :** Applique les intégrations cinétiques non-linéaires (perturbations de Volterra, équation de Vlasov).
+* 🏛️ **AgentSocrate (Orchestrateur Épistémologique) :** Garantit la pureté algébrique des échanges et archive les résultats dans la voûte *Alexandrie*.
+
+**Note:** Les noms d'agents ont été supprimés par respect envers les scientifiques réels dont les travaux sont cités. Voir `RETRACTIONS.md` pour les corrections mises en œuvre.
 
 ## 🔬 Découverte : Protocole QVE-02 (Quantum Volterra Echo)
 Un fluide de Fermi purement quantique peut-il produire un écho plasma non-linéaire continu ?
@@ -34,7 +36,7 @@ Pour tester les bornes de régularité cinétique du Théorème 22.6 de C. Villa
 $\beta(\cos \theta) = \frac{1}{2}(1 + \cos^2\theta) \exp(-\frac{1}{10}(1 - \cos\theta))$
 
 L'Agent Villani dérive formellement par algèbre symbolique (SymPy) que, sous ce modèle exact, la singularité cinétique admissible est bornée par :
-$|\gamma| \le \sqrt{3}\exp(-0.1) \approx 1.567$
+$|\gamma| \le 1.9513$ (valeur numérique exacte : $16063/8232$)
 
 **[EN] Phenomenological Modeling of Damping**
 To test the kinetic regularity bounds of C. Villani's Theorem 22.6 (2025), Agent Godfrin formulated an algebraic roton-roton scattering kernel. 
