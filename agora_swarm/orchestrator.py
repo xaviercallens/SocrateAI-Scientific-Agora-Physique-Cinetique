@@ -45,24 +45,40 @@ class AgentSocrate:
         print(f"🏛️  [{self.name}] INITIATING PROTOCOL QV-01: QUANTUM VLASOV ZERO-SOUND SIMULATION\n")
         linear = LinearResponseStage()
         kinetic = KineticStage()
-        
+
         try:
             lindhard_seq = linear.extract_lindhard_base(order=6)
             print(f"   -> [linear-response output] Lindhard Sequence: {[str(c) for c in lindhard_seq]} ...\n")
-            
-            poles = kinetic.compute_pade_zero_sound(lindhard_seq)
-            
-            print(f"\n🏛️  [{self.name}] Protocol Complete. Zero-Sound poles extracted exactly over Q.")
-            
+
+            print(f"🏛️  [{self.name}] COMPUTING RPA RESPONSE WITH LANDAU INTERACTION PARAMETER\n")
+
+            rpa_results = {}
+            F0s_values = [sp.Rational(1, 20), sp.Rational(1, 10), sp.Rational(3, 20)]
+
+            for F0s in F0s_values:
+                print(f"   -> [orchestrator] Testing F_0^s = {F0s}...")
+                chi0, denom, F0s_rat = linear.compute_rpa_zero_sound_velocity(lindhard_seq, float(F0s))
+
+                poles = kinetic.compute_pade_zero_sound([sp.sympify(denom)])
+                rpa_results[str(F0s_rat)] = {
+                    "F0s": str(F0s_rat),
+                    "poles": [str(p) for p in poles]
+                }
+
+            print(f"\n🏛️  [{self.name}] Protocol Complete. Zero-Sound RPA poles extracted for multiple F_0^s values.")
+
             os.makedirs("alexandrie_data/QV-01", exist_ok=True)
             payload = {
                 "protocol": "QV-01",
-                "description": "Exact rational Padé approximant poles for 3He Zero-Sound.",
-                "poles_exact": [str(p) for p in poles]
+                "description": "Exact rational RPA Padé approximant poles for 3He Zero-Sound across Landau interaction parameters.",
+                "methodology": "chi_RPA(z) = chi_0(z) / (1 - F_0^s * chi_0(z))",
+                "lindhard_sequence": [str(c) for c in lindhard_seq],
+                "rpa_results": rpa_results,
+                "note": "Poles extracted for F_0^s ∈ {0.05, 0.10, 0.15} to map zero-sound trajectory toward Landau damping threshold"
             }
             with open("alexandrie_data/QV-01/zero_sound_results.json", "w") as f:
                 json.dump(payload, f, indent=4)
-            print("\n✅ Sequence successfully committed to Alexandrie Vault for Lean 4 Formalization.")
+            print("\n✅ RPA response successfully committed to Alexandrie Vault for Lean 4 Formalization.")
         except ScientificHonestyException as e:
             print(f"\n🚫 [{self.name}] SCIENTIFIC HONESTY EXCEPTION RAISED: {str(e)}")
             print(f"   -> Protocol QV-01 aborted. Zero Simulation Flottante rule enforced.")
