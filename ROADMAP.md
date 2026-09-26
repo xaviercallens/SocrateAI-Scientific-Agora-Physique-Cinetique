@@ -111,7 +111,13 @@ The new `LinearResponseStage.compute_rpa_zero_sound_velocity()` method was added
 
 ---
 
-### Gap 3: LaTeX Documents Still Cite Agent Names
+### Gap 3: LaTeX Documents Still Cite Agent Names — **DONE**
+
+> [!IMPORTANT]
+> **Correction (2026-09-26):** this was completed in commit `e0f2954` (documented in
+> `WORKFLOW_COMPLETION_SUMMARY.md` Task #2) but never marked done here. Both `.tex` files now use
+> `LinearResponseStage`/`KineticStage` throughout; verified by direct grep, no "Agent Godfrin"/"Agent
+> Villani" occurrences remain in either file. The rest of this section is historical record.
 
 **Reference:** [AUDIT_SUMMARY.md §H4 & U3](./AUDIT_SUMMARY.md#issue-h4-latex-documents-still-use-retracted-agent-godfrvinvillani-framing), [RETRACTIONS.md §R1](./RETRACTIONS.md#r1--pipeline-stages-were-named-after-living-scientists-removed)
 
@@ -144,6 +150,59 @@ This violates the respect principle stated in §R1 and creates a misleading impr
 - [ ] `docs/` directory updated (PDFs re-generated if applicable)
 - [ ] README updated with reference to corrected LaTeX docs and link to §R1
 - [ ] Commit message references this gap and issue #3
+
+---
+
+### Gap 4: No empirical validation data — plan for institutional data access
+
+**Reference:** `PROTOCOL_REGISTRY.md`'s Dataset Falsification Policy note; this gap makes "pending
+institutional data access" concrete.
+
+**Why it matters:** Q-RHK-02's kernel and QV-01's $F_0^s = 93/10$ stand-in are both phenomenological —
+explicitly "using no measured data; nothing here validates it against real $^3$He/$^4$He" (README).
+Closing that gap needs either real neutron-scattering data (Q-RHK-02) or real Fermi-liquid parameter
+measurements (QV-01), not more symbolic computation.
+
+**What was checked (2026-09-26):** searched Zenodo, Hugging Face Datasets, Materials Cloud, and the
+ILL data portal for an open, structured dataset in three categories. Result: **none exists in
+ready-to-use open form** — this is a field where the real data sits inside papers or behind an
+experiment's own DOI, not in a self-serve repository. Specifically:
+
+- **Q-RHK-02 (roton/maxon angular scattering):** the directly relevant real measurement is
+  K. Beauvois, J. Dawidowski, B. Fåk, H. Godfrin, E. Krotscheck, J. Ollivier, A. Sultan,
+  *"Microscopic dynamics of superfluid $^4$He: a comprehensive study by inelastic neutron scattering"*,
+  Phys. Rev. B 97, 184520 (2018), arXiv:1802.08120 — ILL IN5 data, exactly the roton/maxon regime this
+  project's kernel is shaped after. No data-availability statement or Zenodo/figshare deposit found.
+  ILL assigns a DOI to every proposal's raw numors under `10.5291/ILL-DATA.*` (data.ill.eu) after a
+  3–5 year embargo, but even past embargo this needs ILL's own reduction pipeline (LAMP/Mantid), and
+  the specific proposal DOI for this run was not found from the paper text alone.
+- **QV-01 ($F_0^s$ for liquid $^3$He):** no Zenodo/figshare dataset exists for Landau parameters either
+  — the standard source (Greywall's thermodynamic measurements, Phys. Rev. B 1983, and later
+  reanalyses) is table-in-a-paper only. Unlike the neutron data, this one does not need a formal
+  dataset search: it is a handful of well-known papers with a small (~10–15 point) pressure-dependent
+  table that could be transcribed directly.
+- **Villani-side numerical benchmark:** no open Boltzmann-equation/DSMC benchmark dataset was found on
+  Zenodo or Hugging Face that specifically targets the *spatially homogeneous* Boltzmann equation (the
+  setting of Theorem 22.6). One recent candidate, "TransportBench" (arXiv:2606.02997, stated
+  MIT-licensed), covers spatially *inhomogeneous* rarefied flows instead — the wrong shape of test —
+  and no code/data release could be located regardless.
+
+**Recommended next step — this is a data-access request, not a download:**
+1. For Q-RHK-02: contact H. Godfrin directly (or via ILL), citing PRB 97, 184520 (2018) by proposal
+   number, and ask for either the post-embargo `ILL-DATA` DOI for the roton/maxon run, or the digitized
+   $S(Q,\omega)$ table behind that paper's Fig. 2–3.
+2. For QV-01: transcribe $F_0^s(P)$ from Greywall (1983) and later reanalyses directly — no external
+   dataset search needed.
+3. For the Villani-side bound: rather than searching for a pre-made benchmark, numerically solve the
+   spatially homogeneous Boltzmann equation for Theorem 22.6's own worked examples (inverse-power-law
+   kernels, $d=2,3$) with an existing open solver, and compare against the paper's stated bounds
+   directly.
+
+**Acceptance Criteria:**
+- [ ] Data-access email drafted and sent to Godfrin/ILL citing the specific proposal
+- [ ] Greywall $F_0^s(P)$ table transcribed into a structured file in this repo
+- [ ] A numerical (not dataset-based) check of Theorem 22.6's worked examples attempted
+- [ ] This gap's status updated once any of the three lands real data or a real numerical check
 
 ---
 
@@ -180,7 +239,8 @@ This violates the respect principle stated in §R1 and creates a misleading impr
 |-----|-------|----------|--------|---------|--------|-------|
 | 1 | Theorem 22.6 verification | Medium | Large | No | **Closed — checked, mismatched, see R8** | — |
 | 2 | RPA integration into QV-01 | ~~High~~ | ~~Medium~~ | No | **Obsolete — RPA replaced by exact solver in 38d7fdd, see R7** | — |
-| 3 | LaTeX agent name rewrite | Medium | Small | No | Deferred | Task #2 |
+| 3 | LaTeX agent name rewrite | Medium | Small | No | **Done — commit e0f2954** | Task #2 |
+| 4 | Empirical validation data access | Medium | Large (institutional) | No | **Checked — no open dataset exists; data-access request drafted as next step** | — |
 
 ---
 

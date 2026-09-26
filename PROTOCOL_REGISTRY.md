@@ -4,6 +4,12 @@ This document catalogs the formalized, automated scientific protocols used by th
 
 > **Dataset Falsification Policy (Zéro Simulation Flottante):**
 > Following our strict verification rules, simulated or hallucinated datasets are strictly forbidden. Since Henri Godfrin's raw neutron scattering datasets (ILL IN5/ESRF) are locked behind institutional DOIs and not publicly available as open files on Zenodo, **none of these protocols use faked empirical data**. Instead, the agents evaluate the exact, continuous mathematical physics formalisms algebraically over $\mathbb{Q}$ and SymPy. The hardware-grounded validations are pending institutional data access.
+>
+> **Checked 2026-09-26 (see `ROADMAP.md` Gap 4):** searched Zenodo, Hugging Face Datasets, and other
+> open-data hosts for a real dataset to close this gap. None exists in open, structured form for either
+> protocol below — this is a field where the underlying data sits in papers or behind an experiment's DOI,
+> not in a self-serve repository. The concrete path forward is a direct data-access request, not a
+> download; see `ROADMAP.md` Gap 4 for specifics (paper citation, DOI mechanism, and what to ask for).
 
 ## Protocol QV-01: Zero sound from the exact Landau dispersion relation
 * **Domain**: Quantum fluids / kinetic theory
