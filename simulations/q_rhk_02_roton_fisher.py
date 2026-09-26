@@ -21,20 +21,17 @@ class RotonProtocolOrchestrator(AgentSocrate):
         # 1. The linear-response stage provides Quantum Fluid Data (Algebraic Stub)
         beta_roton, theta_sym = linear.extract_roton_scattering_kernel()
         
-        # 2. The kinetic stage applies the 2025 Fisher Information math with EXACT symbolic algebra
+        # 2. The kinetic stage computes this project's gamma_bound convention with EXACT symbolic algebra
+        #    (NOT a consequence of Villani's Theorem 22.6 -- checked and found mismatched, RETRACTIONS.md R8)
         gamma_bound, sigma = kinetic.kernel_regularity_bounds(beta_roton, theta_sym, d=3)
-        
-        # 3. Verdict
-        print(f"\n🏛️  [{self.name}] PROTOCOL VERDICT:")
-        print(f"   ✅ The Roton scattering kernel bounds satisfy the Fisher Information Monotonicity criteria.")
-        print(f"   The maximum admissible kinetic singularity is |gamma| <= {gamma_bound}")
-        
-        # Use exact evalf for the conditional, but store the exact string.
-        if gamma_bound.evalf() >= 2.0:
-            print(f"   Conclusion: Fisher Information strictly decays covering all physical inverse power laws!")
-        else:
-            print(f"   Conclusion: Decay guaranteed only for mildly soft potentials.")
-            
+
+        # 3. Result (a computed quantity, not a physical verdict -- see RETRACTIONS.md R8)
+        print(f"\n🏛️  [{self.name}] PROTOCOL RESULT:")
+        print(f"   The computed bound is |gamma| <= {gamma_bound}")
+        print(f"   This is an independently-defined convention of this project, not a consequence of a")
+        print(f"   published Fisher-information-monotonicity theorem -- see RETRACTIONS.md R8. No claim of")
+        print(f"   Fisher information decay for physical roton scattering is made here.")
+
         # 4. Save EXACT Data for Lean 4
         os.makedirs("alexandrie_data/Q-RHK-02", exist_ok=True)
         payload = {
@@ -42,7 +39,7 @@ class RotonProtocolOrchestrator(AgentSocrate):
             "theorem": "independently-defined convention (gamma_bound = m_r/M_r + 3/2); NOT Villani 2025 Theorem 22.6 -- checked and mismatched, see RETRACTIONS.md R8",
             "sigma_beta_exact": str(sigma),
             "gamma_bound_exact": str(gamma_bound),
-            "conclusion": "Fisher Information monotonically decays for Pitaevskii plateau roton scattering."
+            "conclusion": "gamma_bound is a computed rational-algebraic quantity for this analytic model kernel; no physical Fisher-information-decay claim is asserted (see RETRACTIONS.md R8)."
         }
         with open("alexandrie_data/Q-RHK-02/roton_fisher_results.json", "w") as f:
             json.dump(payload, f, indent=4)
