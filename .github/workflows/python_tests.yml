@@ -1,0 +1,28 @@
+name: Python tests
+
+on:
+  push:
+    paths:
+      - '**.py'
+      - 'requirements.txt'
+      - '.github/workflows/python_tests.yml'
+  pull_request:
+    paths:
+      - '**.py'
+      - 'requirements.txt'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run exact symbolic checks (incl. float-refusal test)
+        run: python3 -m pytest tests/ -q
+      - name: Run independent 60-digit validation of QV-01
+        run: python3 verification/validate_zero_sound.py
