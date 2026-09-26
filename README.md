@@ -93,8 +93,12 @@ $$\gamma_{\text{bound}} = \frac{m_r}{M_r} + \frac32 = 1.9512876598772344\ldots$$
 > Three caveats. (1) $\beta$ is an **analytic model**, shaped after forward-peaking phenomenology
 > (e.g. ILL IN5) but using **no measured data**; nothing here validates it against $^4$He.
 > (2) This combination was previously attributed to *"Theorem 22.6"* of Villani (arXiv:2501.00925).
-> **That attribution has never been checked against the source and is not asserted.** The method was
-> renamed from `apply_theorem_22_6` to `kernel_regularity_bounds` so the API stops asserting it.
+> **That attribution has been checked against the source and found mismatched** (RETRACTIONS.md §R8):
+> the paper, author and theorem number are all real, but Theorem 22.6 actually bounds
+> $2\sqrt{d}\cdot\sqrt{m_r/M_r}$ (multiplicative, dimension-dependent, used to show Fisher-information
+> monotonicity) — not this additive $m_r/M_r + 3/2$ formula, which is an independently-defined
+> convention of this project. The method stays named `kernel_regularity_bounds` (renamed from
+> `apply_theorem_22_6`) for this reason.
 > (3) The Lean file carries the rational surrogate $16063/8232 = 1.9512876579\ldots$, which differs from
 > the exact value above by $\approx 2\times10^{-9}$.
 

@@ -443,10 +443,16 @@ Three caveats are essential. First, $\beta$ is an analytic model chosen for its
 forward-peaked shape; no measured data enters, and nothing here validates it
 against $^4$He. Second, the combination in Eq.~\eqref{eq:gamma} was previously
 attributed in this repository to ``Theorem 22.6'' of Villani~\cite{villani2025};
-\emph{that attribution has never been checked against the source and we do not
-assert it}. The method has accordingly been renamed from
-\code{apply\_theorem\_22\_6} to \code{kernel\_regularity\_bounds}, so that the
-interface stops asserting a citation the project has not verified. Third, the
+\emph{that attribution has been checked against the source and found
+mismatched}: Villani's Theorem 22.6 is real and does bound a ratio $m_r/M_r$,
+but its actual conclusion is the multiplicative, dimension-dependent bound
+$2\sqrt{d}\cdot\sqrt{m_r/M_r}$, used to show that Fisher information is
+nonincreasing along the spatially homogeneous Boltzmann equation --- not the
+additive form of Eq.~\eqref{eq:gamma}, which is an independently-defined
+convention of this project. The method has accordingly stayed named
+\code{kernel\_regularity\_bounds} (renamed from \code{apply\_theorem\_22\_6})
+so that the interface does not assert a citation the source does not support.
+Third, the
 Lean development carries the rational surrogate $16063/8232 =
 1.951287657920311\ldots$, which differs from Eq.~\eqref{eq:gamma} by about
 $2.0\times10^{-9}$: what is checked there is arithmetic about that rational, not
@@ -535,8 +541,10 @@ repository's history and in earlier documents:
         space simulation''}, with floating-point fields, was never produced by
         any code in this repository. No such solver exists here.
   \item \textbf{$L_*=4$} is definitional (Section~\ref{sec:results}).
-  \item \textbf{The ``Theorem 22.6'' attribution} is unverified and is no longer
-        asserted by the code.
+  \item \textbf{The ``Theorem 22.6'' attribution} has been checked against the
+        source and found mismatched: the paper and theorem are real, but its
+        bound is a different, multiplicative object, not the additive formula
+        the code computes.
   \item \textbf{Three mutually inconsistent coefficient tables} once coexisted
         for the ``Lindhard'' kernel: $1/3,\,19/45$ in Lean, $2/3,\,2/15$ in
         Python, and $1/(2k+1)$ in the prose. The resolution is that

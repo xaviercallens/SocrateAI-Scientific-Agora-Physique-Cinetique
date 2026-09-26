@@ -39,7 +39,7 @@ class RotonProtocolOrchestrator(AgentSocrate):
         os.makedirs("alexandrie_data/Q-RHK-02", exist_ok=True)
         payload = {
             "protocol": "Q-RHK-02",
-            "theorem": "Villani 2025, Theorem 22.6",
+            "theorem": "independently-defined convention (gamma_bound = m_r/M_r + 3/2); NOT Villani 2025 Theorem 22.6 -- checked and mismatched, see RETRACTIONS.md R8",
             "sigma_beta_exact": str(sigma),
             "gamma_bound_exact": str(gamma_bound),
             "conclusion": "Fisher Information monotonically decays for Pitaevskii plateau roton scattering."

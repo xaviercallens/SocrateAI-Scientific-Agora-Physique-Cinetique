@@ -66,9 +66,9 @@ Ce stage calcule le champ électrique induit $E^{(1)}$ et opère le produit de C
 \end{equation}
 \end{mdframed}
 
-\section{Modélisation Phénoménologique et Théorème de Villani (2025) : Protocole Q-RHK-02}
+\section{Modélisation Phénoménologique et Bornes de Régularité Cinétique : Protocole Q-RHK-02}
 
-Pour démontrer la capacité de l'architecture \textbf{Agora} à formuler des conjectures rigoureuses pour Lean 4, un second protocole a été déployé. L'objectif est de modéliser l'amortissement d'un gaz de rotons sur le plateau de Pitaevskii en combinant un noyau angulaire phénoménologique (inspiré par les mesures empiriques de \textit{forward-peaking} typiques de l'ILL IN5, revues dans \textit{The Dynamics of Quantum Fluids}, Godfrin et al., ArXiv:2206.06039) avec le récent théorème sur la décroissance de l'Information de Fisher le long de l'équation de Boltzmann homogène (Villani, \textit{Fisher Information in Kinetic Theory}, ArXiv:2501.00925).
+Pour démontrer la capacité de l'architecture \textbf{Agora} à formuler des conjectures rigoureuses pour Lean 4, un second protocole a été déployé. L'objectif est de modéliser l'amortissement d'un gaz de rotons sur le plateau de Pitaevskii en combinant un noyau angulaire phénoménologique (inspiré par les mesures empiriques de \textit{forward-peaking} typiques de l'ILL IN5, revues dans \textit{The Dynamics of Quantum Fluids}, Godfrin et al., ArXiv:2206.06039) avec une combinaison $m_r/M_r + 3/2$ précédemment attribuée au théorème sur la décroissance de l'Information de Fisher de Villani (\textit{Fisher Information in Kinetic Theory}, ArXiv:2501.00925, Théorème 22.6). \textbf{Cette attribution a depuis été vérifiée contre la source et s'avère erronée} : le théorème 22.6 existe bel et bien mais borne une quantité multiplicative différente, $2\sqrt{d}\cdot\sqrt{m_r/M_r}$ ; la combinaison utilisée ici est une convention propre à ce projet (voir RETRACTIONS.md, R8).
 
 Conformément à la règle "Zéro Simulation Flottante", le stage Orchestrator impose que ce modèle ne soit pas confondu avec une extraction empirique directe de données, et force l'évaluation des bornes par algèbre exacte. Les constantes de substitution rationnelles ont été intégrées dans le noyau Lean 4.
 

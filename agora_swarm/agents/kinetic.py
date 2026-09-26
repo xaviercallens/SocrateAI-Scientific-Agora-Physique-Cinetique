@@ -40,13 +40,18 @@ class KineticStage:
         expression this project has used as an "admissible singularity" bound
         and previously attributed to "Theorem 22.6" of Villani (arXiv:2501.00925).
 
-        WARNING: that attribution is UNVERIFIED -- the formula has never been
-        checked against the cited source (RETRACTIONS.md R4). The returned value
-        must therefore be read as "the quantity this pipeline computes", not as
-        a consequence of a published theorem. This method was renamed from
-        apply_theorem_22_6 so that the API itself stops asserting the citation.
+        CHECKED, MISMATCHED (RETRACTIONS.md R8): the paper, author and theorem
+        number are all real -- Theorem 22.6 does bound a ratio m_r/M_r -- but its
+        actual conclusion is the multiplicative, dimension-dependent bound
+        2*sqrt(d)*sqrt(m_r/M_r), used to show Fisher information is nonincreasing
+        along the spatially homogeneous Boltzmann equation, not this additive
+        m_r/M_r + 3/2 formula. The returned value must therefore be read as "the
+        quantity this pipeline computes", an independently-defined convention of
+        this project, not as a consequence of Theorem 22.6. This method stays
+        named kernel_regularity_bounds (renamed from apply_theorem_22_6) for that
+        reason.
         """
-        print(f"🌌 [{self.name}] Computing exact kernel regularity bounds (attribution unverified)...")
+        print(f"🌌 [{self.name}] Computing exact kernel regularity bounds (attribution checked, mismatched)...")
         
         # 1. Evaluate Gamma bound algebraically
         limit_val = sp.limit(beta_roton, theta_sym, 0)

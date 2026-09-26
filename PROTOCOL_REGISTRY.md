@@ -54,7 +54,8 @@ This document catalogs the formalized, automated scientific protocols used by th
 
 ## Protocol Q-RHK-02: Symbolic bounds for a forward-peaked angular kernel
 * **Objective:** Compute exact symbolic bounds for an analytic model of roton–roton angular scattering.
-* **Status:** Implemented and exact. **The theorem attribution is unverified** (see below).
+* **Status:** Implemented and exact. **The theorem attribution has been checked and is mismatched**
+  (see below; RETRACTIONS.md §R8).
 * **Workflow:**
   1. `LinearResponseStage` formulates the analytic model kernel
      $\beta(\cos\theta) = \frac12(1+\cos^2\theta)e^{-\frac1{10}(1-\cos\theta)}$, shaped after
@@ -62,10 +63,21 @@ This document catalogs the formalized, automated scientific protocols used by th
   2. `KineticStage.kernel_regularity_bounds` computes exactly $m_r$, $M_r$, the spherical term
      $\Sigma(\beta) = \pi(910-1110e^{-1/5})/2$, and $\gamma_{\text{bound}} = m_r/M_r + 3/2 = 1.95128766\ldots$
   3. `AgentSocrate` persists the exact symbolic expressions.
-* **Unverified attribution:** $\gamma_{\text{bound}}$ was previously attributed to "Theorem 22.6" of
-  Villani (arXiv:2501.00925). That has never been checked against the source and **is not asserted**;
-  the method was renamed from `apply_theorem_22_6` accordingly. The Lean development carries the
-  rational surrogate $16063/8232$, which differs from the exact value by $\approx 2\times10^{-9}$.
+* **Attribution checked, found mismatched:** $\gamma_{\text{bound}} = m_r/M_r + 3/2$ was previously
+  attributed to "Theorem 22.6" of Villani (arXiv:2501.00925). That attribution has now been checked
+  against the source (RETRACTIONS.md §R8): the paper, author, and theorem number are all real —
+  Theorem 22.6, "Curvature-dimension induced decay estimates via heat kernel representation," §22 of
+  that paper, does bound a ratio $m_r/M_r$ for comparable quantities — but its actual conclusion is the
+  multiplicative, dimension-dependent bound
+  $\sup_\theta\left|\frac{r}{B}\frac{\partial B}{\partial r}\right| \le 2\sqrt{d}\cdot\sqrt{m_r/M_r}$,
+  used only to show that Fisher information is nonincreasing along the spatially homogeneous Boltzmann
+  equation. It contains no additive "+3/2" term, no dimension-independent formula, and its worked
+  examples treat inverse-power-law kernels in $d=2,3$, not this forward-peaked exponential kernel.
+  $\gamma_{\text{bound}}$ is therefore documented as an **independently-defined symbolic convention of
+  this project**, not as a consequence of Villani's Theorem 22.6. The method name
+  `kernel_regularity_bounds` (renamed from `apply_theorem_22_6`) is kept for this reason. The Lean
+  development carries the rational surrogate $16063/8232 = 1.9512876579\ldots$, which differs from
+  the exact value above by $\approx 2\times10^{-9}$.
 
 ## Protocol Q-RIP-03: 2D Quantum Ripplons & The Optimal $L_*=4$ Constant
 * **Objective:** Conjecture topological protection of 2D liquid $^3$He ripplons (capillary waves) on graphite substrates.

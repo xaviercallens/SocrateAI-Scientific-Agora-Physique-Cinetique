@@ -84,3 +84,46 @@ documents still framed RPA wiring as the top-priority open item after that commi
 annotated in place rather than rewritten, so the sequence of claims stays legible. QV-01 is not "blocked
 on RPA integration" — that protocol is implemented, by a different method, and tested
 (`tests/test_protocols.py`, `verification/validate_zero_sound.py`).
+
+## R8 — "Theorem 22.6" attribution checked against the source: mismatched
+
+Checked on 2026-09-26 by fetching arXiv:2501.00925 directly (PDF, extracted with `pdftotext`, and the
+ar5iv/HTML rendering, cross-checked independently across three separate agents) rather than answering
+from memory or from the abstract page alone.
+
+**What was checked:** whether Theorem 22.6 of Cédric Villani's "Fisher Information in Kinetic Theory"
+(arXiv:2501.00925) states or implies the formula this repo computes as `gamma_bound = m_r/M_r + 3/2`
+in `agora_swarm/agents/kinetic.py`'s `kernel_regularity_bounds` and in `PROTOCOL_REGISTRY.md` Q-RHK-02.
+
+**What was found:**
+
+- The paper is real and correctly attributed: Cédric Villani, "Fisher Information in Kinetic Theory,"
+  arXiv:2501.00925 (v1 1 Jan 2025 – v5 23 Jun 2025), lecture notes from the Mathemata Summer School,
+  Festum Pi, Chania, Crete, July 2024. The PDF is 156 pages, not "200+" as `ROADMAP.md` and
+  `AUDIT_SUMMARY.md` state — a minor secondary inaccuracy.
+- Theorem 22.6, "Curvature-dimension induced decay estimates via heat kernel representation," is a
+  real theorem in §22, using the same $m_r, M_r$ notation as this repo. Its hypotheses are
+  $m_r \le \beta_r/\beta_{0,r} \le M_r$ together with a heat-kernel decomposition of $\beta_{0,r}$; its
+  conclusion is
+  $$\sup_{0\le\theta\le\pi} \left|\frac{r}{B}\frac{\partial B}{\partial r}\right| \le 2\sqrt{d}\cdot\sqrt{m_r/M_r},$$
+  from which it follows that the Fisher information $I$ is nonincreasing along solutions of the
+  spatially homogeneous Boltzmann equation. This is a **multiplicative, dimension-dependent,
+  square-root** bound.
+- The repo's `gamma_bound = m_r/M_r + 3/2` is **additive, dimension-independent, and has no square
+  root**, with a "+3/2" term absent from the theorem entirely. Full-text search of the paper (PDF
+  extraction and ar5iv/HTML DOM parsing) for "3/2" attached to $m_r/M_r$, and for the numeric values
+  16063, 8232, 1.9512876598772344, and the kernel
+  $\beta(\cos\theta) = \frac12(1+\cos^2\theta)e^{-\frac1{10}(1-\cos\theta)}$, found none of them
+  anywhere in the source.
+- Theorem 22.6's own worked examples (Remark 22.7 and following) apply the theorem to inverse-power-law
+  collision kernels in $d=2$ and $d=3$; the repo's forward-peaked exponential kernel does not appear.
+
+**Conclusion:** mismatched, not fabricated and not merely unverified. The paper, author, title, and
+theorem number are all real and correctly cited, and Theorem 22.6 does involve a ratio $m_r/M_r$ for
+comparable quantities — but its actual conclusion is a different mathematical object from the repo's
+`gamma_bound` formula, and does not support it. `gamma_bound` should be read as an
+**independently-defined symbolic convention of this project**, not as a consequence of Villani's
+Theorem 22.6. This supersedes §R4's "has not been checked against its source" and `ROADMAP.md` Gap 1's
+"Not started": the check has now been done, and the result is a mismatch, not a confirmation. See
+`PROTOCOL_REGISTRY.md` Q-RHK-02 for the corrected attribution language and `ROADMAP.md` Gap 1 for the
+closure note.

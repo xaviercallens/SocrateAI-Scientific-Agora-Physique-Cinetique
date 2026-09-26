@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.8.12)  22 SEP 2026 09:42
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.8.12)  26 SEP 2026 19:05
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -446,34 +446,28 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf/fonts/enc/
-dvips/cm-super/cm-super-t1.enc}]
-Overfull \hbox (5.35744pt too wide) in paragraph at lines 69--69
-[]\T1/cmr/bx/n/14.4 Modélisation Phé-no-mé-no-lo-gique et Théo-rème de Vil-lani
- (2025) :
- []
-
-[2]
+dvips/cm-super/cm-super-t1.enc}] [2]
 LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 9
 5.
  (/usr/share/texlive/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
-) [3]
-(./proposition_recherche.aux)
+)
+[3] (./proposition_recherche.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
  ***********
 Package rerunfilecheck Info: File `proposition_recherche.out' has not changed.
-(rerunfilecheck)             Checksum: B9D8794AE16F4C12FE3AEAB92CCDDE4E;1672.
+(rerunfilecheck)             Checksum: 08E9A6C5CF0529FA51E691628D37648A;1689.
  ) 
 Here is how much of TeX's memory you used:
- 12292 strings out of 474222
- 187769 string characters out of 5748733
+ 12294 strings out of 474222
+ 187792 string characters out of 5748733
  1936975 words of memory out of 5000000
- 34391 multiletter control sequences out of 15000+600000
+ 34393 multiletter control sequences out of 15000+600000
  575292 words of font info for 81 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,8n,79p,903b,474s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,8n,79p,1060b,474s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/shar
 e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texli
@@ -489,7 +483,7 @@ super/sfbx1728.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1000.pfb><
 ts/type1/public/cm-super/sfrm1200.pfb></usr/share/texmf/fonts/type1/public/cm-s
 uper/sfti1095.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfti1200.pfb></
 usr/share/texmf/fonts/type1/public/cm-super/sftt1095.pfb>
-Output written on proposition_recherche.pdf (3 pages, 311873 bytes).
+Output written on proposition_recherche.pdf (3 pages, 314336 bytes).
 PDF statistics:
  138 PDF objects out of 1000 (max. 8388607)
  96 compressed objects within 1 object stream

@@ -19,7 +19,20 @@ All gaps are **non-blocking for research continuity**, but addressing them is es
 
 ## Known Gaps
 
-### Gap 1: Theorem 22.6 Attribution Unchecked
+### Gap 1: Theorem 22.6 Attribution Unchecked — **CLOSED, see correction below**
+
+> [!IMPORTANT]
+> **Correction (2026-09-26, see [RETRACTIONS.md §R8](./RETRACTIONS.md#r8--theorem-226-attribution-checked-against-the-source-mismatched)):**
+> This gap is closed, not "Not started." The paper (arXiv:2501.00925, Villani, "Fisher Information in
+> Kinetic Theory") was obtained in full (PDF and HTML) and Theorem 22.6 was located, quoted verbatim,
+> and compared against the repo's usage. Result: **mismatched**, not merely unverified. The paper,
+> author, and theorem number are all correctly cited, and Theorem 22.6 does involve a ratio $m_r/M_r$ —
+> but its actual conclusion is the multiplicative, dimension-dependent bound
+> $2\sqrt{d}\cdot\sqrt{m_r/M_r}$, used to show Fisher-information monotonicity along the spatially
+> homogeneous Boltzmann equation, not the repo's additive $\gamma_{\text{bound}} = m_r/M_r + 3/2$. The
+> paper is 156 pages, not "200+" as stated below. See `PROTOCOL_REGISTRY.md` Q-RHK-02 for the corrected
+> attribution language. The rest of this section is kept as a historical record of the gap as it was
+> understood on 2026-09-22; do not treat it as a live task.
 
 **Reference:** [AUDIT_SUMMARY.md §U1](./AUDIT_SUMMARY.md#u1-theorem-226-attribution-not-verified), [RETRACTIONS.md §R4](./RETRACTIONS.md#r4--known-inconsistencies-not-yet-resolved)
 
@@ -165,7 +178,7 @@ This violates the respect principle stated in §R1 and creates a misleading impr
 
 | Gap | Issue | Priority | Effort | Blocker | Status | Owner |
 |-----|-------|----------|--------|---------|--------|-------|
-| 1 | Theorem 22.6 verification | Medium | Large | No | Not started | TBD |
+| 1 | Theorem 22.6 verification | Medium | Large | No | **Closed — checked, mismatched, see R8** | — |
 | 2 | RPA integration into QV-01 | ~~High~~ | ~~Medium~~ | No | **Obsolete — RPA replaced by exact solver in 38d7fdd, see R7** | — |
 | 3 | LaTeX agent name rewrite | Medium | Small | No | Deferred | Task #2 |
 
