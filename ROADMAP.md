@@ -239,6 +239,22 @@ behind an experiment's own DOI, not in a self-serve repository. Specifically:
       to 2 decimals. Scope: this confirms the *cited paper's* numerics; it says nothing new about this
       project's own $\gamma_{\text{bound}}$, which R8 already establishes is a different object — the
       two numbers (≈4.36 vs 1.95) must not be compared
+- [x] **Independent Python and Rust implementations** of the same computation, so the check no
+      longer depends on Julia or on unlicensed code — 2026-09-26. `verification/theorem_22_6/kernels.py`
+      and `rust/` are written from the mathematics, not translated from the authors' code (which has no
+      licence): collision kernel from classical scattering, parametrised by $\beta=p^2/r_0^2$ with the
+      deflection derivative taken under the integral (reproduces the Rutherford cross-section to
+      $10^{-12}$ in $d=2,3$); subordinate kernel from the spherical heat-kernel expansion with each
+      $t$-integral an exact incomplete gamma function; both normalised by their exact $\theta\to0$
+      constants; $\Lambda_b$ in closed form. Against the authors' code (`reference_julia.json`, from
+      `gen_reference.jl`): collision kernel within $2\times10^{-6}$ (their finite-difference derivative),
+      subordinate kernel within $0.7\%$ (theirs bump-averaged, ours pointwise). Both claims reproduce:
+      $d=3$ minimum $4.355\ge4.3$, $d=2$ minimum $3.364>3.3$. Rust vs Python: $\le2\times10^{-9}$.
+      One finding about the authors' numerics: their adaptive quadrature of the $\Lambda_b$ integrals
+      underestimates $\Lambda_b$ as $\nu\to2$ (at $d=2$, $\nu=1.999$: $3.932$ vs exact $3.997$, confirmed
+      by a singularity-resolving substitution to 12 digits), because the integrand tends to $t^{-1}$.
+      The error is conservative — their tabulated bounds are slightly *lower* than the true ones — so
+      neither claim is affected
 - [x] Independent numerical cross-check of Q-RHK-02's own exact quantities ($m_r$, $M_r$,
       $\Sigma(\beta)$, $\gamma_{\text{bound}}$) added: `verification/validate_kernel_regularity_bounds.py`
       (golden-section search, mpmath quadrature, Monte Carlo integration, and a rejection-sampling

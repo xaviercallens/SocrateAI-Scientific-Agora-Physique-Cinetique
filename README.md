@@ -130,9 +130,12 @@ python3 verification/validate_zero_sound.py
 python3 verification/validate_kernel_regularity_bounds.py        # independent MC/quadrature check
 python3 verification/validate_fisher_information_monotonicity.py # BKW-mode Fisher-info decay
 
-# re-run the numerical worked examples after Villani's Theorem 22.6 with the authors'
-# own code (Julia >= 1.10; fetched at a pinned commit, not vendored)
-verification/theorem_22_6/run.sh
+# the numerical worked examples after Villani's Theorem 22.6, three ways
+python3 verification/theorem_22_6/reproduce.py        # independent Python implementation
+                                                      #   (checked point by point vs the authors' code)
+(cd verification/theorem_22_6/rust && cargo run --release)   # independent Rust implementation
+python3 verification/theorem_22_6/cross_check_rust.py # Rust vs Python at full precision
+verification/theorem_22_6/run.sh                      # the authors' own Julia code, pinned commit
 
 # proof checking (library target only; the exe target would native-compile all of mathlib)
 cd lean4_formalization && lake exe cache get && lake build
