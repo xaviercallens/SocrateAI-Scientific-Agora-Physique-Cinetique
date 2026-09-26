@@ -5,27 +5,34 @@ class KineticStage:
     def __init__(self, name="kinetic stage"):
         self.name = name
 
-    def execute_sk_019_plasma_echo_miner(self, linear_seq):
-        """Applies exact non-linear Volterra convolution to extract the O(e^2) plasma echo."""
-        print(f"🌌 [{self.name}] Ingesting quantum state. Applying SK-019 Volterra O(e^2) convolution...")
+    def compute_second_order_volterra_response(self, linear_seq):
+        """Applies exact Volterra convolution to extract the O(e^2) density response rho^(2).
+
+        This is the Taylor series of Si(t)^2/2, not a plasma echo -- an echo is a large-time
+        phenomenon at t = tau*k2/(k2-k1) requiring two pulses at distinct wavenumbers, neither
+        present here (RETRACTIONS.md R2). Renamed from execute_sk_019_plasma_echo_miner for the
+        same reason apply_theorem_22_6 was renamed to kernel_regularity_bounds: the API should
+        not assert a retracted physical claim in its own name.
+        """
+        print(f"🌌 [{self.name}] Ingesting quantum state. Computing exact O(e^2) Volterra convolution...")
         order = len(linear_seq)
-        
+
         # 1. Induced Electric Field: E^(1)(t) = integral(rho^(1)) dt
         E1 = [sp.Rational(0, 1)] * order
         for k in range(order - 1):
             E1[k+1] = linear_seq[k] / sp.Rational(k + 1)
-            
+
         # 2. Convective Source S^(2) = rho^(1) * E^(1) (Exact Cauchy Product over Q)
         S2 = [sp.Rational(0, 1)] * order
         for n in range(order):
             S2[n] = sum(linear_seq[j] * E1[n - j] for j in range(n + 1))
-            
-        # 3. Echo Density: rho^(2)(t) = integral(S^(2)) dt
-        echo_seq = [sp.Rational(0, 1)] * order
+
+        # 3. Second-order density response: rho^(2)(t) = integral(S^(2)) dt
+        response_seq = [sp.Rational(0, 1)] * order
         for k in range(order - 1):
-            echo_seq[k+1] = S2[k] / sp.Rational(k + 1)
-            
-        return echo_seq
+            response_seq[k+1] = S2[k] / sp.Rational(k + 1)
+
+        return response_seq
 
     def kernel_regularity_bounds(self, beta_roton, theta_sym, d=3):
         r"""

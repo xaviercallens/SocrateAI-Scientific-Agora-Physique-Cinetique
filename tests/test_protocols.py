@@ -131,17 +131,17 @@ def test_qve_02_second_order_sequence():
     This is the Taylor series of Si(t)^2/2 -- NOT a plasma echo (RETRACTIONS R2)."""
     linear, kinetic = LinearResponseStage(), KineticStage()
     linear_seq = linear.execute_quantum_response(order=12)
-    echo_seq = kinetic.execute_sk_019_plasma_echo_miner(linear_seq)
+    response_seq = kinetic.compute_second_order_volterra_response(linear_seq)
 
-    assert echo_seq[2] == sp.Rational(1, 2)
-    assert echo_seq[4] == sp.Rational(-1, 18)
-    assert echo_seq[6] == sp.Rational(13, 4050)
-    assert echo_seq[8] == sp.Rational(-4, 33075)
+    assert response_seq[2] == sp.Rational(1, 2)
+    assert response_seq[4] == sp.Rational(-1, 18)
+    assert response_seq[6] == sp.Rational(13, 4050)
+    assert response_seq[8] == sp.Rational(-4, 33075)
 
     t = sp.Symbol('t')
     target = sp.series(sp.Si(t)**2 / 2, t, 0, 10).removeO()
     for n in (2, 4, 6, 8):
-        assert sp.simplify(target.coeff(t, n) - echo_seq[n]) == 0
+        assert sp.simplify(target.coeff(t, n) - response_seq[n]) == 0
 
 
 # --------------------------------------------------------------------------
