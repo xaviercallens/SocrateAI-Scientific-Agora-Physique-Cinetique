@@ -6,6 +6,7 @@
 \usepackage{geometry}
 \usepackage{hyperref}
 \usepackage{booktabs}
+\usepackage{xcolor}
 \geometry{margin=1in}
 
 \title{Scientific Formalization of Continuous Quantum Fluid Dynamics: \\ The Agora Verification Protocols}
@@ -16,8 +17,22 @@
 
 \maketitle
 
+\begin{center}
+\fcolorbox{black}{gray!5}{\begin{minipage}{0.92\textwidth}
+\noindent\textbf{Note (2026-09-26).} Several claims below have since been corrected or retracted;
+see \texttt{RETRACTIONS.md} in the repository for the full record. In summary: the ``non-linear
+Quantum Volterra echo'' (QVE-02) is not a physical echo (R2); the QV-01 paragraph below describing
+an RPA-driven ``onset of Landau Damping'' was never actually implemented that way and has since been
+replaced by an exact Pad\'e root-finding method with a documented negative result in weak coupling
+(R6, R7); the Q-RIP-03 manifold is $T^2$ in the code, not $\mathbb{RP}^1$ as stated below, and
+$L_*=4$ is a conjecture/definitional identity, not a proven protective bound (R3, R4); and the
+Q-RHK-02 ``Theorem 22.6'' attribution has been checked against the source and found mismatched (R8).
+The text below is kept as a historical record and is annotated in place rather than rewritten.
+\end{minipage}}
+\end{center}
+
 \begin{abstract}
-This report documents the formalized mathematical physics protocols executed within the SocrateAI Scientific Agora. Strict adherence to the ``Z\'ero Simulation Flottante'' policy is maintained throughout: all continuous physical phenomena, including Landau Damping, non-linear Quantum Volterra echoes, and Roton scattering kernels, are extracted algebraically over the rational field $\mathbb{Q}$ avoiding any floating-point hallucinations. The resulting exact sequences are subsequently verified by the Lean 4 kernel utilizing the Mathlib \texttt{Rat} type to provide absolute mathematical certainty. This multi-stage pipeline orchestrates symbolic computation across specialized processing layers to achieve formal verification.
+This report documents the formalized mathematical physics protocols executed within the SocrateAI Scientific Agora. Strict adherence to the ``Z\'ero Simulation Flottante'' policy is maintained throughout: all continuous physical phenomena, including Landau Damping, non-linear Quantum Volterra echoes, and Roton scattering kernels, are extracted algebraically over the rational field $\mathbb{Q}$ avoiding any floating-point hallucinations. The resulting exact sequences are subsequently checked by the Lean 4 kernel utilizing the Mathlib \texttt{Rat} type, which certifies the exact rational arithmetic performed on those sequences (see the note above and \texttt{RETRACTIONS.md} for what this does and does not establish about the physics). This multi-stage pipeline orchestrates symbolic computation across specialized processing layers to achieve formal verification of that arithmetic.
 \end{abstract}
 
 \section{Introduction}
@@ -32,10 +47,21 @@ where $z = \frac{q v_F}{\omega}$. Introducing the Landau interaction parameter $
 \begin{equation}
     \chi_{RPA}(z) = \frac{\chi_0(z)}{1 - F_0^s \chi_0(z)}
 \end{equation}
-Instead of floating-point numerical integration, diagonal Pad\'e approximants are computed strictly over $\mathbb{Q}$ to locate the poles representing the Zero-Sound mode. As the interaction strength $F_0^s$ decreases to a critical threshold near $0.1$, the velocity ratio $v_{zs} / v_F$ breaches the boundary $1.0$, physically corresponding to the onset of Landau Damping (the particle-hole continuum).
+\textit{Update (see RETRACTIONS.md R6/R7): the RPA-driven pole tracking described above as originally
+planned was never actually implemented -- an early attempt fed a polynomial into a function expecting
+Taylor coefficients and produced meaningless output, and separately violated the exact-arithmetic rule
+via a float round-trip. It has been replaced by the following, which is implemented and tested.} Instead
+of floating-point numerical integration, the exact diagonal $[M/M]$ Pad\'e approximant of the Landau
+zero-sound kernel $\chi(s)$ is computed strictly over $\mathbb{Q}$, and the dispersion relation
+$\chi(s) = 1/F_0^s$ is solved exactly as a polynomial root. For strong coupling (e.g. $F_0^s = 93/10$,
+$^3$He-like) this gives $s = \sqrt{37/10}\ldots$ at $[1/1]$, agreeing with a 60-digit reference to
+$6.8\times10^{-10}$ at $[4/4]$. For weak coupling, no admissible root exists at any order -- the mode is
+exponentially close to the particle-hole continuum edge, $s - 1 \simeq 2e^{-2-2/F_0^s}$, and this
+negative result is characterised analytically rather than ``tracked into'' the continuum, which the
+method cannot do.
 
-\section{Protocol QVE-02: The Quantum Volterra Echo}
-Demonstrating cross-domain Stage-to-Stage integration, the LinearResponseStage generates the $\mathcal{O}(\epsilon^1)$ linear density perturbation sequence $\rho^{(1)}(t)$. The KineticStage ingests this to compute the induced electric field $E^{(1)}(t)$, subsequently evaluating the exact Cauchy convolution product of the non-linear source term $S^{(2)} = \rho^{(1)} \cdot E^{(1)}$. This exact Volterra integral expansion yields the $\mathcal{O}(\epsilon^2)$ density echo sequence. This prevents discretization drift completely, securing the expansion for Lean 4.
+\section{Protocol QVE-02: Second-order Volterra response (not an echo -- see RETRACTIONS.md R2)}
+Demonstrating cross-domain Stage-to-Stage integration, the LinearResponseStage generates the $\mathcal{O}(\epsilon^1)$ linear density perturbation sequence $\rho^{(1)}(t)$. The KineticStage ingests this to compute the induced electric field $E^{(1)}(t)$, subsequently evaluating the exact Cauchy convolution product of the non-linear source term $S^{(2)} = \rho^{(1)} \cdot E^{(1)}$. This exact Volterra integral expansion yields the $\mathcal{O}(\epsilon^2)$ density sequence, which is the Taylor series of $\mathrm{Si}(t)^2/2$ -- not a plasma echo, which is a large-time phenomenon requiring two pulses at distinct wavenumbers, neither present here. The computation itself is exact and correct; only the ``echo'' label is retracted. This prevents discretization drift completely, securing the expansion for Lean 4.
 
 \section{Protocol Q-RHK-02: Roton Fractional Heat Kernels}
 To evaluate the stability of Pitaevskii Plateau phenomena in superfluid $^4$He, a phenomenological angular scattering kernel $\beta(\cos\theta)$ is extracted:
@@ -53,8 +79,13 @@ combination below is an independently-defined convention of this project (see RE
 \end{itemize}
 These constants define the critical Fisher Information dissipation bound required to ensure smooth equilibration.
 
-\section{Protocol Q-RIP-03: 2D Quantum Ripplons}
-Evaluating topological phase-mixing of capillary waves (ripplons) on a $2$D flat topology ($\mathbb{RP}^1$), the differential Bakry-\'Emery curvature is analytically constrained. The system resolves the optimal topological constant to be exactly $L_*=4$. This integer boundary protects 2D quantum films from immediate Landau damping collapse. 
+\section{Protocol Q-RIP-03: 2D Quantum Ripplons (conjecture stage)}
+Evaluating topological phase-mixing of capillary waves (ripplons) on a $2$D flat topology ($T^2$ in
+the implementation -- an earlier draft of this document said $\mathbb{RP}^1$, a discrepancy recorded
+in RETRACTIONS.md R4 and corrected here), the differential Bakry-\'Emery curvature is conjectured,
+not derived: with $L_*(d) := 2d$ taken as a definition, $L_*(2) = 4$ follows by arithmetic alone. This
+is not a proven topological constant, and the claim that it ``protects 2D quantum films from Landau
+damping collapse'' has no support here -- see RETRACTIONS.md R3 for the full caveat.
 
 \section{Conclusion}
 By leveraging an exact $\mathbb{Q}$-based extraction layer and deploying subsequent proof resolution using Lean 4 \texttt{Mathlib} tactics (e.g. \texttt{norm\_num}), the Agora eliminates numerical discrepancies. No simulated pseudo-data is introduced, strictly aligning with empirical rigor.

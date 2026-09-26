@@ -31,8 +31,20 @@
 
 \maketitle
 
+\begin{mdframed}[backgroundcolor=gray!5, linecolor=black, linewidth=1pt]
+\noindent\textbf{Note (26 septembre 2026).} Deux corrections s'appliquent à ce document, détaillées
+dans \texttt{RETRACTIONS.md} du dépôt. (1) Le terme « écho » employé ci-dessous pour la séquence
+$\rho^{(2)}(t)$ (Protocole QVE-02) a été \textbf{rétracté} : cette séquence est la série de Taylor de
+$\mathrm{Si}(t)^2/2$, pas un écho de plasma au sens physique -- un écho est un phénomène à grand temps
+nécessitant deux impulsions à nombres d'onde distincts, absents ici (voir RETRACTIONS.md, R2). Le
+calcul lui-même reste exact et correct ; seule l'interprétation « écho » est retirée. (2) L'attribution
+du protocole Q-RHK-02 au « Théorème 22.6 » de Villani, mentionnée plus bas, a été vérifiée directement
+contre la source et jugée non fondée (RETRACTIONS.md, R8) ; le théorème existe mais borne une quantité
+différente.
+\end{mdframed}
+
 \begin{abstract}
-L'application de l'Intelligence Artificielle à la physique cinétique se heurte à deux obstacles : l'hallucination sémantique des modèles génératifs et les artefacts de discrétisation des solveurs numériques (Float64), qui détruisent la nature continue du mélange de phase (Amortissement Landau). Ce document présente un sous-ensemble open source de l'architecture multi-agents \textbf{Agora}, conçu pour contourner ces écueils. En imposant une collaboration stricte dans le corps des rationnels ($\mathbb{Q}$) entre un stage spécialisé en fluides quantiques et un stage expert en équations cinétiques, le système a dérivé la signature algébrique exacte d'un écho de plasma non-linéaire au sein d'un liquide de Fermi, générant une séquence mathématique prête pour la vérification formelle dans \textbf{Lean 4}.
+L'application de l'Intelligence Artificielle à la physique cinétique se heurte à deux obstacles : l'hallucination sémantique des modèles génératifs et les artefacts de discrétisation des solveurs numériques (Float64), qui détruisent la nature continue du mélange de phase (Amortissement Landau). Ce document présente un sous-ensemble open source de l'architecture multi-agents \textbf{Agora}, conçu pour contourner ces écueils. En imposant une collaboration stricte dans le corps des rationnels ($\mathbb{Q}$) entre un stage spécialisé en fluides quantiques et un stage expert en équations cinétiques, le système a dérivé la signature algébrique exacte d'une réponse de Volterra du second ordre au sein d'un liquide de Fermi (présentée initialement comme un écho de plasma non-linéaire ; cette qualification est rétractée, voir la note ci-dessus), générant une séquence mathématique prête pour la vérification formelle dans \textbf{Lean 4}.
 \end{abstract}
 
 \section{Postulat Épistémologique : "Zéro Simulation Flottante"}
@@ -46,7 +58,7 @@ L'expérience a été menée via la \textit{Plasma Pipeline} du laboratoire Socr
     \item \textbf{Le Stage "Orchestrator" (Validation Épistémologique) :} Valide l'absence de dégradation flottante et scelle les séquences exactes pour les futurs pipelines de preuve formelle.
 \end{itemize}
 
-\section{Résultats : Protocole QVE-02 (Quantum Volterra Echo)}
+\section{Résultats : Protocole QVE-02 (réponse de Volterra du second ordre, anciennement qualifiée d'« écho »)}
 
 L'exécution autonome de la \textit{Plasma Pipeline} a produit l'échange et l'extraction mathématique suivants :
 
@@ -56,11 +68,11 @@ Ce stage extrait l'expansion de Taylor rationnelle exacte de la réponse densit�
 \begin{equation}
 \rho^{(1)}(t) = 1 - \frac{1}{6}t^2 + \frac{1}{120}t^4 + \dots \quad \in \mathbb{Q}[[t]]
 \end{equation}
-\textit{Interprétation physique :} Cette séquence est le développement de Taylor de la fonction $\mathrm{sinc}(t) = \frac{\sin(t)}{t}$, qui est la transformée de Fourier exacte d'une sphère de Fermi continue (fonction de Bessel sphérique $j_0$). Le calcul symbolique retrouve de manière autonome la cohérence spatiale d'un gaz de Fermi dégénéré.
+\textit{Interprétation physique :} Cette séquence est le développement de Taylor de la fonction $\mathrm{sinc}(t) = \frac{\sin(t)}{t}$, qui est la transformée de Fourier exacte d'une sphère de Fermi continue (fonction de Bessel sphérique $j_0$). Cette forme est fournie comme entrée du pipeline (elle n'est pas redérivée de manière autonome depuis des premiers principes) ; ce qui est calculé exactement de manière autonome, c'est la suite des étapes en aval ($E^{(1)}$, le produit de Cauchy $S^{(2)}$, puis $\rho^{(2)}$).
 
 \vspace{0.3cm}
 \textbf{2. Sortie du KineticStage (Écho Cinétique Non-Linéaire $\mathcal{O}(\epsilon^2)$) :}\\
-Ce stage calcule le champ électrique induit $E^{(1)}$ et opère le produit de Cauchy exact du terme source $S^{(2)} = \rho^{(1)} E^{(1)}$. La séquence de l'écho quantique extraite est :
+Ce stage calcule le champ électrique induit $E^{(1)}$ et opère le produit de Cauchy exact du terme source $S^{(2)} = \rho^{(1)} E^{(1)}$. La séquence extraite (anciennement qualifiée d'« écho quantique », qualification rétractée -- voir la note en début de document) est :
 \begin{equation}
 \rho^{(2)}(t) = \frac{1}{2}t^2 - \frac{1}{18}t^4 + \frac{13}{4050}t^6 - \frac{4}{33075}t^8 + \frac{73}{22325625}t^{10} + \mathcal{O}(t^{12})
 \end{equation}
@@ -89,7 +101,7 @@ En appliquant la décomposition théorique à ce noyau, ce stage extrait les con
 \end{itemize}
 \end{mdframed}
 
-\textbf{Conclusion Physique :} L'exécution établit formellement que la dynamique macroscopique des fluides quantiques est protégée en toute sécurité par les constantes différentielles de Bakry-Émery. La dissipation de l'Information de Fisher est garantie par la borne $|\gamma| \le 1.9513$, prévenant toute explosion en temps fini. Cette limite exacte a été injectée sous forme de constante rationnelle stricte dans le compilateur \textbf{Lean 4}.
+\textbf{Portée du résultat :} le noyau $\beta(\cos\theta)$ est un modèle analytique choisi pour sa forme \textit{forward-peaked}, sans donnée mesurée en entrée -- rien ici ne le valide contre $^4$He réel. La borne $|\gamma| \le 1.9513$ est une convention propre à ce projet (voir la note en début de document ; RETRACTIONS.md, R8), pas une conséquence d'un théorème publié. Ce qui est formellement vérifié dans \textbf{Lean 4} est l'arithmétique exacte sur le rationnel substitut $16063/8232$, pas un énoncé physique sur les fluides quantiques réels (voir README.md, « What verified means here »).
 
 \section{Conclusion et Vérification Formelle}
 Le système Agora démontre ici sa capacité à synthétiser des mathématiques continues inter-domaines (interaction non-linéaire de Volterra sur un liquide de Fermi quantique) en utilisant exclusivement des méthodes d'extraction algébriques rigoureuses. Le fractionnement hautement complexe des dénominateurs (ex: $22325625$) reflète la combinatoire interne et continue des convolutions cinétiques. La séquence $\rho^{(2)}(t)$ générée a été stockée dans la base de données de l'Agora. Elle constitue le \textit{Theorem Target} qui sera soumis pour une vérification formelle dans le compilateur \textbf{Lean 4}, dans le but d'établir des théorèmes de physique mathématique garantis par zéro axiome non vérifié (\texttt{sorry}). 

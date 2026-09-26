@@ -33,13 +33,22 @@ The remaining five theorems are correct arithmetic on rational literals typed in
 that arithmetic; they say nothing about where the literals came from. "Formally verified" and "absolute
 mathematical certainty" in the documents apply to that arithmetic only.
 
-## R4 — Known inconsistencies, not yet resolved
+## R4 — Known inconsistencies (as of 2026-09-22; all five now resolved, see notes)
 
 - Lindhard series coefficients: 1/3, 19/45 (Lean) vs 2/3, 2/15 (Python, tests) vs 1/(2k+1) (TeX).
+  **Resolved** by commit `38d7fdd`: both are real, distinct functions (the zero-sound kernel
+  $a_k=1/(2k+1)$ and a different `legacy_algebraic_kernel`), named apart and each tested against its
+  own closed form; the stale $19/45$ (which matched neither) is gone.
 - Roton bound: 1.567 (README) vs 1.9513 (TeX, Lean, JSON; the code produces 1.9513).
-- Manifold: T² in code, "ℝP¹" in the documents.
-- The formula attributed to "Theorem 22.6" has not been checked against its source.
-- "Autonomously rediscovered" (proposition_recherche.tex): the series is hard-coded.
+  **Resolved** in R5 — README corrected to the actual computed value.
+- Manifold: T² in code, "ℝP¹" in the documents. **Resolved 2026-09-26**: this sat unfixed for four
+  days after being flagged here — `docs/agora_physics_protocols.tex` still said $\mathbb{RP}^1$ until
+  now; corrected to $T^2$ in place, with a note pointing back to this entry.
+- The formula attributed to "Theorem 22.6" has not been checked against its source. **Resolved
+  2026-09-26**: checked and found mismatched, see R8.
+- "Autonomously rediscovered" (proposition_recherche.tex): the series is hard-coded. **Resolved
+  2026-09-26**: reworded in place — the $\mathrm{sinc}(t)$ input is supplied, not autonomously
+  rederived; what is autonomous is the downstream exact computation ($E^{(1)}$, $S^{(2)}$, $\rho^{(2)}$).
 
 ## R5 — Updated corrections (2026-09-22)
 
