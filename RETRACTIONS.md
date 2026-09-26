@@ -136,3 +136,8 @@ Theorem 22.6. This supersedes §R4's "has not been checked against its source" a
 "Not started": the check has now been done, and the result is a mismatch, not a confirmation. See
 `PROTOCOL_REGISTRY.md` Q-RHK-02 for the corrected attribution language and `ROADMAP.md` Gap 1 for the
 closure note.
+
+*Follow-up (2026-09-26).* What Theorem 22.6 does imply for this kernel has since been computed from
+the theorem as stated, rather than from the retracted formula: $\bar\gamma=3.458$ for
+$B=|v-v_*|^\gamma\beta(\cos\theta)$, $d=3$ (`verification/theorem_22_6/EXPERIMENTS.md`, E3). This
+retraction stands unchanged: 1.95 was never that quantity.

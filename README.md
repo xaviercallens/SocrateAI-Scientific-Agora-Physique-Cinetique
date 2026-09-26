@@ -136,6 +136,8 @@ python3 verification/theorem_22_6/reproduce.py        # independent Python imple
 (cd verification/theorem_22_6/rust && cargo run --release)   # independent Rust implementation
 python3 verification/theorem_22_6/cross_check_rust.py # Rust vs Python at full precision
 verification/theorem_22_6/run.sh                      # the authors' own Julia code, pinned commit
+# experiments built on it (robustness, weight search, theorem applied to Q-RHK-02):
+# see verification/theorem_22_6/EXPERIMENTS.md
 
 # proof checking (library target only; the exe target would native-compile all of mathlib)
 cd lean4_formalization && lake exe cache get && lake build

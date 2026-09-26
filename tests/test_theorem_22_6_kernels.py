@@ -59,3 +59,37 @@ def test_lambda_b_closed_form_matches_resolved_quadrature(d, nu, weight):
     lam_local = d + 3 - mp.mpf(1) / (d - 1)
     expected = d * I(2 * lam_local) / I(2 * d)
     assert K.lambda_b(nu, d, w) == pytest.approx(float(expected), rel=1e-10)
+
+
+# ----------------------------------------------------------------- E3 (roton_application.py)
+import numpy as np  # noqa: E402
+import roton_application as RA  # noqa: E402
+
+
+@pytest.mark.parametrize("t", [0.05, 0.384, 2.0])
+def test_symmetrised_heat_kernel_mass_and_positivity(t):
+    # Symmetrised heat kernel = h_t(theta) + h_t(pi - theta): total mass 2 on S^2, positive.
+    th = np.linspace(0, math.pi, 20001)
+    H = RA.heat_kernel_sym(t, th)
+    y = H * 2 * math.pi * np.sin(th)
+    mass = np.sum((y[1:] + y[:-1]) / 2 * np.diff(th))  # trapezoid rule, numpy 1.x and 2.x
+    assert mass == pytest.approx(2.0, rel=1e-6)
+    assert H.min() > 0
+
+
+def test_symmetrised_heat_kernel_long_time_limit():
+    # t -> inf: uniform density 2 / (4 pi).
+    th = np.linspace(0, math.pi / 2, 101)
+    assert np.allclose(RA.heat_kernel_sym(10.0, th), 1 / (2 * math.pi), rtol=1e-12)
+
+
+def test_2d_coulomb_equals_fractional_laplacian_exactly():
+    # d=2, nu=1 is 2D Coulomb scattering. Its symmetrised Rutherford kernel
+    # 1/(4 sin^2(th/2)) + 1/(4 cos^2(th/2)) = 1/sin^2(th) is exactly the symmetrised
+    # kernel of (-Delta)^(1/2) on the circle, so the two independently computed,
+    # independently normalised kernels must coincide at every angle.
+    th = np.linspace(0.1, math.pi / 2, 60)
+    col = K.collision_normalised(th, 1.0, 2)
+    sub = K.subordinate_normalised(th, 1.0, 2, K.weight_fractional_laplacian(1.0))
+    assert np.allclose(col * np.sin(th) ** 2, 1.0, rtol=1e-12)
+    assert np.allclose(sub / col, 1.0, rtol=1e-9)

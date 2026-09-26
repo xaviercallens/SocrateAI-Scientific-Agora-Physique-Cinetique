@@ -255,6 +255,11 @@ behind an experiment's own DOI, not in a self-serve repository. Specifically:
       by a singularity-resolving substitution to 12 digits), because the integrand tends to $t^{-1}$.
       The error is conservative — their tabulated bounds are slightly *lower* than the true ones — so
       neither claim is affected
+- [x] **Experiments E1–E3** (`verification/theorem_22_6/EXPERIMENTS.md`) — 2026-09-26.
+      E1: both claims survive 52 ν values × 400 angles (d=3 min 4.3544, d=2 min 3.3593 at ν≈1.06,
+      a dip between the paper's sampled ν). E2: the paper's hand-tuned weights are within 0.06 of the
+      best in their family; without tuning both claims fail. E3: Theorem 22.6 as stated, applied to
+      this project's Q-RHK-02 model kernel, gives $\bar\gamma=3.458$
 - [x] Independent numerical cross-check of Q-RHK-02's own exact quantities ($m_r$, $M_r$,
       $\Sigma(\beta)$, $\gamma_{\text{bound}}$) added: `verification/validate_kernel_regularity_bounds.py`
       (golden-section search, mpmath quadrature, Monte Carlo integration, and a rejection-sampling

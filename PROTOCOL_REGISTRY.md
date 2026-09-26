@@ -97,6 +97,12 @@ This document catalogs the formalized, automated scientific protocols used by th
   numerical worked examples are re-executed separately by `verification/theorem_22_6/run.sh`, using the
   authors' code at a pinned commit: both quoted bounds reproduce ($\ge 4.3$ in $d=3$, $>3.3$ in $d=2$;
   see ROADMAP.md Gap 4). That confirms the cited paper, not this protocol's $\gamma_{\text{bound}}$.
+* **What Theorem 22.6 actually gives for this kernel** (`verification/theorem_22_6/EXPERIMENTS.md`,
+  E3): take $B=|v-v_*|^\gamma\beta(\cos\theta)$ with $d=3$, and compare β with its best finite mixture
+  of heat kernels on $S^2$ (a linear program). The comparison gives $m/M=0.99654$, so the theorem, as
+  stated, implies Fisher-information monotonicity whenever $|\gamma|\le\bar\gamma=2\sqrt{3m/M}=3.458$
+  (the theorem's ceiling is $2\sqrt3$). This is the quantity the retracted formula was meant to be;
+  it is a property of this *model* kernel, not of real rotons.
 
 ## Protocol Q-RIP-03: 2D Quantum Ripplons & The Optimal $L_*=4$ Constant
 * **Objective:** Conjecture topological protection of 2D liquid $^3$He ripplons (capillary waves) on graphite substrates.
