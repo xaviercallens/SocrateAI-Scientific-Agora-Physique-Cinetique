@@ -1,0 +1,22 @@
+name: Theorem 22.6 numerics (Julia)
+
+# Re-runs the numerical worked examples after Theorem 22.6 of arXiv:2501.00925
+# using the authors' own code at a pinned commit. Kept separate from the Python
+# workflow because first-run package precompilation takes several minutes.
+on:
+  push:
+    paths:
+      - 'verification/theorem_22_6/**'
+      - '.github/workflows/theorem_22_6.yml'
+  workflow_dispatch:
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.13'  # matches Manifest.toml's julia_version
+      - name: Reproduce the d=2 and d=3 bounds
+        run: verification/theorem_22_6/run.sh

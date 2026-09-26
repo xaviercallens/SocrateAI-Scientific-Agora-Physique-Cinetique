@@ -93,7 +93,10 @@ This document catalogs the formalized, automated scientific protocols used by th
   numerically checks the general physical principle behind the cited Villani paper (Fisher information
   monotonicity along the homogeneous Boltzmann equation) using the exact Bobylev–Krook–Wu mode for
   Maxwell molecules — a real textbook solution, not this project's own kernel, and explicitly **not** a
-  test of Theorem 22.6 itself (see that script's docstring for exact scope).
+  test of Theorem 22.6 itself (see that script's docstring for exact scope). Theorem 22.6's *own*
+  numerical worked examples are re-executed separately by `verification/theorem_22_6/run.sh`, using the
+  authors' code at a pinned commit: both quoted bounds reproduce ($\ge 4.3$ in $d=3$, $>3.3$ in $d=2$;
+  see ROADMAP.md Gap 4). That confirms the cited paper, not this protocol's $\gamma_{\text{bound}}$.
 
 ## Protocol Q-RIP-03: 2D Quantum Ripplons & The Optimal $L_*=4$ Constant
 * **Objective:** Conjecture topological protection of 2D liquid $^3$He ripplons (capillary waves) on graphite substrates.

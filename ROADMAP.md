@@ -225,9 +225,20 @@ behind an experiment's own DOI, not in a self-serve repository. Specifically:
 **Acceptance Criteria:**
 - [ ] Data-access email drafted and sent to Godfrin/ILL citing the specific proposals
 - [ ] Greywall $F_0^s(P)$ table transcribed into a structured file in this repo
-- [ ] A numerical (not dataset-based) check of Theorem 22.6's own worked examples (inverse-power-law
-      kernels, $d=2,3$, their heat-kernel decomposition and $m_r,M_r$ construction) attempted — **not
-      done yet**; see the two items below for what was done instead
+- [x] A numerical (not dataset-based) check of Theorem 22.6's own worked examples (inverse-power-law
+      kernels, $d=2,3$, their heat-kernel decomposition and $m_r,M_r$ construction) — **done
+      2026-09-26**: `verification/theorem_22_6/run.sh`. The paper (§22, after Remark 22.7) says these
+      bounds were obtained numerically by L. Silvestre, published in Imbert–Silvestre–Villani,
+      arXiv:2409.01183, with code at `github.com/luissilvestre/collisionkernel` (the paper's ref.
+      [160]). That code was re-executed here at pinned commit `01a9d44` (not vendored — the upstream
+      repository has no LICENSE). Results: $d=3$, $\gamma\in(-3,-2]$, tuned weight
+      $1-\min(\tfrac{13}{8}-\tfrac34\nu,\tfrac25)(1-e^{-2t})$: minimum $2\sqrt{\Lambda_b\,c_2/C_1} = 4.357$
+      (paper claims $\ge 4.3$); $d=2$, $\nu\in[1,2)$, weight $1+2(\nu-1)^2(1-e^{-2t})$: minimum $3.363$
+      (paper claims $>3.3$); plain fractional-Laplacian ratio $M/m = 1.572$ at $d=3,\nu=1$ (paper:
+      "approaches 1.6"). Both claims reproduce, and agree with the upstream notebooks' saved outputs
+      to 2 decimals. Scope: this confirms the *cited paper's* numerics; it says nothing new about this
+      project's own $\gamma_{\text{bound}}$, which R8 already establishes is a different object — the
+      two numbers (≈4.36 vs 1.95) must not be compared
 - [x] Independent numerical cross-check of Q-RHK-02's own exact quantities ($m_r$, $M_r$,
       $\Sigma(\beta)$, $\gamma_{\text{bound}}$) added: `verification/validate_kernel_regularity_bounds.py`
       (golden-section search, mpmath quadrature, Monte Carlo integration, and a rejection-sampling
@@ -238,7 +249,8 @@ behind an experiment's own DOI, not in a self-serve repository. Specifically:
       for Maxwell molecules — 2026-09-26, passes (mass conserved exactly, Maxwellian limit matches the
       known closed form $I=3$ exactly, monotonic decrease observed over the full trajectory). This is
       **not** a test of Theorem 22.6 itself — see the script's docstring for exact scope
-- [ ] This gap's status updated once real data lands, or Theorem 22.6's own worked examples are checked
+- [ ] This gap's status updated once real data lands (the numerical items above are all done; only the
+      empirical-data items — Godfrin/ILL request, Greywall transcription — remain open)
 
 ---
 
