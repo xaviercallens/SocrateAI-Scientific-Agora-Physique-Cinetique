@@ -153,20 +153,22 @@ This violates the respect principle stated in §R1 and creates a misleading impr
 
 ---
 
-### Gap 4: No empirical validation data — plan for institutional data access
+### Gap 4: No empirical validation data for any of the four protocols — plan for institutional data access
 
 **Reference:** `PROTOCOL_REGISTRY.md`'s Dataset Falsification Policy note; this gap makes "pending
 institutional data access" concrete.
 
-**Why it matters:** Q-RHK-02's kernel and QV-01's $F_0^s = 93/10$ stand-in are both phenomenological —
-explicitly "using no measured data; nothing here validates it against real $^3$He/$^4$He" (README).
-Closing that gap needs either real neutron-scattering data (Q-RHK-02) or real Fermi-liquid parameter
-measurements (QV-01), not more symbolic computation.
+**Why it matters:** all four protocols' physical inputs are phenomenological or definitional — Q-RHK-02's
+kernel and QV-01's $F_0^s = 93/10$ stand-in explicitly "using no measured data" (README); QVE-02's
+$\rho^{(1)} = \operatorname{sinc}(t)$ is the free (non-interacting) Fermi-sphere response, not measured
+from any real interacting system; Q-RIP-03's $L_*=2d$ is a bare conjecture with no physical input at all.
+Closing this gap needs real data or a real numerical check for each, not more symbolic computation.
 
-**What was checked (2026-09-26):** searched Zenodo, Hugging Face Datasets, Materials Cloud, and the
-ILL data portal for an open, structured dataset in three categories. Result: **none exists in
-ready-to-use open form** — this is a field where the real data sits inside papers or behind an
-experiment's own DOI, not in a self-serve repository. Specifically:
+**What was checked (2026-09-26, two passes — QV-01/Q-RHK-02/Villani first, then QVE-02/Q-RIP-03):**
+searched Zenodo, Hugging Face Datasets, Materials Cloud, and the ILL data portal for an open, structured
+dataset covering all four protocols plus the Villani-side numerical bound. Result: **none exists in
+ready-to-use open form for any of them** — this is a field where the real data sits inside papers or
+behind an experiment's own DOI, not in a self-serve repository. Specifically:
 
 - **Q-RHK-02 (roton/maxon angular scattering):** the directly relevant real measurement is
   K. Beauvois, J. Dawidowski, B. Fåk, H. Godfrin, E. Krotscheck, J. Ollivier, A. Sultan,
@@ -186,23 +188,45 @@ experiment's own DOI, not in a self-serve repository. Specifically:
   setting of Theorem 22.6). One recent candidate, "TransportBench" (arXiv:2606.02997, stated
   MIT-licensed), covers spatially *inhomogeneous* rarefied flows instead — the wrong shape of test —
   and no code/data release could be located regardless.
+- **QVE-02 (Fermi-liquid dynamic response):** the real analogues of $\rho^{(1)}=\operatorname{sinc}(t)$
+  are measurements of $S(q,\omega)$ for an interacting Fermi liquid at small $q$ — e.g. Godfrin's own
+  inelastic-neutron measurements of normal liquid $^3$He, and of a 2D $^3$He monolayer where a
+  collective mode reappears past the particle-hole continuum (see Q-RIP-03 entry below, same paper). A
+  genuinely new (Sept. 2025) result, arXiv:2509.10741, "Direct Observation of the Lindhard Continuum
+  using Resonant Inelastic X-ray Scattering" (MgB$_2$), probes the free-electron-gas Lindhard response
+  directly by a different, modern technique — worth checking for a raw-spectra deposit if pursued. None
+  of these has an open structured dataset; the classic two-pulse plasma-echo experiments
+  (Malmberg–Wharton, PRL 20, 95 (1968), and later Penning-trap successors) are 1960s–1990s vintage with
+  no digital data and are relevant only as citable context for what a real echo looks like — this
+  project's QVE-02 computation is not that (RETRACTIONS.md R2).
+- **Q-RIP-03 (ripplons on He films):** the directly relevant real measurement is H. J. Lauter, H.
+  Godfrin, V. L. P. Frank, P. Leiderer, *"Ripplons in $^4$He films observed by neutron scattering"*,
+  Phys. Rev. Lett. 68, 2484 (1992) — ripplon dispersion $\omega(k)$ on a graphite-adsorbed $^4$He film,
+  exactly this protocol's physical setting. Also directly relevant (2D Fermi liquid, not $^4$He): H.
+  Godfrin, M. Meschke, H.-J. Lauter, A. Sultan, H. M. Böhm, E. Krotscheck, M. Panholzer, *"Observation
+  of a roton collective mode in a two-dimensional Fermi liquid"*, Nature 483, 576 (2012) — a $^3$He
+  monolayer. Both confirmed real; both predate open-data conventions and have no accessible
+  data-availability statement or deposit (the Nature page is paywalled with no arXiv preprint found).
 
 **Recommended next step — this is a data-access request, not a download:**
-1. For Q-RHK-02: contact H. Godfrin directly (or via ILL), citing PRB 97, 184520 (2018) by proposal
-   number, and ask for either the post-embargo `ILL-DATA` DOI for the roton/maxon run, or the digitized
-   $S(Q,\omega)$ table behind that paper's Fig. 2–3.
+1. For Q-RHK-02 and Q-RIP-03: contact H. Godfrin directly (or via ILL), citing PRB 97, 184520 (2018),
+   PRL 68, 2484 (1992), and/or Nature 483, 576 (2012) by proposal number, and ask for either the
+   post-embargo `ILL-DATA` DOI for the relevant run, or the digitized data tables behind those papers'
+   figures.
 2. For QV-01: transcribe $F_0^s(P)$ from Greywall (1983) and later reanalyses directly — no external
    dataset search needed.
-3. For the Villani-side bound: rather than searching for a pre-made benchmark, numerically solve the
+3. For QVE-02: if a quantitative check is wanted rather than qualitative context, check whether
+   arXiv:2509.10741's RIXS data has a raw-spectra deposit.
+4. For the Villani-side bound: rather than searching for a pre-made benchmark, numerically solve the
    spatially homogeneous Boltzmann equation for Theorem 22.6's own worked examples (inverse-power-law
    kernels, $d=2,3$) with an existing open solver, and compare against the paper's stated bounds
    directly.
 
 **Acceptance Criteria:**
-- [ ] Data-access email drafted and sent to Godfrin/ILL citing the specific proposal
+- [ ] Data-access email drafted and sent to Godfrin/ILL citing the specific proposals
 - [ ] Greywall $F_0^s(P)$ table transcribed into a structured file in this repo
 - [ ] A numerical (not dataset-based) check of Theorem 22.6's worked examples attempted
-- [ ] This gap's status updated once any of the three lands real data or a real numerical check
+- [ ] This gap's status updated once any of the above lands real data or a real numerical check
 
 ---
 
