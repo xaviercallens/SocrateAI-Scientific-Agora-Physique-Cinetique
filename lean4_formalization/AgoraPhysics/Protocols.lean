@@ -4,39 +4,58 @@ import Mathlib.Tactic
 namespace AgoraPhysics.Protocols
 
 --------------------------------------------------------------------------------
--- 1. Protocol QV-01 (Zero-Sound Padé Poles)
+-- 1. Protocol QV-01 (zero sound: exact [1/1] Padé and its dispersion root)
 --------------------------------------------------------------------------------
 /-
-Agent Godfrin computed the exact Lindhard Taylor expansion:
-  T(y) = 1/3 y + 19/45 y^2 + ...
-Agent Villani derived the Padé approximant matching up to order 2:
-  Q(y) = 1 - 19/15 y
-  P(y) = 1/3 y
-We formally verify that Q * T = P + O(y^3) over ℚ.
+The Landau zero-sound kernel is
+
+  χ(s) = (s/2) · log((s+1)/(s-1)) - 1 = ∑_{k≥1} u^k / (2k+1),   u = 1/s².
+
+Its exact rational coefficients are a k = 1/(2k+1); the Python stage
+`LinearResponseStage.landau_zero_sound_kernel` produces them and
+`tests/test_protocols.py::test_landau_kernel_matches_closed_form` checks them
+against the closed form. Earlier versions of this file carried T1 = 1/3,
+T2 = 19/45; the 19/45 matched neither the kernel nor the Python code and has
+been removed (see RETRACTIONS.md R4).
+
+What is verified below is arithmetic over ℚ: the [1/1] Padé order condition,
+and the fact that a specific rational is a root of the dispersion polynomial.
+No claim is made here about the physics of ³He, nor about the convergence of
+the approximant; those are established numerically in
+verification/validate_zero_sound.py and reported in the paper.
 -/
 
-def Q0 : ℚ := 1
-def Q1 : ℚ := -19 / 15
-def Q2 : ℚ := 0
+/-- Kernel coefficients a k = 1/(2k+1), as used by the [1/1] approximant. -/
+def a (k : ℕ) : ℚ := 1 / (2 * k + 1)
 
-def T0 : ℚ := 0
-def T1 : ℚ := 1 / 3
-def T2 : ℚ := 19 / 45
+/-- Denominator coefficient of the [1/1] Padé approximant of χ. -/
+def q1 : ℚ := -3 / 5
 
-def P0 : ℚ := 0
-def P1 : ℚ := 1 / 3
-def P2 : ℚ := 0
+/-- `P u = u/3` and `Q u = 1 - (3/5) u` are the [1/1] Padé polynomials. -/
+def Ppade (u : ℚ) : ℚ := u / 3
+def Qpade (u : ℚ) : ℚ := 1 + q1 * u
 
-theorem pade_match_0 : Q0 * T0 = P0 := by
-  unfold Q0 T0 P0
+/-- The [1/1] order condition: a₂ + q₁·a₁ = 0, i.e. the approximant matches the
+series through u². This is the equation that *determines* q₁, so the theorem has
+content: it is not true by definition of q₁. -/
+theorem pade_11_order_condition : a 2 + q1 * a 1 = 0 := by
+  unfold a q1
   norm_num
 
-theorem pade_match_1 : Q0 * T1 + Q1 * T0 = P1 := by
-  unfold Q0 T1 Q1 T0 P1
+/-- Landau interaction parameter used for the ³He-like case, F₀ˢ = 93/10. -/
+def F0s : ℚ := 93 / 10
+
+/-- The dispersion polynomial `Q u - F₀ˢ · P u` vanishes at `u = 10/37`.
+Equivalently s² = 1/u = 37/10, i.e. s = √(37/10) ≈ 1.9235. -/
+theorem zero_sound_root_at_F0s :
+    Qpade (10 / 37) - F0s * Ppade (10 / 37) = 0 := by
+  unfold Qpade Ppade q1 F0s
   norm_num
 
-theorem pade_match_2 : Q0 * T2 + Q1 * T1 + Q2 * T0 = P2 := by
-  unfold Q0 T2 Q1 T1 Q2 T0 P2
+/-- The general [1/1] root is u = 15/(9 + 5F): checked here for F₀ˢ = 93/10. -/
+theorem zero_sound_root_formula :
+    (15 : ℚ) / (9 + 5 * F0s) = 10 / 37 := by
+  unfold F0s
   norm_num
 
 --------------------------------------------------------------------------------
@@ -114,5 +133,26 @@ def gamma_bound : Rat := 16063 / 8232
 -- VACUOUS (see RETRACTIONS.md R3): the hypothesis `h` is the conclusion, since `gamma_bound := 16063 / 8232`.
 theorem admissible_singularity_limit (gamma : Rat) (h : gamma < gamma_bound) : gamma < (16063 / 8232 : Rat) := by
   exact h
+
+--------------------------------------------------------------------------------
+-- 5. Axiom audit
+--------------------------------------------------------------------------------
+/-
+Grepping for the string "sorry" is not evidence that a proof is complete: a
+theorem can still depend on `sorryAx` through an import. `#print axioms` reports
+the actual axiom dependencies, so the claim "0 sorry" becomes machine-checkable.
+
+Each line below must report only the three standard axioms of Lean's logic
+(propext, Classical.choice, Quot.sound) -- or fewer -- and in particular must
+never mention `sorryAx`. The build log therefore carries its own evidence.
+-/
+
+#print axioms pade_11_order_condition
+#print axioms zero_sound_root_at_F0s
+#print axioms zero_sound_root_formula
+#print axioms convective_source_evaluation
+#print axioms nonlinear_echo_evaluation
+#print axioms ripplon_L_star_is_4
+#print axioms admissible_singularity_limit
 
 end AgoraPhysics.Protocols
