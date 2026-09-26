@@ -16,7 +16,15 @@ Following the initial comprehensive audit (documented in `AUDIT_SUMMARY.md`), a 
 
 ## Completed Tasks
 
-### ✅ Task #1: Complete RPA Integration into QV-01 Orchestration
+### ✅ Task #1: Complete RPA Integration into QV-01 Orchestration — **superseded, see correction**
+
+> [!IMPORTANT]
+> **Correction (2026-09-26, see [RETRACTIONS.md §R7](./RETRACTIONS.md#r7--roadmapmd-and-workflow_completion_summarymd-describe-a-plan-that-no-longer-exists)):**
+> This task was never actually completed as described (see the "Correction (2026-09-22)" note below,
+> already in this file). Commit `38d7fdd` subsequently deleted the RPA path outright rather than fixing
+> it, and replaced it with an exact `[M/M]` Padé zero-sound solver. QV-01 is implemented and tested by
+> that method. Kept below as a historical record only.
+
 **Status:** COMPLETED  
 **Effort:** Medium  
 **Lead:** Sonnet 5 (complex synthesis)  

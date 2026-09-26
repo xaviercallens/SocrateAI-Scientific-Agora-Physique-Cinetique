@@ -50,7 +50,15 @@ The roton Fisher Information bounds in the documentation attribute the underlyin
 
 ---
 
-### Gap 2: RPA Loop Not Yet Integrated into QV-01 Orchestration
+### Gap 2: RPA Loop Not Yet Integrated into QV-01 Orchestration — **OBSOLETE, see correction below**
+
+> [!IMPORTANT]
+> **Correction (2026-09-26, see [RETRACTIONS.md §R7](./RETRACTIONS.md#r7--roadmapmd-and-workflow_completion_summarymd-describe-a-plan-that-no-longer-exists)):**
+> Commit `38d7fdd` did not complete this gap — it deleted the RPA path entirely (it was
+> non-functional and violated the float-free rule; see RETRACTIONS.md §R6) and replaced it with an
+> exact `[M/M]` Padé zero-sound solver. QV-01 is implemented and tested by that method, not by RPA.
+> The rest of this section is kept as a historical record of the gap as it was understood on
+> 2026-09-22; do not treat it as a live task.
 
 **Reference:** [AUDIT_SUMMARY.md §H1 & U2](./AUDIT_SUMMARY.md#issue-h1-qv-01-documentation-describes-rpa-methodology-that-isnt-implemented), [RETRACTIONS.md §R5](./RETRACTIONS.md#r5--updated-corrections-2026-09-22)
 
@@ -158,7 +166,7 @@ This violates the respect principle stated in §R1 and creates a misleading impr
 | Gap | Issue | Priority | Effort | Blocker | Status | Owner |
 |-----|-------|----------|--------|---------|--------|-------|
 | 1 | Theorem 22.6 verification | Medium | Large | No | Not started | TBD |
-| 2 | RPA integration into QV-01 | High | Medium | Yes (QV-01) | Scaffolded | Task #1 |
+| 2 | RPA integration into QV-01 | ~~High~~ | ~~Medium~~ | No | **Obsolete — RPA replaced by exact solver in 38d7fdd, see R7** | — |
 | 3 | LaTeX agent name rewrite | Medium | Small | No | Deferred | Task #2 |
 
 ---

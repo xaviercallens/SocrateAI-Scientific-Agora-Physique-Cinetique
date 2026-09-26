@@ -74,3 +74,13 @@ The automated audit pass of 2026-09-22 itself contained false claims about code 
 - **Lean build status was incorrect.** `AUDIT_SUMMARY.md` line 237 and `WORKFLOW_COMPLETION_SUMMARY.md` Task #5 reported the mathlib build as "in progress" as of 2026-09-22. The build actually **failed** (mathlib clone was interrupted). A later successful build compiled `AgoraPhysics.Protocols` without errors.
 
 - **Float round-trip violation occurred.** The original RPA code violated the project's "Zéro Simulation Flottante" rule with `sp.Rational(float(F0s)).limit_denominator(1000)`, converting to float and back. This was not flagged in the automated audit despite being a direct violation of stated principles.
+
+## R7 — ROADMAP.md and WORKFLOW_COMPLETION_SUMMARY.md describe a plan that no longer exists
+
+Commit `38d7fdd` did not "wire RPA into QV-01" (`ROADMAP.md` Gap 2, `WORKFLOW_COMPLETION_SUMMARY.md`
+Task #1) — it **deleted the RPA path entirely**, for the reasons in R6, and replaced it with the exact
+`[M/M]` Padé zero-sound solver described in `PROTOCOL_REGISTRY.md` (QV-01) and the current README. Both
+documents still framed RPA wiring as the top-priority open item after that commit landed; they have been
+annotated in place rather than rewritten, so the sequence of claims stays legible. QV-01 is not "blocked
+on RPA integration" — that protocol is implemented, by a different method, and tested
+(`tests/test_protocols.py`, `verification/validate_zero_sound.py`).
