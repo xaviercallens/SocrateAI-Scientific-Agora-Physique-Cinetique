@@ -84,6 +84,16 @@ This document catalogs the formalized, automated scientific protocols used by th
   `kernel_regularity_bounds` (renamed from `apply_theorem_22_6`) is kept for this reason. The Lean
   development carries the rational surrogate $16063/8232 = 1.9512876579\ldots$, which differs from
   the exact value above by $\approx 2\times10^{-9}$.
+* **Numerical check (no dataset exists, ROADMAP.md Gap 4):** since no open neutron-scattering dataset
+  exists to validate $\beta(\cos\theta)$ against real roton data, `verification/validate_kernel_regularity_bounds.py`
+  independently cross-checks $m_r$, $M_r$, $\Sigma(\beta)$ and $\gamma_{\text{bound}}$ by golden-section
+  search, mpmath quadrature, and Monte Carlo integration — three methods algorithmically independent of
+  the SymPy calculus used to derive them — plus a genuine rejection-sampling simulation of the scattering
+  angle from $\beta$'s own normalized density. Separately, `verification/validate_fisher_information_monotonicity.py`
+  numerically checks the general physical principle behind the cited Villani paper (Fisher information
+  monotonicity along the homogeneous Boltzmann equation) using the exact Bobylev–Krook–Wu mode for
+  Maxwell molecules — a real textbook solution, not this project's own kernel, and explicitly **not** a
+  test of Theorem 22.6 itself (see that script's docstring for exact scope).
 
 ## Protocol Q-RIP-03: 2D Quantum Ripplons & The Optimal $L_*=4$ Constant
 * **Objective:** Conjecture topological protection of 2D liquid $^3$He ripplons (capillary waves) on graphite substrates.

@@ -26,3 +26,7 @@ jobs:
         run: python3 -m pytest tests/ -q
       - name: Run independent 60-digit validation of QV-01
         run: python3 verification/validate_zero_sound.py
+      - name: Run independent numerical check of Q-RHK-02 (no open dataset exists, see ROADMAP Gap 4)
+        run: python3 verification/validate_kernel_regularity_bounds.py
+      - name: Run Fisher-information-monotonicity simulation (BKW mode)
+        run: python3 verification/validate_fisher_information_monotonicity.py

@@ -125,6 +125,11 @@ python3 -m pytest tests/ -q
 # independent 60-digit validation of the QV-01 roots + threshold law
 python3 verification/validate_zero_sound.py
 
+# no open dataset exists to validate Q-RHK-02 against real data (ROADMAP.md Gap 4);
+# these substitute a numerical simulation for the missing data check
+python3 verification/validate_kernel_regularity_bounds.py        # independent MC/quadrature check
+python3 verification/validate_fisher_information_monotonicity.py # BKW-mode Fisher-info decay
+
 # proof checking (library target only; the exe target would native-compile all of mathlib)
 cd lean4_formalization && lake exe cache get && lake build
 ```

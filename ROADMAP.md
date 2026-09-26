@@ -225,8 +225,20 @@ behind an experiment's own DOI, not in a self-serve repository. Specifically:
 **Acceptance Criteria:**
 - [ ] Data-access email drafted and sent to Godfrin/ILL citing the specific proposals
 - [ ] Greywall $F_0^s(P)$ table transcribed into a structured file in this repo
-- [ ] A numerical (not dataset-based) check of Theorem 22.6's worked examples attempted
-- [ ] This gap's status updated once any of the above lands real data or a real numerical check
+- [ ] A numerical (not dataset-based) check of Theorem 22.6's own worked examples (inverse-power-law
+      kernels, $d=2,3$, their heat-kernel decomposition and $m_r,M_r$ construction) attempted — **not
+      done yet**; see the two items below for what was done instead
+- [x] Independent numerical cross-check of Q-RHK-02's own exact quantities ($m_r$, $M_r$,
+      $\Sigma(\beta)$, $\gamma_{\text{bound}}$) added: `verification/validate_kernel_regularity_bounds.py`
+      (golden-section search, mpmath quadrature, Monte Carlo integration, and a rejection-sampling
+      simulation of the scattering angle) — 2026-09-26, all pass to $<10^{-9}$ relative error
+- [x] Numerical simulation of the general physical principle behind the Villani citation (Fisher
+      information monotonicity for the homogeneous Boltzmann equation) added:
+      `verification/validate_fisher_information_monotonicity.py`, using the exact Bobylev–Krook–Wu mode
+      for Maxwell molecules — 2026-09-26, passes (mass conserved exactly, Maxwellian limit matches the
+      known closed form $I=3$ exactly, monotonic decrease observed over the full trajectory). This is
+      **not** a test of Theorem 22.6 itself — see the script's docstring for exact scope
+- [ ] This gap's status updated once real data lands, or Theorem 22.6's own worked examples are checked
 
 ---
 
