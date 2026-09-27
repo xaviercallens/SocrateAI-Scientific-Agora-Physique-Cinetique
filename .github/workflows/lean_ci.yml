@@ -29,23 +29,18 @@ jobs:
         with:
           lake-package-directory: lean4_formalization
 
-      # Scope this to the project's own sources. A repository-wide grep would
-      # match the thousands of legitimate `sorry` occurrences inside
-      # .lake/packages/mathlib and fail on every run.
-      - name: No 'sorry' in project sources
-        run: |
-          if grep -rn '\bsorry\b' AgoraPhysics AgoraPhysics.lean Main.lean; then
-            echo "FAILED: 'sorry' present in project sources"
-            exit 1
-          fi
-          echo "OK: no 'sorry' in project sources"
-
       # The authoritative check: #print axioms lines in Protocols.lean must not
       # report sorryAx. This catches a sorry reached through an import, which
       # grep cannot see.
       - name: No sorryAx in axiom audit
         run: |
           lake build 2>&1 | tee build.log
+          # Lean itself flags every real use ("declaration uses 'sorry'"); a text grep
+          # of the sources would also match comments that merely discuss the word.
+          if grep -q "declaration uses 'sorry'" build.log; then
+            echo "FAILED: a declaration uses sorry"
+            exit 1
+          fi
           if grep -q 'sorryAx' build.log; then
             echo "FAILED: a theorem depends on sorryAx"
             exit 1

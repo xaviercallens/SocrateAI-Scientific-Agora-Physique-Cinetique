@@ -10,7 +10,7 @@ or data already in this repository. It adds no physics.
 Python 3.10 or later, with the repository's requirements plus the MCP SDK:
 
 ```bash
-pip install -r requirements.txt "mcp>=1.20"
+pip install -r requirements.txt   # includes mcp>=1.20,<2 (the server uses the 1.x FastMCP API)
 python3 -m agora_mcp        # starts the server on stdio; normally a client starts it for you
 ```
 
