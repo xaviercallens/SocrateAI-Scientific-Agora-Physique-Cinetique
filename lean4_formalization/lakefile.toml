@@ -1,6 +1,12 @@
 name = "AgoraPhysics"
 version = "0.1.0"
-defaultTargets = ["agoraphysics"]
+
+# The default target is the library, i.e. proof checking only.
+# Building the `agoraphysics` executable instead forces native C compilation of
+# the entire mathlib dependency tree (~5900 extra steps, hours of CPU) purely to
+# link a binary that prints a greeting. Proof verification does not need it, so
+# CI and `lake build` check the library; build the exe explicitly if ever wanted.
+defaultTargets = ["AgoraPhysics"]
 
 [[lean_lib]]
 name = "AgoraPhysics"

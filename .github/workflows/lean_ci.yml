@@ -1,0 +1,48 @@
+name: Lean CI
+
+on:
+  push:
+    paths:
+      - 'lean4_formalization/**'
+      - '.github/workflows/lean_ci.yml'
+  pull_request:
+    paths:
+      - 'lean4_formalization/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: lean4_formalization
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Builds the default target, which is the AgoraPhysics library, i.e.
+      # proof checking. It deliberately does not build the executable, which
+      # would native-compile all of mathlib.
+      # `defaults.run.working-directory` does not apply to `uses:` steps, so the
+      # package directory must be passed explicitly.
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: lean4_formalization
+
+      # The authoritative check: #print axioms lines in Protocols.lean must not
+      # report sorryAx. This catches a sorry reached through an import, which
+      # grep cannot see.
+      - name: No sorryAx in axiom audit
+        run: |
+          lake build 2>&1 | tee build.log
+          # Lean itself flags every real use ("declaration uses 'sorry'"); a text grep
+          # of the sources would also match comments that merely discuss the word.
+          if grep -q "declaration uses 'sorry'" build.log; then
+            echo "FAILED: a declaration uses sorry"
+            exit 1
+          fi
+          if grep -q 'sorryAx' build.log; then
+            echo "FAILED: a theorem depends on sorryAx"
+            exit 1
+          fi
+          echo "OK: axiom audit clean"

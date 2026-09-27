@@ -1,0 +1,35 @@
+name: Roadmap proposal
+description: Propose a new protocol, dataset, proof target or method change.
+title: "[roadmap] "
+labels: ["roadmap"]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What should the project be able to show or compute that it cannot today?
+    validations: {required: true}
+  - type: textarea
+    id: why
+    attributes:
+      label: Scientific motivation and sources
+      description: Cite papers or datasets (DOI / arXiv). No values from memory.
+    validations: {required: true}
+  - type: textarea
+    id: success
+    attributes:
+      label: What counts as success, and what counts as a negative result
+    validations: {required: true}
+  - type: textarea
+    id: plan
+    attributes:
+      label: Proposed steps and evidence level reached at each
+  - type: dropdown
+    id: who
+    attributes:
+      label: Who could do it
+      options:
+        - "I will do it"
+        - "Suitable for an AI agent once specified (agent-ready)"
+        - "Needs domain expert / data access"
+        - "Not sure"

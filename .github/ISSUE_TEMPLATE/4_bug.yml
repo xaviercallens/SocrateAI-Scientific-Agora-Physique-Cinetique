@@ -1,0 +1,19 @@
+name: Bug
+description: Software problem (crash, wrong install, failing test, CI).
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and the exact command
+    validations: {required: true}
+  - type: textarea
+    id: output
+    attributes:
+      label: Output / traceback
+      render: shell
+  - type: input
+    id: env
+    attributes:
+      label: Environment (OS, Python, Lean/Julia/Rust versions if relevant)

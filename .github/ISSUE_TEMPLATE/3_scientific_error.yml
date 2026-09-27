@@ -1,0 +1,31 @@
+name: Scientific error / retraction
+description: A claim in this repository is wrong, overstated or mis-attributed.
+title: "[retraction] "
+labels: ["retraction"]
+body:
+  - type: markdown
+    attributes:
+      value: Thank you. This is the most valuable kind of contribution. Confirmed errors are recorded in RETRACTIONS.md with credit.
+  - type: input
+    id: where
+    attributes:
+      label: Where the claim appears
+      placeholder: "README.md, docs/agora_engine_paper.tex section 4.5, kinetic.py:123 ..."
+    validations: {required: true}
+  - type: textarea
+    id: claim
+    attributes:
+      label: The claim, quoted
+    validations: {required: true}
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong, with evidence
+      description: A counter-example, a computation, the correct statement from the source, etc.
+    validations: {required: true}
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind of problem
+      options: [Mathematical error, Physical misinterpretation, Mis-attribution / citation, Overstated evidence level, Numerical artefact, Other]
+    validations: {required: true}

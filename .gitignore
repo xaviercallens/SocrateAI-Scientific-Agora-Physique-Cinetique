@@ -3,3 +3,14 @@ __pycache__/
 *.pyo
 *.pyd
 .DS_Store
+.pytest_cache/
+
+# LaTeX build byproducts (the .tex sources and .pdf outputs are tracked)
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+
+# Rust build output (build with CARGO_TARGET_DIR on the data disk; this is the fallback)
+target/

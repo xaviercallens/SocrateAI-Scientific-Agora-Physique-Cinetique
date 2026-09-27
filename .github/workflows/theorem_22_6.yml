@@ -1,0 +1,41 @@
+name: Theorem 22.6 numerics (Julia, Rust)
+
+# The numerical worked examples after Theorem 22.6 of arXiv:2501.00925, three ways:
+#   julia  the authors' own code, fetched at a pinned commit (never vendored)
+#   rust   the independent Rust implementation, cross-checked against the Python one
+# (the independent Python implementation runs in python_tests.yml).
+# Kept separate from the Python workflow because Julia precompilation takes minutes.
+on:
+  push:
+    paths:
+      - 'verification/theorem_22_6/**'
+      - '.github/workflows/theorem_22_6.yml'
+  workflow_dispatch:
+
+jobs:
+  julia:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.13'  # matches Manifest.toml's julia_version
+      - name: Reproduce the d=2 and d=3 bounds with the authors' code
+        run: verification/theorem_22_6/run.sh
+
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Rust unit tests (Rutherford, Gamma, closed-form Lambda_b)
+        working-directory: verification/theorem_22_6/rust
+        run: cargo test --release
+      - name: Rust re-run of both claims
+        working-directory: verification/theorem_22_6/rust
+        run: cargo run --release
+      - name: Rust vs Python cross-check
+        run: python3 verification/theorem_22_6/cross_check_rust.py

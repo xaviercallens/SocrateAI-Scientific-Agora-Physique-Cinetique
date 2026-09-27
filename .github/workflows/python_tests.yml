@@ -1,0 +1,46 @@
+name: Python tests
+
+on:
+  push:
+    paths:
+      - '**.py'
+      - 'requirements.txt'
+      - '.github/workflows/python_tests.yml'
+  pull_request:
+    paths:
+      - '**.py'
+      - 'requirements.txt'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y poppler-utils
+          pip install -r requirements.txt
+      - name: Run exact symbolic checks (incl. float-refusal test)
+        run: python3 -m pytest tests/ -q
+      - name: Run independent 60-digit validation of QV-01
+        run: python3 verification/validate_zero_sound.py
+      - name: Run independent numerical check of Q-RHK-02 (no dataset constrains its angular kernel, see ROADMAP Gap 4)
+        run: python3 verification/validate_kernel_regularity_bounds.py
+      - name: Run Fisher-information-monotonicity simulation (BKW mode)
+        run: python3 verification/validate_fisher_information_monotonicity.py
+      - name: Theorem 22.6 worked examples, independent Python implementation vs authors' reference
+        run: python3 verification/theorem_22_6/reproduce.py
+      - name: Machine-checked helium kinematics vs real 4He data (Godfrin et al. 2021, fetched from arXiv, SHA-256 checked)
+        run: python3 verification/helium_kinematics_data.py
+      - name: Real 3He Landau parameters (Kollar & Vollhardt 2000, Table IX, fetched from arXiv)
+        run: python3 verification/he3_landau/extract_table_ix.py
+      - name: Zero sound vs first sound on real 3He parameters
+        run: python3 verification/he3_landau/zero_sound_real_he3.py
+      - name: Large simulation, CI-sized (DSMC vs exact BKW solution)
+        run: python3 simulations/large_scale/dsmc_bkw.py --quick
+      - name: Exact Pade sweep over real 3He pressures
+        run: python3 simulations/large_scale/he3_pressure_sweep.py

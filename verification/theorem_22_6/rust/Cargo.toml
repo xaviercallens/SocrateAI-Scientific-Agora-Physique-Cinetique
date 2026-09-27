@@ -1,0 +1,11 @@
+[package]
+name = "theorem_22_6"
+version = "0.1.0"
+edition = "2021"
+description = "Independent Rust re-run of the numerical worked examples after Theorem 22.6 of arXiv:2501.00925"
+license = "MIT"
+
+[dependencies]
+
+[profile.release]
+opt-level = 3

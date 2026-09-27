@@ -1,8 +1,207 @@
 {
     "protocol": "QV-01",
-    "description": "Exact rational Pad\u00e9 approximant poles for 3He Zero-Sound.",
-    "poles_exact": [
-        "-sqrt(15)/3",
-        "sqrt(15)/3"
-    ]
+    "description": "Exact zero-sound roots of the Landau dispersion relation, from diagonal Pade approximants of the kernel over Q.",
+    "kernel": "chi(s) = (s/2) ln((s+1)/(s-1)) - 1 = sum_{k>=1} u^k/(2k+1),  u = 1/s^2",
+    "dispersion": "chi(s) = 1/F_0^s  <=>  Q(u) - F_0^s P(u) = 0",
+    "kernel_coefficients": [
+        "0",
+        "1/3",
+        "1/5",
+        "1/7",
+        "1/9",
+        "1/11",
+        "1/13",
+        "1/15",
+        "1/17",
+        "1/19",
+        "1/21"
+    ],
+    "sweep": {
+        "1/10": {
+            "M=1": {
+                "root_found": false,
+                "F0s_exact": "1/10",
+                "pade_order": 1,
+                "dispersion_polynomial": "1 - 19*u/30",
+                "reason": "no real root of Q - F0s*P in (0,1); mode lies at/inside the particle-hole continuum edge for this approximant order"
+            },
+            "M=2": {
+                "root_found": false,
+                "F0s_exact": "1/10",
+                "pade_order": 2,
+                "dispersion_polynomial": "2411*u**2/9450 - 103*u/90 + 1",
+                "reason": "no real root of Q - F0s*P in (0,1); mode lies at/inside the particle-hole continuum edge for this approximant order"
+            },
+            "M=3": {
+                "root_found": false,
+                "F0s_exact": "1/10",
+                "pade_order": 3,
+                "dispersion_polynomial": "-13219*u**3/150150 + 2746*u**2/3575 - 643*u/390 + 1",
+                "reason": "no real root of Q - F0s*P in (0,1); mode lies at/inside the particle-hole continuum edge for this approximant order"
+            },
+            "M=4": {
+                "root_found": false,
+                "F0s_exact": "1/10",
+                "pade_order": 4,
+                "dispersion_polynomial": "1075091*u**4/38288250 - 31051*u**3/77350 + 1303*u**2/850 - 1097*u/510 + 1",
+                "reason": "no real root of Q - F0s*P in (0,1); mode lies at/inside the particle-hole continuum edge for this approximant order"
+            }
+        },
+        "1/2": {
+            "M=1": {
+                "root_found": false,
+                "F0s_exact": "1/2",
+                "pade_order": 1,
+                "dispersion_polynomial": "1 - 23*u/30",
+                "reason": "no real root of Q - F0s*P in (0,1); mode lies at/inside the particle-hole continuum edge for this approximant order"
+            },
+            "M=2": {
+                "root_found": false,
+                "F0s_exact": "1/2",
+                "pade_order": 2,
+                "dispersion_polynomial": "611*u**2/1890 - 23*u/18 + 1",
+                "reason": "no real root of Q - F0s*P in (0,1); mode lies at/inside the particle-hole continuum edge for this approximant order"
+            },
+            "M=3": {
+                "root_found": false,
+                "F0s_exact": "1/2",
+                "pade_order": 3,
+                "dispersion_polynomial": "-263*u**3/2310 + 646*u**2/715 - 139*u/78 + 1",
+                "reason": "no real root of Q - F0s*P in (0,1); mode lies at/inside the particle-hole continuum edge for this approximant order"
+            },
+            "M=4": {
+                "root_found": false,
+                "F0s_exact": "1/2",
+                "pade_order": 4,
+                "dispersion_polynomial": "281291*u**4/7657650 - 443*u**3/910 + 59*u**2/34 - 233*u/102 + 1",
+                "reason": "no real root of Q - F0s*P in (0,1); mode lies at/inside the particle-hole continuum edge for this approximant order"
+            }
+        },
+        "1": {
+            "M=1": {
+                "root_found": false,
+                "F0s_exact": "1",
+                "pade_order": 1,
+                "dispersion_polynomial": "1 - 14*u/15",
+                "reason": "no real root of Q - F0s*P in (0,1); mode lies at/inside the particle-hole continuum edge for this approximant order"
+            },
+            "M=2": {
+                "root_found": true,
+                "F0s_exact": "1",
+                "pade_order": 2,
+                "dispersion_polynomial": "386*u**2/945 - 13*u/9 + 1",
+                "u_exact": "1365/772 - 3*sqrt(44905)/772",
+                "u_minimal_poly": "386*U**2 - 1365*U + 945",
+                "s_exact": "2*sqrt(579)/(3*sqrt(455 - sqrt(44905)))",
+                "s_minimal_poly": "945*S**4 - 1365*S**2 + 386"
+            },
+            "M=3": {
+                "root_found": true,
+                "F0s_exact": "1",
+                "pade_order": 3,
+                "dispersion_polynomial": "-2194*u**3/15015 + 59*u**2/55 - 76*u/39 + 1",
+                "u_exact": "CRootOf(2194*x**3 - 16107*x**2 + 29260*x - 15015, 0)",
+                "u_minimal_poly": "2194*U**3 - 16107*U**2 + 29260*U - 15015",
+                "s_exact": "1/sqrt(CRootOf(2194*x**3 - 16107*x**2 + 29260*x - 15015, 0))",
+                "s_minimal_poly": "15015*S**6 - 29260*S**4 + 16107*S**2 - 2194"
+            },
+            "M=4": {
+                "root_found": true,
+                "F0s_exact": "1",
+                "pade_order": 4,
+                "dispersion_polynomial": "182066*u**4/3828825 - 4591*u**3/7735 + 169*u**2/85 - 125*u/51 + 1",
+                "u_exact": "CRootOf(182066*x**4 - 2272545*x**3 + 7612605*x**2 - 9384375*x + 3828825, 0)",
+                "u_minimal_poly": "182066*U**4 - 2272545*U**3 + 7612605*U**2 - 9384375*U + 3828825",
+                "s_exact": "1/sqrt(CRootOf(182066*x**4 - 2272545*x**3 + 7612605*x**2 - 9384375*x + 3828825, 0))",
+                "s_minimal_poly": "3828825*S**8 - 9384375*S**6 + 7612605*S**4 - 2272545*S**2 + 182066"
+            }
+        },
+        "93/10": {
+            "M=1": {
+                "root_found": true,
+                "F0s_exact": "93/10",
+                "pade_order": 1,
+                "dispersion_polynomial": "1 - 37*u/10",
+                "u_exact": "10/37",
+                "u_minimal_poly": "37*U - 10",
+                "s_exact": "sqrt(370)/10",
+                "s_minimal_poly": "10*S**2 - 37"
+            },
+            "M=2": {
+                "root_found": true,
+                "F0s_exact": "93/10",
+                "pade_order": 2,
+                "dispersion_polynomial": "5741*u**2/3150 - 379*u/90 + 1",
+                "u_exact": "13265/11482 - 5*sqrt(4144945)/11482",
+                "u_minimal_poly": "5741*U**2 - 13265*U + 3150",
+                "s_exact": "sqrt(57410)/(5*sqrt(2653 - sqrt(4144945)))",
+                "s_minimal_poly": "3150*S**4 - 13265*S**2 + 5741"
+            },
+            "M=3": {
+                "root_found": true,
+                "F0s_exact": "93/10",
+                "pade_order": 3,
+                "dispersion_polynomial": "-102367*u**3/150150 + 13878*u**2/3575 - 613*u/130 + 1",
+                "u_exact": "CRootOf(102367*x**3 - 582876*x**2 + 708015*x - 150150, 0)",
+                "u_minimal_poly": "102367*U**3 - 582876*U**2 + 708015*U - 150150",
+                "s_exact": "1/sqrt(CRootOf(102367*x**3 - 582876*x**2 + 708015*x - 150150, 0))",
+                "s_minimal_poly": "150150*S**6 - 708015*S**4 + 582876*S**2 - 102367"
+            },
+            "M=4": {
+                "root_found": true,
+                "F0s_exact": "93/10",
+                "pade_order": 4,
+                "dispersion_polynomial": "2898821*u**4/12762750 - 182943*u**3/77350 + 5259*u**2/850 - 887*u/170 + 1",
+                "u_exact": "CRootOf(2898821*x**4 - 30185595*x**3 + 78963885*x**2 - 66591525*x + 12762750, 0)",
+                "u_minimal_poly": "2898821*U**4 - 30185595*U**3 + 78963885*U**2 - 66591525*U + 12762750",
+                "s_exact": "1/sqrt(CRootOf(2898821*x**4 - 30185595*x**3 + 78963885*x**2 - 66591525*x + 12762750, 0))",
+                "s_minimal_poly": "12762750*S**8 - 66591525*S**6 + 78963885*S**4 - 30185595*S**2 + 2898821"
+            }
+        },
+        "30": {
+            "M=1": {
+                "root_found": true,
+                "F0s_exact": "30",
+                "pade_order": 1,
+                "dispersion_polynomial": "1 - 53*u/5",
+                "u_exact": "5/53",
+                "u_minimal_poly": "53*U - 5",
+                "s_exact": "sqrt(265)/5",
+                "s_minimal_poly": "5*S**2 - 53"
+            },
+            "M=2": {
+                "root_found": true,
+                "F0s_exact": "30",
+                "pade_order": 2,
+                "dispersion_polynomial": "337*u**2/63 - 100*u/9 + 1",
+                "u_exact": "350/337 - sqrt(101269)/337",
+                "u_minimal_poly": "337*U**2 - 700*U + 63",
+                "s_exact": "sqrt(337)/sqrt(350 - sqrt(101269))",
+                "s_minimal_poly": "63*S**4 - 700*S**2 + 337"
+            },
+            "M=3": {
+                "root_found": true,
+                "F0s_exact": "30",
+                "pade_order": 3,
+                "dispersion_polynomial": "-6059*u**3/3003 + 1557*u**2/143 - 151*u/13 + 1",
+                "u_exact": "CRootOf(6059*x**3 - 32697*x**2 + 34881*x - 3003, 0)",
+                "u_minimal_poly": "6059*U**3 - 32697*U**2 + 34881*U - 3003",
+                "s_exact": "1/sqrt(CRootOf(6059*x**3 - 32697*x**2 + 34881*x - 3003, 0))",
+                "s_minimal_poly": "3003*S**6 - 34881*S**4 + 32697*S**2 - 6059"
+            },
+            "M=4": {
+                "root_found": true,
+                "F0s_exact": "30",
+                "pade_order": 4,
+                "dispersion_polynomial": "172297*u**4/255255 - 10494*u**3/1547 + 1416*u**2/85 - 206*u/17 + 1",
+                "u_exact": "CRootOf(172297*x**4 - 1731510*x**3 + 4252248*x**2 - 3093090*x + 255255, 0)",
+                "u_minimal_poly": "172297*U**4 - 1731510*U**3 + 4252248*U**2 - 3093090*U + 255255",
+                "s_exact": "1/sqrt(CRootOf(172297*x**4 - 1731510*x**3 + 4252248*x**2 - 3093090*x + 255255, 0))",
+                "s_minimal_poly": "255255*S**8 - 3093090*S**6 + 4252248*S**4 - 1731510*S**2 + 172297"
+            }
+        }
+    },
+    "floating_point_in_derivation": false,
+    "limitation": "At small F_0^s the mode lies exponentially close to the continuum edge (s - 1 ~ 2 exp(-2 - 2/F_0^s)). The kernel has a logarithmic branch point at u = 1, so a Pade approximant built at u = 0 places no root in (0,1) there; those entries report root_found = false. That is a property of the method, not a failed run.",
+    "validation": "verification/validate_zero_sound.py checks these exact roots against high-precision root-finding of the transcendental equation (mpmath, 60 dps)."
 }

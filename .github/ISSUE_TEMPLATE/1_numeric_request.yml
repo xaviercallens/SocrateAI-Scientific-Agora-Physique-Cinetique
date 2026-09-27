@@ -1,0 +1,58 @@
+name: Numeric calculation request
+description: Ask for an exact or numerical calculation with the engine (new parameters, new kernel, data comparison).
+title: "[numeric] "
+labels: ["numeric-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Precise requests can be picked up by a maintainer or an AI agent (Claude Code, Jules). See AGENTS.md.
+  - type: dropdown
+    id: protocol
+    attributes:
+      label: Protocol or tool
+      options:
+        - QV-01 zero sound (F0s only)
+        - QV-01 zero sound (F0s, F1s)
+        - Theorem 22.6 bound (heat-kernel comparison)
+        - QVE-02 second-order response
+        - Helium kinematics vs data
+        - Large simulation (DSMC vs exact BKW)
+        - Other / new
+    validations: {required: true}
+  - type: textarea
+    id: inputs
+    attributes:
+      label: Exact inputs
+      description: Give rationals where possible (e.g. F0s = 1028/100). For physical inputs, cite the source (paper, table, DOI).
+      placeholder: "F0s = 1028/100, F1s = 526/100, Pade order M = 1..6"
+    validations: {required: true}
+  - type: textarea
+    id: output
+    attributes:
+      label: Quantity wanted
+      placeholder: "exact root u (algebraic number) and s to 30 digits; error vs 60-digit reference"
+    validations: {required: true}
+  - type: dropdown
+    id: level
+    attributes:
+      label: Evidence level needed
+      options:
+        - "1 - exact symbolic computation"
+        - "2 - independent high-precision / independent-code validation"
+        - "3 - Lean 4 proof"
+        - "4 - comparison with published data"
+    validations: {required: true}
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: How will we know the answer is right? A known limit, an independent method, a tolerance, etc.
+    validations: {required: true}
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I have read RETRACTIONS.md and this does not re-open a retracted claim.
+          required: true
