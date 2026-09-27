@@ -1,6 +1,7 @@
 """The local MCP server (agora_mcp): tools in-process, then a real stdio JSON-RPC round trip."""
 import json
 import subprocess
+import tempfile
 import sys
 from pathlib import Path
 
@@ -82,8 +83,9 @@ def test_run_verification_runs_an_offline_script():
 # ------------------------------------------------------------------------- stdio round trip
 class _Client:
     def __init__(self):
+        self.err = tempfile.TemporaryFile(mode="w+")  # a file, not a pipe: engine narration could fill a pipe
         self.p = subprocess.Popen([sys.executable, "-m", "agora_mcp"], cwd=ROOT, stdin=subprocess.PIPE,
-                                  stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+                                  stdout=subprocess.PIPE, stderr=self.err, text=True)
         self.n = 0
 
     def send(self, method, params=None, notify=False):
@@ -99,7 +101,8 @@ class _Client:
             return None
         while True:
             line = self.p.stdout.readline()
-            assert line, "server closed stdout"
+            if not line:
+                raise AssertionError("server closed stdout; stderr:\n" + (self.err.seek(0) or self.err.read())[-2000:])
             reply = json.loads(line)  # anything non-JSON on stdout would break the protocol
             if reply.get("id") == self.n:
                 return reply
