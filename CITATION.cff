@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below, and cite the primary sources its results rest on (see README)."
+title: "Agora-Physique-Cinetique: exact-rational kinetic physics, checked against proof and data"
+authors:
+  - family-names: Callens
+    given-names: Xavier
+    affiliation: "SocrateAI Scientific Agora"
+  - name: "SocrateAI Scientific Agora Contributors"
+version: 1.2.0
+date-released: "2026-09-27"
+license: MIT
+repository-code: "https://github.com/xaviercallens/SocrateAI-Scientific-Agora-Physique-Cinetique"
+keywords: [kinetic theory, Fermi liquid, zero sound, Pade approximant, exact arithmetic, Lean 4, Boltzmann equation, Fisher information, superfluid helium]

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Read the retractions first
+    url: https://github.com/xaviercallens/SocrateAI-Scientific-Agora-Physique-Cinetique/blob/main/RETRACTIONS.md
+    about: Claims already withdrawn, and why. Please check before reporting.
+  - name: Contributor and agent rules
+    url: https://github.com/xaviercallens/SocrateAI-Scientific-Agora-Physique-Cinetique/blob/main/AGENTS.md
+    about: The rules every contribution follows, human or AI.

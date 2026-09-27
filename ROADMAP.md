@@ -1,5 +1,32 @@
 # Project Roadmap — SocrateAI-Scientific-Agora-Physique-Cinetique
 
+## Live roadmap (updated 2026-09-27)
+
+This section is the current plan.
+
+**How items change:**
+- New items come from *Roadmap proposal* issues (label `roadmap`). A maintainer accepts one by
+  giving it the next `RM-nn` ID here.
+- A PR that advances an item cites its ID and updates its status in the same PR.
+- Items marked **agent-ready** are specified well enough for an AI agent (see `AGENTS.md`).
+- Closed items stay listed with the commit or PR that closed them.
+
+| ID | Item | Target level | Status |
+|---|---|---|---|
+| RM-01 | Independent multimodal transcription of Kollar & Vollhardt Table IX (`verification/he3_landau/transcribe_gemini.py`), compared cell by cell with the PDF text layer | 2 | ready; needs a maintainer's API key |
+| RM-02 | Raw IN5 counts behind PRB 97, 184520 and PRB 103, 104516 (ILL-DATA DOIs) | 4 | open, `needs-data` |
+| RM-03 | Lean: certify the $(F_0^s,F_1^s)$ dispersion polynomial and extend the zero-sound bracket to $F_1^s>0$ | 3 | open, `lean` |
+| RM-04 | Theorem 22.6 in $d=4$: turn the numerical $m/M\ge0.996$ into an interval-arithmetic certificate | 2→3 | open, **agent-ready** once the tolerance spec is written |
+| RM-05 | Damped zero sound: complex roots of the exact dispersion polynomial and comparison with the analytic continuation of $\chi$ | 1–2 | open |
+| RM-06 | Large simulation beyond Maxwell molecules (hard spheres): no exact solution, so check entropy and Fisher-information monotonicity instead | 2 | open, **agent-ready** |
+| RM-07 | Q-RHK-02: replace the analytic roton kernel with one constrained by data, then re-apply Theorem 22.6 | 4 | open, depends on RM-02 |
+| RM-08 | Contributor infrastructure: issue forms, `AGENTS.md`, local MCP server, textbook, notebooks | — | done (v1.2.0) |
+
+Everything below this section is the **historical record** of the 2026-09-22 audit gaps. It is
+annotated in place, and its "gaps" are closed or obsolete as marked.
+
+---
+
 **Audit Date:** 2026-09-22  
 **Status:** Post-audit implementation phase  
 **See also:** [AUDIT_SUMMARY.md](./AUDIT_SUMMARY.md), [RETRACTIONS.md](./RETRACTIONS.md)

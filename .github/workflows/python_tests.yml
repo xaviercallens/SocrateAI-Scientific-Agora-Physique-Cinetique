@@ -40,3 +40,7 @@ jobs:
         run: python3 verification/he3_landau/extract_table_ix.py
       - name: Zero sound vs first sound on real 3He parameters
         run: python3 verification/he3_landau/zero_sound_real_he3.py
+      - name: Large simulation, CI-sized (DSMC vs exact BKW solution)
+        run: python3 simulations/large_scale/dsmc_bkw.py --quick
+      - name: Exact Pade sweep over real 3He pressures
+        run: python3 simulations/large_scale/he3_pressure_sweep.py
