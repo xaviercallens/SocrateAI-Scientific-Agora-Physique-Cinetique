@@ -64,6 +64,15 @@ This document catalogs the formalized, automated scientific protocols used by th
   It is **not** a plasma echo: an echo is a large-time phenomenon at $t = \tau k_2/(k_2-k_1)$ requiring
   two pulses with distinct wavenumbers and a phase space, none of which appears here, and a Taylor
   expansion about $t=0$ cannot contain one.
+* **What the input actually is (2026-09-27, machine-checked):** $\rho^{(1)}(t)=\sin t/t$ is the
+  free-transport density mode of the flat-top velocity distribution $\tfrac12\mathbb 1_{[-1,1]}$
+  (`lean4_formalization/AgoraPhysics/PhaseMixingLink.lean`, `flat_top_mode`). By Archimedes' hat-box
+  theorem, that flat top is the 1D marginal of the uniform measure on a Fermi surface $S^2$, so
+  $\rho^{(1)}$ is also that surface's mode (tested in `tests/test_qve02_phase_mixing.py`). It decays to 0
+  like $1/t$ (`flat_top_mode_tendsto_zero`). This is algebraic phase mixing, in contrast with the
+  Maxwellian's Gaussian $e^{-t^2/2}$ (SocrateAI-Scientific-QuantumFluids, `PhaseMixing.lean`). The
+  second-order term $\rho^{(2)}=\mathrm{Si}(t)^2/2$ saturates at $\pi^2/8$ as $t\to\infty$: it
+  approaches a constant and nothing echoes.
 
 ## Protocol Q-RHK-02: Symbolic bounds for a forward-peaked angular kernel
 * **Objective:** Compute exact symbolic bounds for an analytic model of roton–roton angular scattering.

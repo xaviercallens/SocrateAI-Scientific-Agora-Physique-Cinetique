@@ -171,6 +171,22 @@ $\bar\gamma\approx3.99$, which exceeds $|\gamma|\le3$ by a wide margin: $m/M$ wo
   extremes sit at θ≈0.03–0.11 and move by less than 0.2% between the two re-checks.
 - The finding is offered for the authors to check. It is not a claim that the case is settled.
 
+### E4b — robustness of E4 (`e4b_robustness.py`)
+
+| check | result |
+|---|---|
+| dense ν: 16 values across [1.9142, 2) | m/M = 0.9977–0.9978 at every one, γ̄ ≈ 3.996: all covered |
+| rest of d = 4 (ν = 0.25, 0.5, 1, 1.5, 1.8), already covered by the notes' other methods | all covered by the literal criterion too (consistency) |
+| basis halved (every other μ, b, t), ν = 1.999 | m/M = 0.9954, covered |
+| tempered singular family alone, ν = 1.999 | m/M = 0.9928, covered |
+| **no tempering**: plain fractional Laplacian + bounded + heat kernels, ν = 1.999 | **m/M = 0.48, not covered** |
+
+The result does not depend on a particular basis. What carries it is **tempering** the
+fractional-Laplacian weight, $t^{-1-\nu/2}e^{-\mu t}$ with $\mu>0$. Without it the comparison falls
+below the required 9/16. At d = 4, ν = 1 the LP reaches m/M = 1.00000 (to 10⁻⁵). That point was
+checked for an exact single-kernel identity like the 2D Coulomb one, and none holds (the best
+single μ still spreads by 5%): it is a close mixture, not a closed form.
+
 **A numerical artefact, found and fixed on the way.** The first stress test reported m/M = 0.937, with
 min and max on adjacent angles near θ≈1.43. The cause was a single spectral cut-off chosen for the
 smallest angle, 0.01: the sum's terms reach ~10¹⁴ while the kernel near π/2 is ~0.3, a ±3% noise
@@ -192,4 +208,5 @@ python3 verification/theorem_22_6/roton_application.py $DATA/roton_application.j
 python3 verification/theorem_22_6/summarize_experiments.py $DATA   # summary JSON + figures
 python3 verification/theorem_22_6/literal_criterion.py $DATA/literal_criterion.json          # E4, ~15 min
 python3 verification/theorem_22_6/recheck_small_angles.py $DATA/literal_criterion.json       # E4 stress test, ~20 min
+python3 verification/theorem_22_6/e4b_robustness.py $DATA/e4b_robustness.json                # E4b, ~15 min on 6 cores
 ```
