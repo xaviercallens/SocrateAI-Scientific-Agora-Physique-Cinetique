@@ -87,6 +87,7 @@ The full theory ↔ experiment map is [`verification/THEORY_EXPERIMENT_LINKS.md`
 
 ```bash
 pip install -r requirements.txt
+scripts/restart.sh check                        # status + fast health check (~2 min); 'help' for modes
 export PYTEST_DISABLE_PLUGIN_AUTOLOAD=1        # avoids unrelated global pytest plugins
 python3 -m pytest tests/ -q                     # exact checks, incl. float refusal
 
