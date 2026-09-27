@@ -21,6 +21,7 @@ This section is the current plan.
 | RM-06 | Large simulation beyond Maxwell molecules (hard spheres): no exact solution, so check entropy and Fisher-information monotonicity instead | 2 | open, **agent-ready** |
 | RM-07 | Q-RHK-02: replace the analytic roton kernel with one constrained by data, then re-apply Theorem 22.6 | 4 | open, depends on RM-02 |
 | RM-08 | Contributor infrastructure: issue forms, `AGENTS.md`, local MCP server, textbook, notebooks | — | done (v1.2.0) |
+| RM-09 | 2D zero sound / Landau damping as a shared object with Villani and Godfrin: proposal in [`docs/PLAN_SON_ZERO_LANDAU.md`](docs/PLAN_SON_ZERO_LANDAU.md) and [`docs/ARCHITECTURE_SOLVEUR.md`](docs/ARCHITECTURE_SOLVEUR.md) (#2). This repo would host the Rust/SUNDIALS kinetic solver; Lean, Arb and reference Python stay in the sibling `SocrateAI-Scientific-QuantumFluids`. Nothing implemented; gated on prior-art search and a pre-registration commit (see the proposal §5) | 1–4, by sub-item | proposal merged; not started |
 
 Everything below this section is the **historical record** of the 2026-09-22 audit gaps. It is
 annotated in place, and its "gaps" are closed or obsolete as marked.
