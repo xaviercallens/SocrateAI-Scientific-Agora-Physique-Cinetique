@@ -92,7 +92,10 @@ quick_checks() {
   hdr "Fast checks"
   run "pytest (exact engine, MCP, simulation tests)" "$PY" -m pytest tests/ -q
   run "QV-01 60-digit validation + Lean bracket" "$PY" verification/validate_zero_sound.py
-  run "large simulation, CI-sized (DSMC vs exact BKW)" "$PY" simulations/large_scale/dsmc_bkw.py --quick
+  # write to a temp file, not the committed summary, so a health check never dirties the tree
+  local tmp; tmp=$(mktemp --suffix=.json)
+  run "large simulation, CI-sized (DSMC vs exact BKW)" "$PY" simulations/large_scale/dsmc_bkw.py --quick --no-figures --summary "$tmp"
+  rm -f "$tmp"
 }
 
 full_checks() {
