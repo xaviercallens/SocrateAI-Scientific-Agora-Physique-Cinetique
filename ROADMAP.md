@@ -231,7 +231,11 @@ behind an experiment's own DOI, not in a self-serve repository. Specifically:
 
 **Acceptance Criteria:**
 - [ ] Data-access email drafted and sent to Godfrin/ILL citing the specific proposals
-- [ ] Greywall $F_0^s(P)$ table transcribed into a structured file in this repo
+- [x] $F_0^s(P)$ table obtained as structured data — 2026-09-27, from an open source: Kollar & Vollhardt,
+      PRB 61, 15347 (2000), arXiv:cond-mat/9906222, Table IX (derived from Greywall), read from the PDF
+      text layer (`verification/he3_landau/extract_table_ix.py`, output in `alexandrie_data/HE3-LANDAU/`).
+      A multimodal cross-check with Gemini (`transcribe_gemini.py`) is ready and waits for the user's key.
+      Greywall's original tables remain behind the APS paywall
 - [x] A numerical (not dataset-based) check of Theorem 22.6's own worked examples (inverse-power-law
       kernels, $d=2,3$, their heat-kernel decomposition and $m_r,M_r$ construction) — **done
       2026-09-26**: `verification/theorem_22_6/run.sh`. The paper (§22, after Remark 22.7) says these

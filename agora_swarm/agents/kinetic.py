@@ -132,6 +132,44 @@ class KineticStage:
         print(f"   -> [kinetic] exact [{M}/{M}] Pade over Q:  P = {P},  Q = {Q}")
         return P, Q, var
 
+    def solve_zero_sound_root_f0_f1(self, kernel_coeffs, F0s, F1s, M=2):
+        r"""
+        Zero sound with the two leading Landau parameters, exactly over Q.
+
+        With F_1^s the l = 1 channel couples to the current, and the dispersion relation becomes
+        chi(s) = 1/F~(s) with F~(s) = F_0^s + F_1^s s^2 / (1 + F_1^s/3). (This closed form is
+        checked against a direct solution of the l = 0, 1 moment equations of the Landau kinetic
+        equation in verification/he3_landau/zero_sound_real_he3.py.) With u = 1/s^2, a = 1 + F_1^s/3
+        and chi ~ P/Q, it becomes the polynomial
+
+            P(u) (F_0^s a u + F_1^s) - Q(u) a u = 0,
+
+        which reduces to u (F_0^s P - Q) at F_1^s = 0. The root u = 0 is spurious; an undamped
+        mode needs u in (0,1). For liquid 3He, F_1^s = 3(m*/m - 1) is 5 to 13, and without it the
+        model gives zero sound slower than first sound, which is wrong (see the verification script).
+        """
+        print(f"🌌 [{self.name}] Solving exact zero-sound dispersion, F_0^s = {F0s}, F_1^s = {F1s}, [{M}/{M}] Pade...")
+        if isinstance(F0s, float) or isinstance(F1s, float):
+            raise ScientificHonestyException(
+                "Landau parameters supplied as floats; pass sympy.Rational to keep the derivation exact."
+            )
+        F0s = sp.nsimplify(F0s, rational=True)
+        F1s = sp.nsimplify(F1s, rational=True)
+        P, Q, u = self.pade_diagonal(kernel_coeffs, M)
+        a = 1 + F1s / 3
+        disp = sp.expand(P * (F0s * a * u + F1s) - Q * a * u)
+        admissible = [(r, sp.N(r, 40)) for r in sp.real_roots(sp.Poly(disp, u))]
+        admissible = [(r, v) for r, v in admissible if 0 < v < 1]
+        if not admissible:
+            return {"root_found": False, "F0s_exact": str(F0s), "F1s_exact": str(F1s), "pade_order": M,
+                    "dispersion_polynomial": str(disp)}
+        root, val = max(admissible, key=lambda t: t[1])
+        s_exact = 1 / sp.sqrt(root)
+        print(f"   -> [kinetic] exact u = {root}")
+        return {"root_found": True, "F0s_exact": str(F0s), "F1s_exact": str(F1s), "pade_order": M,
+                "dispersion_polynomial": str(disp), "u_exact": str(root), "s_exact": str(s_exact),
+                "s_numeric": str(sp.N(s_exact, 30))}
+
     def solve_zero_sound_root(self, kernel_coeffs, F0s, M=2):
         r"""
         Extracts the zero-sound mode from the Landau dispersion relation

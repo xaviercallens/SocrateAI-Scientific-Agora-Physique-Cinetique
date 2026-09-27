@@ -166,3 +166,42 @@ def test_bakry_emery_L_star_is_definitional():
     topology = linear.formulate_2d_ripplon_topology()
     assert kinetic.evaluate_bakry_emery_L_star(topology, d=2) == 4
     assert kinetic.evaluate_bakry_emery_L_star(topology, d=3) == 6
+
+
+# --------------------------------------------------------------------------
+# QV-01 with F_1^s, on real 3He parameters (Kollar & Vollhardt 2000, Table IX)
+# --------------------------------------------------------------------------
+
+def _reference_root_f0_f1(F0, F1):
+    import mpmath as mp
+    mp.mp.dps = 60
+    F0, F1 = mp.mpf(F0.p) / F0.q, mp.mpf(F1.p) / F1.q
+    w = lambda s: s / 2 * mp.log((s + 1) / (s - 1)) - 1
+    return mp.findroot(lambda s: w(s) - 1 / (F0 + F1 * s ** 2 / (1 + F1 / 3)), 4)
+
+
+@pytest.mark.parametrize("F0s,F1s", [("10.279", "5.259"), ("73.941", "12.996")])  # P = 0 and 29 bar
+def test_zero_sound_f0_f1_exact_pade_converges_on_real_he3(F0s, F1s):
+    linear, kinetic = LinearResponseStage(), KineticStage()
+    kernel = linear.landau_zero_sound_kernel(order=10)
+    F0, F1 = sp.Rational(F0s), sp.Rational(F1s)
+    ref = _reference_root_f0_f1(F0, F1)
+    r = kinetic.solve_zero_sound_root_f0_f1(kernel, F0, F1, M=4)
+    assert r["root_found"]
+    assert abs(float(r["s_numeric"]) / float(ref) - 1) < 1e-8
+
+
+def test_zero_sound_f0_f1_reduces_to_f0_only():
+    linear, kinetic = LinearResponseStage(), KineticStage()
+    kernel = linear.landau_zero_sound_kernel(order=6)
+    a = kinetic.solve_zero_sound_root(kernel, sp.Rational(93, 10), M=1)
+    b = kinetic.solve_zero_sound_root_f0_f1(kernel, sp.Rational(93, 10), sp.Integer(0), M=1)
+    assert sp.simplify(sp.sympify(b["u_exact"]) - sp.Rational(10, 37)) == 0
+    assert a["root_found"] and b["root_found"]
+
+
+def test_zero_sound_f0_f1_refuses_floats():
+    linear, kinetic = LinearResponseStage(), KineticStage()
+    kernel = linear.landau_zero_sound_kernel(order=4)
+    with pytest.raises(ScientificHonestyException):
+        kinetic.solve_zero_sound_root_f0_f1(kernel, sp.Rational(10), 5.26, M=1)

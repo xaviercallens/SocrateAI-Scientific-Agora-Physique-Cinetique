@@ -42,6 +42,17 @@ This document catalogs the formalized, automated scientific protocols used by th
   $F_0^s < 6/5$. The previously registered step *"track the velocity ratio drop into the Landau damping
   continuum"* is **not attainable by this method** and was never implemented. The threshold is instead
   characterised analytically and validated to 10 digits.
+* **On real ³He parameters (2026-09-27):** $F_0^s(P)$, $m^*/m(P)$ and $v_F(P)$ for 0–29 bar come
+  from Kollar & Vollhardt, PRB 61, 15347 (2000), Table IX, which is derived from Greywall's data
+  (`verification/he3_landau/`). Their PDF text layer is read deterministically and checked internally
+  (∂γ/∂P and κ against finite differences; the Eq. (30) prefactor against CODATA constants). The real
+  value at 0 bar is $F_0^s = 10.28$, not the 93/10 stand-in. On these parameters **the one-parameter
+  model above gives zero sound slower than first sound at every pressure** (121 vs 193 m/s at 0 bar),
+  which contradicts ³He. Adding $F_1^s = 3(m^*/m-1)$ gives $c_0/c_1 = 1.036$ at 0 bar, falling to
+  1.005 at 29 bar: zero sound is slightly faster, as observed. `KineticStage.solve_zero_sound_root_f0_f1`
+  extends the exact Padé method to $(F_0^s, F_1^s)$. The closed form it uses is checked against a
+  direct solution of the Landau moment equations, and its [4/4] root matches 60-digit references at
+  0 and 29 bar to $10^{-8}$.
 * **Machine-checked theory (2026-09-27):** `lean4_formalization/AgoraPhysics/ZeroSoundBracket.lean`
   proves over ℝ that every undamped root satisfies $2e^{-(2+2/F_0^s)}\le s-1\le F_0^s$. It builds on
   lemmas from SocrateAI-Scientific-QuantumFluids `ZeroSound.lean`, whose `zero_sound_iff` proves such a
