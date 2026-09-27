@@ -14,6 +14,7 @@
 \date{June 2026}
 
 \begin{document}
+\sloppy
 
 \maketitle
 
@@ -28,6 +29,23 @@ replaced by an exact Pad\'e root-finding method with a documented negative resul
 $L_*=4$ is a conjecture/definitional identity, not a proven protective bound (R3, R4); and the
 Q-RHK-02 ``Theorem 22.6'' attribution has been checked against the source and found mismatched (R8).
 The text below is kept as a historical record and is annotated in place rather than rewritten.
+
+\smallskip
+\noindent\textbf{Note (2026-09-27): results since this report.} The current account is
+\texttt{docs/agora\_engine\_paper.pdf}. The main points are:
+\begin{itemize}
+\item \textbf{QV-01.} $F_0^s = 93/10$ below was a stand-in. On real $^3$He parameters $F_0^s(P)$
+(Kollar \& Vollhardt 2000, Table~IX, from Greywall 1983) the one-parameter model gives zero sound
+\emph{slower} than first sound, which is wrong. Adding $F_1^s$ fixes this ($c_0/c_1 = 1.036 \to
+1.005$ from 0 to 29 bar), and the exact Pad\'e solver now handles $(F_0^s, F_1^s)$. The weak-coupling
+bracket $2e^{-(2+2/F)} \le s-1 \le F$ is proved in Lean (\texttt{ZeroSoundBracket.lean}).
+\item \textbf{QVE-02.} The input $\mathrm{sinc}(t)$ is proved to be a free-transport phase-mixing
+mode that decays like $1/t$ (\texttt{PhaseMixingLink.lean}).
+\item \textbf{Q-RHK-02.} Theorem~22.6, applied literally to the kernel below, gives
+$\bar\gamma = 2\sqrt{3\,m/M} = 3.458$. This number replaces, and must not be compared with,
+$\gamma_{bound}$ (R8).
+\item \textbf{Data.} Open $^4$He neutron dispersion data do exist (Godfrin et al.\ 2021; R9).
+\end{itemize}
 \end{minipage}}
 \end{center}
 

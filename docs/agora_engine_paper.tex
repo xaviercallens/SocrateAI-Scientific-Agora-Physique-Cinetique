@@ -4,14 +4,16 @@
 \usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{geometry}
-\usepackage{booktabs}
+\usepackage{booktabs,array}
 \usepackage{hyperref}
 \usepackage{xcolor}
+\usepackage{graphicx}
 \geometry{margin=2.4cm}
 \hypersetup{colorlinks=true,linkcolor=black,urlcolor=blue,citecolor=black}
 
 \newcommand{\Fzs}{F_0^{s}}
-\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\Fos}{F_1^{s}}
+\newcommand{\code}[1]{\texttt{\hyphenchar\font=`\-\relax #1}}
 
 \title{\textbf{An Exact-Rational Engine for Kinetic Response Functions:\\
 Architecture, Verified Results, and What It Cannot Do}}
@@ -19,9 +21,10 @@ Architecture, Verified Results, and What It Cannot Do}}
 \author{Xavier Callens\\
 \textit{Laboratoire SocrateAI, Cagnes-sur-Mer, France}}
 
-\date{22 September 2026}
+\date{22 September 2026; revised 27 September 2026}
 
 \begin{document}
+\sloppy
 
 \maketitle
 
@@ -32,22 +35,32 @@ derivation step, and we report what it has and has not established. The engine
 represents a response kernel by its exact rational Taylor coefficients, forms
 diagonal Pad\'e approximants over $\mathbb{Q}$, and solves the resulting
 dispersion relations exactly, yielding algebraic numbers with explicit minimal
-polynomials suitable for export to a proof assistant. Applied to the Landau
-zero-sound problem in a Fermi liquid, the engine returns the mode velocity as an
-algebraic number: at $\Fzs = 93/10$, a stand-in for liquid $^3$He near
-saturated vapour pressure, the $[1/1]$ approximant gives the closed form
-$u = 10/37$, that is $s = \omega/(q v_F) = \sqrt{37/10}$, and the $[4/4]$
-approximant agrees with a $60$-digit solution of the transcendental dispersion
-relation to a relative error of $6.8\times10^{-10}$. We also report a negative
-result: for weak coupling the method fails outright. The zero-sound mode is then
-exponentially close to the particle--hole continuum edge,
-$s - 1 \sim 2e^{-2-2/\Fzs}$, and because the kernel has a logarithmic branch
-point at $u=1$, no Pad\'e approximant built at $u=0$ places a root in $(0,1)$.
-The previously advertised capability of tracking the mode ``into the Landau
-damping continuum'' by rational Pad\'e is therefore not attainable by this
-construction. A dedicated section records this and the project's other
-retractions, including the fact that a sequence once published here as a
-nonlinear plasma echo is the Taylor series of $\mathrm{Si}(t)^2/2$.
+polynomials. For the Landau zero-sound problem the $[4/4]$ approximant agrees
+with a $60$-digit solution of the transcendental dispersion relation to
+$6.8\times10^{-10}$ at $\Fzs=93/10$.
+This revision adds four things.
+(i)~\emph{Real parameters.} With $\Fzs(P)$ and $m^*/m(P)$ for liquid $^3$He
+from 0 to 29~bar (Kollar and Vollhardt's tables, derived from Greywall's
+data), the one-parameter model predicts zero sound \emph{slower} than first
+sound at every pressure, which contradicts $^3$He. Including $\Fos=3(m^*/m-1)$
+gives $c_0/c_1=1.036$ at 0~bar falling to $1.005$ at 29~bar, and the exact
+Pad\'e method extends to $(\Fzs,\Fos)$ with $10^{-8}$ agreement.
+(ii)~\emph{Proofs.} A Lean~4 theorem over $\mathbb{R}$ shows that every undamped
+root satisfies $2e^{-(2+2/\Fzs)}\le s-1\le\Fzs$, so the weak-coupling threshold
+law this project had only observed is now a proved lower bound, and the numerics
+show it is asymptotically sharp.
+(iii)~\emph{Neutron data.} Machine-checked kinematic identities are tested on
+the published IN5 dispersion of superfluid $^4$He at seven pressures: the
+maxon crosses the roton-pair threshold $2\Delta$ between 10 and 24~bar.
+(iv)~\emph{Theorem~22.6 of Villani's lecture notes.} Its numerical worked
+examples are reproduced by three independent implementations, and in the case
+its Remark~22.8 leaves open ($d=4$, $\gamma\in(-3,-2\sqrt2]$) a heat-kernel
+comparison gives $m/M\ge0.996$, hence $\bar\gamma\approx3.99>|\gamma|$.
+This is numerical evidence, not a proof.
+The negative result stands: in weak coupling no Pad\'e approximant built at
+$u=0$ places a root in $(0,1)$, so ``tracking the mode into the Landau damping
+continuum'' is not attainable this way. A dedicated section records this and
+the project's retractions.
 \end{abstract}
 
 \tableofcontents
@@ -87,17 +100,28 @@ deliberately.
   \item \textbf{Verified results} (Sections~\ref{sec:method}--\ref{sec:results}):
         exact algebraic zero-sound velocities, a convergence study against a
         $60$-digit reference, and a threshold law reproduced to ten digits.
+  \item \textbf{Contact with data and proof}
+        (Sections~\ref{sec:realhe3}, \ref{sec:thm226} and~\ref{sec:neutron}):
+        real $^3$He Landau parameters, real neutron-scattering data on $^4$He,
+        real-analysis theorems in Lean~4, and an independent re-examination of
+        the numerics behind Theorem~22.6 of~\cite{villani2025}.
   \item \textbf{Limits and retractions} (Section~\ref{sec:limits}): what the
         method provably cannot reach, and which earlier claims of this project
         have been withdrawn. This section is not an appendix to the results; it
         is a result.
 \end{enumerate}
 
-We state at the outset what this paper does \emph{not} claim. No experimental
-data is used anywhere; no comparison with neutron scattering measurements is
-made. The Lean~4 development verifies arithmetic over $\mathbb{Q}$ and nothing
-more: it does not formalise kinetic theory, and a Lean theorem in this
-repository is never evidence for a physical statement.
+We state at the outset what this paper does \emph{not} claim. The data used are
+published, author-processed tables: Landau parameters of $^3$He derived from
+specific-heat measurements~\cite{kollar2000,greywall1983}, and the dispersion
+curve of $^4$He from neutron scattering~\cite{godfrin2021}. No raw instrument
+data is used. The Lean~4 development proves statements about \emph{models}: a
+bracket on the roots of the Landau zero-sound relation, a phase-mixing identity,
+and kinematic identities. It does not formalise the Boltzmann equation or
+Theorem~22.6, and a Lean theorem here is never by itself evidence for a
+statement about real helium. An earlier version of this paper said no
+experimental data was used anywhere; that sentence is withdrawn together with
+the claim, recorded in Section~\ref{sec:limits}, that no open dataset existed.
 
 %---------------------------------------------------------------------------
 \section{The Engine}
@@ -165,6 +189,13 @@ complete proof}: a theorem can depend on \code{sorryAx} through an import. The
 development therefore ends with \code{\#print axioms} for every theorem, so the
 build log carries its own evidence, and continuous integration fails if
 \code{sorryAx} appears anywhere in that output.
+
+Beyond arithmetic identities, two files now prove real-analysis statements with
+mathlib: \code{ZeroSoundBracket.lean} (Section~\ref{sec:bracket}) and
+\code{PhaseMixingLink.lean} (Section~\ref{sec:qve02}). They build on lemmas
+from a companion project, SocrateAI-Scientific-QuantumFluids, which pins a
+different Lean version; those lemmas are restated with attribution rather than
+imported.
 
 Second, the default build target is the \emph{library}, not the executable.
 Building the executable forces native compilation of the entire mathlib
@@ -305,19 +336,19 @@ admissible in $(0,1)$. \code{CRootOf}$(p,0)$ denotes the first real root of $p$;
 these are exact algebraic numbers, not numerical approximations.}
 \label{tab:exact}
 \small
-\begin{tabular}{llp{9.3cm}}
+\begin{tabular}{ll>{\raggedright\arraybackslash}p{9.3cm}}
 \toprule
 $\Fzs$ & $M$ & exact admissible root $u$ \\
 \midrule
 $93/10$ & 1 & $10/37$ \\
 $93/10$ & 2 & $13265/11482 - 5\sqrt{4144945}/11482$ \\
-$93/10$ & 3 & $\mathrm{CRootOf}\!\left(102367u^{3} - 582876u^{2} + 708015u - 150150,\,0\right)$ \\
-$93/10$ & 4 & $\mathrm{CRootOf}\!\left(2898821u^{4} - 30185595u^{3} + 78963885u^{2} - 66591525u + 12762750,\,0\right)$ \\
+$93/10$ & 3 & $\mathrm{CRootOf}(102367u^{3} - 582876u^{2} + 708015u - 150150,\,0)$ \\
+$93/10$ & 4 & $\mathrm{CRootOf}(2898821u^{4} - 30185595u^{3} + 78963885u^{2} - 66591525u + 12762750,\,0)$ \\
 \midrule
 $30$ & 1 & $5/53$ \\
 $30$ & 2 & $350/337 - \sqrt{101269}/337$ \\
-$30$ & 3 & $\mathrm{CRootOf}\!\left(6059u^{3} - 32697u^{2} + 34881u - 3003,\,0\right)$ \\
-$30$ & 4 & $\mathrm{CRootOf}\!\left(172297u^{4} - 1731510u^{3} + 4252248u^{2} - 3093090u + 255255,\,0\right)$ \\
+$30$ & 3 & $\mathrm{CRootOf}(6059u^{3} - 32697u^{2} + 34881u - 3003,\,0)$ \\
+$30$ & 4 & $\mathrm{CRootOf}(172297u^{4} - 1731510u^{3} + 4252248u^{2} - 3093090u + 255255,\,0)$ \\
 \midrule
 $1$ & 1 & none in $(0,1)$ \\
 $1$ & 2 & $1365/772 - 3\sqrt{44905}/772$ \\
@@ -395,6 +426,94 @@ $3/10$ & $3.455570071\times10^{-4}$  & $3.444645119\times10^{-4}$  & $1.0031716$
 \end{tabular}
 \end{table}
 
+\subsection{The threshold law as a theorem}
+\label{sec:bracket}
+
+Table~\ref{tab:thresh} establishes Eq.~\eqref{eq:threshold} numerically. It is now also a proved
+inequality. Write $g_3(s) = \tfrac{s}{2}\ln\tfrac{s+1}{s-1}-1$ for the kernel~\eqref{eq:chi} as a
+function of $s$. Elementary bounds on the logarithm give
+$\tfrac12\ln\tfrac{2}{s-1}-1 \le g_3(s) \le \tfrac{1}{s-1}$ for $s>1$. Evaluating both at a root,
+where $g_3(s)=1/\Fzs$, yields
+\begin{equation}
+  2\,e^{-(2+2/\Fzs)} \;\le\; s-1 \;\le\; \Fzs
+  \qquad\text{for every undamped zero-sound root.}
+  \label{eq:bracket}
+\end{equation}
+This is \code{zero\_sound\_bracket} in \code{ZeroSoundBracket.lean}. It is proved over
+$\mathbb{R}$ with mathlib, from lemmas of the companion QuantumFluids project, whose
+\code{zero\_sound\_iff} also proves that such a root \emph{exists} for every $\Fzs>0$. Two
+consequences follow.
+\begin{itemize}
+  \item The lower edge of Eq.~\eqref{eq:bracket} is exactly the right-hand side of
+        Eq.~\eqref{eq:threshold}, and Table~\ref{tab:thresh} shows it is attained as
+        $\Fzs\to0$: the proved bound is asymptotically sharp.
+  \item Because the root exists for every $\Fzs>0$, the Pad\'e method's failure at weak
+        coupling (Section~\ref{sec:limits}) is a limitation of the method, not an absence of
+        the mode.
+\end{itemize}
+The validation script asserts Eq.~\eqref{eq:bracket} at every $60$-digit reference root it
+computes, eight couplings from $1/20$ to $30$, so a violation would stop the build.
+
+\subsection{QV-01 on real \texorpdfstring{$^3$He}{3He} parameters}
+\label{sec:realhe3}
+
+The value $\Fzs=93/10$ above is a stand-in. Real parameters are available in open form:
+Kollar and Vollhardt~\cite{kollar2000} tabulate, from Greywall's specific-heat
+data~\cite{greywall1983}, the molar volume $V$, the linear specific-heat coefficient $\gamma$ and
+the compressibility $\kappa$ of normal liquid $^3$He at $T\to0$ for $0$--$29$~bar. The table is
+read from the text layer of their arXiv PDF, with no OCR, and checked internally:
+\begin{itemize}
+  \item the $\partial\gamma/\partial P$ column against finite differences of $\gamma$, to
+        $2\times10^{-3}$;
+  \item $\kappa$ against $-V^{-1}\partial V/\partial P$, to $7\times10^{-3}$;
+  \item the prefactor of their Eq.~(30) against CODATA constants, to $0.06\%$.
+\end{itemize}
+From $\gamma$ one obtains $m^*/m$, and from their Eq.~(30),
+$\kappa=3.285\times10^{-4}\,\mathrm{bar}^{-1}(m^*/m)(1+\Fzs)^{-1}(V/\mathrm{cm}^3)^{5/3}$, one
+obtains $\Fzs$: $10.28$ at $0$~bar, rising to $73.9$ at $29$~bar.
+
+On these parameters the one-parameter model fails. It predicts zero sound \emph{slower} than
+first sound at every pressure (Table~\ref{tab:he3}), whereas in $^3$He zero sound is slightly
+faster. The missing ingredient is the $l=1$ parameter $\Fos=3(m^*/m-1)$, which couples the density
+mode to the current. With it the dispersion relation becomes
+\begin{equation}
+  g_3(s) \;=\; \frac{1}{\tilde F(s)},\qquad
+  \tilde F(s) \;=\; \Fzs + \frac{\Fos\, s^{2}}{1+\Fos/3}.
+  \label{eq:f0f1}
+\end{equation}
+Equation~\eqref{eq:f0f1} is not taken on trust. It is checked against a direct solution of the
+$l=0,1$ moment equations of the Landau kinetic equation (a $2\times2$ determinant with moments
+evaluated by quadrature), and the two agree to working precision. First sound
+$c_1=v_F\sqrt{(1+\Fzs)(1+\Fos/3)/3}$ agrees with the thermodynamic $1/\sqrt{\rho\kappa}$ from the
+same table to $2\times10^{-10}$.
+
+\begin{table}[htbp]
+\centering
+\caption{Zero sound $c_0$ and first sound $c_1$ (m/s) in liquid $^3$He from the Landau
+parameters of~\cite{kollar2000}. The one-parameter model gives $c_0<c_1$; with $\Fos$,
+$c_0>c_1$ as observed.}
+\label{tab:he3}
+\begin{tabular}{rrrrrrr}
+\toprule
+$P$ (bar) & $\Fzs$ & $\Fos$ & $c_0$, $\Fzs$ only & $c_0$, $(\Fzs,\Fos)$ & $c_1$ & $c_0/c_1$ \\
+\midrule
+0  & 10.28 & 5.26  & 120.8 & 200.1 & 193.2 & 1.036 \\
+6  & 21.43 & 7.29  & 140.5 & 260.1 & 255.5 & 1.018 \\
+15 & 41.95 & 9.69  & 161.9 & 332.9 & 329.9 & 1.009 \\
+29 & 73.94 & 13.00 & 174.4 & 402.7 & 400.6 & 1.005 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The exact method carries over. With $u=1/s^2$, $a=1+\Fos/3$ and $\chi\approx P/Q$,
+Eq.~\eqref{eq:f0f1} becomes the polynomial
+$P(u)\,(\Fzs a u + \Fos) - Q(u)\,a u = 0$ over $\mathbb{Q}$. At $\Fos=0$ it reduces to
+$u(\Fzs P-Q)$, and it reproduces $u=10/37$ at $\Fzs=93/10$. At the real parameters for $0$ and
+$29$~bar its $[4/4]$ root agrees with the $60$-digit reference to better than $10^{-8}$; the
+roots lie at small $u$, where the approximant converges fast. One caveat applies: the absolute
+$c_1=193$~m/s at $0$~bar is about $5\%$ above commonly quoted measurements. The authors of the
+source table note that their compressibility is least certain below about $2$~bar.
+
 \subsection{QVE-02: the nonlinear \texorpdfstring{$\mathcal{O}(\epsilon^{2})$}{O(eps2)} response, and what it is not}
 \label{sec:qve02}
 
@@ -420,6 +539,17 @@ a phase space, none of which is present here; a Taylor expansion about $t=0$
 cannot exhibit one. We retain the protocol as what it is, an exact
 second-order Volterra response, and test it against its closed form so the
 identification cannot be lost again.
+
+The input has a precise physical meaning, now proved. For free transport
+$\partial_t f+v\,\partial_x f=0$ the $k$-th density mode is
+$\int e^{-ikvt}g(v)\,dv$, and for the flat-top distribution $g=\tfrac12\mathbb{1}_{[-1,1]}$ it
+equals $\sin(kt)/(kt)$ (\code{flat\_top\_mode} in \code{PhaseMixingLink.lean}), which decays to
+zero like $1/t$ (\code{flat\_top\_mode\_tendsto\_zero}). By Archimedes' hat-box theorem the flat
+top is the one-dimensional marginal of the uniform measure on a Fermi surface $S^2$, so
+$\rho^{(1)}$ is also that surface's free-streaming mode; the test suite checks this
+numerically. The decay is algebraic phase mixing, in contrast with the Gaussian $e^{-k^2t^2/2}$ of
+a Maxwellian. The second-order term tends to $\mathrm{Si}(\infty)^2/2=\pi^2/8$: it approaches a
+constant, and nothing echoes.
 
 \subsection{Q-RHK-02: symbolic kernel bounds}
 
@@ -458,6 +588,15 @@ Lean development carries the rational surrogate $16063/8232 =
 $2.0\times10^{-9}$: what is checked there is arithmetic about that rational, not
 about the algebraic number.
 
+What Theorem~22.6 does give for this kernel can be computed from the theorem as
+stated. For $B=|v-v_*|^\gamma\beta(\cos\theta)$ in $d=3$ its radial condition reads
+$|\gamma|\le2\sqrt{3\,m/M}$, where $m\le\beta/\beta_0\le M$ for some mixture $\beta_0$ of heat
+kernels on $S^2$. A linear program over finite mixtures finds $m/M=0.99654$. The symmetrised
+kernel is close to $\tfrac43+\tfrac23P_2(\cos\theta)$, which a single heat kernel matches at
+$t=\ln(10)/6\approx0.384$; the optimiser found $0.3846$. Hence $\bar\gamma=3.458$, close to the
+ceiling $2\sqrt3$. This is the quantity the retracted formula was meant to be, and it is a property
+of the model kernel only (Figure~\ref{fig:e3}).
+
 \subsection{Q-RIP-03: a definitional identity, reported as such}
 
 The remaining protocol evaluates $L_* = 2d$ at $d=2$ and obtains $4$. With
@@ -471,6 +610,141 @@ has been removed and the quantity is labelled a conjecture in both the code and
 the stored artefacts.
 
 %---------------------------------------------------------------------------
+\section{The numerics behind Theorem 22.6}
+\label{sec:thm226}
+%---------------------------------------------------------------------------
+
+Theorem~22.6 of Villani's lecture notes~\cite{villani2025} gives a sufficient condition for
+the Fisher information to be nonincreasing along the spatially homogeneous Boltzmann equation. The
+condition compares the angular kernel with a mixture of heat kernels,
+$m\le\beta/\beta_0\le M$, and in its literal form reads
+$\sup_\theta \tfrac{r}{B}|\partial_r B|\le2\sqrt{d\,m/M}$. For power laws,
+$B=|v-v_*|^\gamma b(\cos\theta)$, this becomes $|\gamma|\le\bar\gamma=2\sqrt{d\,m/M}$. The worked
+examples after the theorem were computed numerically by Silvestre, published
+in~\cite{isv2024}, with code in~\cite{silvestre2024}, and the notes describe the procedure as
+``not a purely mathematical proof''. We re-examined them.
+
+\paragraph{Reproduction, three ways.}
+The authors' Julia code was re-executed at a pinned commit. Because that repository carries no
+licence, it is run but never copied. Two further implementations, in Python and in Rust, were
+written from the mathematics rather than translated:
+\begin{itemize}
+  \item the collision kernel comes from classical scattering, parametrised by $\beta=p^2/r_0^2$,
+        with the deflection derivative taken under the integral; it reproduces Rutherford's
+        cross-section to $10^{-12}$ in $d=2,3,4$;
+  \item the subordinated kernel comes from the spherical heat-kernel expansion, each time
+        integral being an exact incomplete gamma function;
+  \item both kernels are normalised by exact $\theta\to0$ constants.
+\end{itemize}
+Both quoted bounds reproduce: the minimum over the tabulated $\nu$ is $4.355$ in $d=3$ (claim
+$\ge4.3$) and $3.364$ in $d=2$ (claim $>3.3$). The kernels agree with the authors' code to
+$2\times10^{-6}$ (collision) and $0.7\%$ (subordinated; theirs is bump-averaged), and Rust
+agrees with Python to $2\times10^{-9}$.
+
+One detail differs. The authors' adaptive quadrature of the integrals defining $\Lambda_b$
+underestimates it as $\nu\to2$, where the integrand tends to $t^{-1}$: at $d=2$, $\nu=1.999$ it
+gives $3.932$ against the exact $3.997$. The exact value comes from the closed form
+$\int_0^\infty t^{-1-s}(e^{-\alpha t}-e^{-\beta t})\,dt=\Gamma(-s)(\alpha^s-\beta^s)$, confirmed
+to twelve digits by a singularity-resolving substitution. The error is conservative: the
+tabulated bounds are slightly low.
+
+An exact identity anchors the comparison. At $d=2$, $\nu=1$ (two-dimensional Coulomb scattering)
+the symmetrised Rutherford kernel $1/\sin^2\theta$ equals the symmetrised kernel of
+$(-\Delta)^{1/2}$ on the circle. The two independent computations agree to
+$6\times10^{-11}$, and the bound there is exactly $2\cdot2^{3/4}$.
+
+\paragraph{Denser sampling.}
+The notes sample the kernel ratio at eleven angles and 8--10 values of $\nu$. Sampling can only
+overestimate an infimum, so we used 52 values of $\nu$ and up to 400 angles
+(Figure~\ref{fig:e1}). Both claims survive, and the eleven-angle grid overestimates the bound by at
+most $0.021$. In $d=2$ the dense sweep finds a dip between the tabulated $\nu=1.0$ and $1.25$:
+the minimum is $3.3593$ at $\nu\approx1.06$, still above $3.3$.
+
+\paragraph{The weights.}
+A grid search over the two-parameter families that contain the notes' ``trial and error''
+weights, $1\mp a(1-e^{-bt})$, finds them within $0.06$ of the best in their family
+(Figure~\ref{fig:e2}). Without tuning, using the plain fractional Laplacian, both claims fail
+over most of their range.
+
+\paragraph{The case Remark~22.8 leaves open.}
+The notes state that $\gamma\in(-3,-2\sqrt2]$ in $d=4$ is not covered. For a force
+$\propto r^{-s}$ in dimension $d$, classical scattering gives $\nu=(d-1)/(s-1)$ and
+$\gamma=1-2\nu$, so the open range is $\nu\in[1.9142,2)$. The literal criterion then requires
+$m/M>((2\nu-1)/4)^2$, at most $9/16$. That form of the criterion reproduces three of the notes'
+own statements: $\sqrt{7.5}$, $\sqrt{12/1.1}$ and $2\cdot2^{1/4}$. A linear program maximises
+$m/M$ over nonnegative combinations of three families of comparison kernels, each admissible for
+$\nu<2$:
+\begin{itemize}
+  \item tempered singular kernels, with weights $t^{-1-\nu/2}e^{-\mu t}$;
+  \item bounded kernels, with weights $t^{-1-\nu/2}(1-e^{-bt})$;
+  \item pure heat kernels on $S^3$.
+\end{itemize}
+It finds $m/M\ge0.996$ at all sixteen sampled $\nu$, re-checked on 800 angles down to
+$\theta=0.01$, hence $\bar\gamma\approx3.99>|\gamma|$. The result survives halving the basis
+($0.9954$) and using the tempered family alone ($0.9928$). It fails without tempering: $m/M$
+drops to $0.48$, below the required $9/16$.
+
+This is numerical evidence at the standard of the notes' own worked examples, not a proof. It
+assumes Theorem~22.6 holds as stated in $d=4$; below $\theta=0.01$ it relies on the exact
+$\theta\to0$ limit; and it is offered for the authors to check. A numerical artefact met along the
+way is documented in the repository: a single spectral cut-off chosen for the smallest angle loses
+accuracy near $\pi/2$ in $d=4$, and is fixed by per-block cut-offs.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/theorem_22_6/e1_robustness.png}
+\caption{Bound $2\sqrt{\Lambda_b c_2/C_1}$ against $\nu$ with the notes' weights: 400 angles
+(line) against the notes' eleven (dots); squares mark the tabulated $\nu$. Dashed: the claimed
+thresholds $4.3$ ($d=3$) and $3.3$ ($d=2$).}
+\label{fig:e1}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/theorem_22_6/e2_weight_search.png}
+\caption{Plain fractional Laplacian, the notes' weight, and the best weight in its
+two-parameter family.}
+\label{fig:e2}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/theorem_22_6/e3_roton_theorem_22_6.png}
+\caption{The Q-RHK-02 model kernel and its best heat-kernel comparison (left); their ratio,
+$m/M=0.99654$ (right).}
+\label{fig:e3}
+\end{figure}
+
+%---------------------------------------------------------------------------
+\section{Machine-checked kinematics on neutron data}
+\label{sec:neutron}
+%---------------------------------------------------------------------------
+
+The companion project formalises kinematic identities used in the analysis of neutron scattering
+on superfluid $^4$He~\cite{godfrin2021,godfrin2022}. We test them on the dispersion curve
+Godfrin \emph{et al.} published with~\cite{godfrin2021}: ILL IN5 data at seven pressures from $0$
+to $24.08$~bar, with per-point uncertainties, released as arXiv ancillary files. The files are
+fetched and checked by SHA-256, and are not redistributed. The fit reproduces the published sound
+velocity ($1.5685$ against $1.5679$~meV\,\AA) and roton gap ($0.7417$ against $0.7445$~meV).
+
+\begin{itemize}
+  \item \emph{Maxon versus the roton-pair threshold.} The maxon lies below $2\Delta$ up to
+        $10$~bar ($-0.119\pm0.001$~meV) and above it at $24.08$~bar ($+0.0106\pm0.0005$~meV,
+        about $21\sigma$), as reported in~\cite{beauvois2018}. A proved lemma states that every
+        time-of-flight energy scales with the incident energy, so no proportional recalibration
+        can reverse this comparison.
+  \item \emph{Top of the measured range.} At saturated vapour pressure the tabulated energy
+        at $3.60$~\AA$^{-1}$ ($1.554$~meV) exceeds $2\Delta=1.483$~meV, as the formalisation's
+        documentation asserts.
+  \item \emph{Three-phonon decay.} It is open if and only if the small-$k$ dispersion curves
+        upwards (a proved equivalence). At saturated vapour pressure a fit on
+        $Q\le0.15$~\AA$^{-1}$ gives upward curvature at $3.8\sigma$, consistent with the
+        published series. The sign change reported near $18$--$20$~bar cannot be decided from
+        these files, which start at $Q=0.15$~\AA$^{-1}$ for $P>0$. Our first version of this
+        test asserted it anyway; the test was redesigned and the change recorded.
+\end{itemize}
+
+%---------------------------------------------------------------------------
 \section{Verification and validation}
 \label{sec:vv}
 %---------------------------------------------------------------------------
@@ -480,7 +754,8 @@ which level supports it.
 
 \paragraph{Level 1: exact symbolic computation.} The kernel coefficients,
 Pad\'e approximants, dispersion polynomials, roots and minimal polynomials are
-exact over $\mathbb{Q}$ or $\overline{\mathbb{Q}}$. Ten tests cover these,
+exact over $\mathbb{Q}$ or $\overline{\mathbb{Q}}$. Forty-nine tests cover these and the
+analytic anchors of Sections~\ref{sec:realhe3}--\ref{sec:thm226},
 including the two adversarial ones described in Section~\ref{sec:engine}: the
 kernel is re-derived from its closed form rather than compared with a table, and
 float input is required to raise.
@@ -488,16 +763,30 @@ float input is required to raise.
 \paragraph{Level 2: independent numerical validation.}
 \code{verification/validate\_zero\_sound.py} checks the exact roots against
 $60$-digit root-finding and against the asymptotic
-law~\eqref{eq:threshold}. It asserts the strong-coupling cases and reports the
-others, exiting non-zero only if a regime it claims to have solved degrades.
+law~\eqref{eq:threshold}, and asserts the proved bracket~\eqref{eq:bracket} at every
+reference root. It asserts the strong-coupling cases and reports the others, exiting non-zero
+only if a regime it claims to have solved degrades. Further scripts, all run in continuous
+integration, check the following:
+\begin{itemize}
+  \item the real-$^3$He analysis of Section~\ref{sec:realhe3};
+  \item the neutron-data tests of Section~\ref{sec:neutron};
+  \item the reproduction of Section~\ref{sec:thm226};
+  \item Fisher-information and entropy monotonicity on the exact Bobylev--Krook--Wu
+        solution~\cite{krookwu1976} of the homogeneous Boltzmann equation for Maxwell
+        molecules. Mass is conserved exactly, the Maxwellian limit $I=3$ is recovered exactly,
+        and both functionals decrease monotonically.
+\end{itemize}
 
 \paragraph{Level 3: proof assistant.} The Lean~4 library
 \code{AgoraPhysics.Protocols} compiles against mathlib at the pinned revision
 \code{ec6e08b4}, and every theorem is accompanied by \code{\#print axioms}. The
-scope of that evidence is narrow and worth stating plainly: it certifies
-identities such as the $[1/1]$ order condition $a_2 + q_1 a_1 = 0$ and the fact
-that $u=10/37$ is a root of $Q - \tfrac{93}{10}P$. It certifies nothing about
-$^3$He. Two theorems in the file are labelled vacuous in the source itself: one
+scope of that evidence is worth stating plainly.
+\code{Protocols.lean} certifies identities such as the $[1/1]$ order condition
+$a_2 + q_1 a_1 = 0$ and the fact that $u=10/37$ is a root of $Q - \tfrac{93}{10}P$.
+\code{ZeroSoundBracket.lean} and \code{PhaseMixingLink.lean} certify real-analysis statements
+about the Landau zero-sound relation and about free transport. None of them certifies anything
+about real $^3$He or $^4$He: that connection is made, where it is made, by the data-driven checks
+of Level~2. Two theorems in the file are labelled vacuous in the source itself: one
 proves $2\cdot 2 = 4$ after unfolding a definition, and one has its hypothesis
 as its conclusion. They are retained, labelled, as a record.
 
@@ -552,6 +841,9 @@ repository's history and in earlier documents:
         $2/(4k^{2}-1)$ sequence belongs to the different function
         Eq.~\eqref{eq:g}, and $19/45$ corresponded to neither and has been
         removed.
+  \item \textbf{``No open dataset exists''} for the roton regime was an earlier conclusion of
+        this project's data search. It was wrong: the dispersion data of~\cite{godfrin2021}
+        were published openly as arXiv ancillary files, and the search had not looked there.
   \item \textbf{An automated audit of this repository} reported several of these
         repairs as complete before they were. In particular it stated that the
         coefficient tables had been unified across Python and Lean while the
@@ -561,7 +853,7 @@ repository's history and in earlier documents:
         information. Both are recorded in \code{RETRACTIONS.md}.
 \end{enumerate}
 
-Item 6 is the reason this section exists in this form. An automated pass that
+Item 7 is the reason this section exists in this form. An automated pass that
 writes its own audit report is capable of producing a confident, well-formatted
 account of work it did not do, which is the first failure mode of
 Section~\ref{sec:intro} applied to the act of auditing. The defence is not
@@ -570,39 +862,42 @@ when a claim is false.
 
 \subsection{Other limitations}
 
-No experimental data is used, so nothing here is validated against measurement.
-The angular kernel of Q-RHK-02 is a model, not a fit. The Lean development
-covers arithmetic only. The strong-coupling value $\Fzs=93/10$ is a plausible
-stand-in for liquid $^3$He near saturated vapour pressure but is not the result
-of a fit to data, and the reported agreement is agreement with the
-transcendental equation, not with an experiment.
+Contact with measurement is indirect and limited. The data are author-processed tables, not raw
+counts; raw ILL data remain to be requested. The angular kernel of Q-RHK-02 is a model, not a fit,
+and no available dataset constrains it. The real-parameter zero-sound analysis uses two Landau
+parameters and neglects $F_2^s$ and higher, finite temperature and collisions. Its absolute
+velocities at the lowest pressures inherit the uncertainty of the source compressibility. The
+$d=4$ evidence of Section~\ref{sec:thm226} is numerical and conditional on Theorem~22.6 holding
+as stated.
 
 %---------------------------------------------------------------------------
 \section{Reproducibility}
 %---------------------------------------------------------------------------
 
-All results in Sections~\ref{sec:results} and~\ref{sec:vv} are produced by the
-following commands from the repository root. Dependencies are pinned in
-\code{requirements.txt} (\code{sympy}, \code{pytest}, \code{mpmath}).
+All results are produced by the following commands from the repository root. Python
+dependencies are pinned in \code{requirements.txt} (\code{sympy}, \code{mpmath}, \code{numpy},
+\code{scipy}, \code{matplotlib}, \code{pytest}); \code{poppler-utils} provides \code{pdftotext}.
 
 \begin{verbatim}
   pip install -r requirements.txt
-
-  # exact derivation: writes alexandrie_data/QV-01/zero_sound_results.json
-  python3 simulations/qv_01_zero_sound.py
-
-  # exact symbolic checks (10 tests), including the adversarial ones
-  python3 -m pytest tests/ -q
-
-  # independent 60-digit validation: Tables 2 and 3
-  python3 verification/validate_zero_sound.py
-
-  # proof checking (library target only)
-  cd lean4_formalization && lake exe cache get && lake build
+  python3 simulations/qv_01_zero_sound.py            # exact QV-01 derivation
+  python3 -m pytest tests/ -q                        # 49 tests
+  python3 verification/validate_zero_sound.py        # Tables 2-3, bracket (3.4)
+  python3 verification/he3_landau/extract_table_ix.py      # real 3He parameters
+  python3 verification/he3_landau/zero_sound_real_he3.py   # Table 4
+  python3 verification/helium_kinematics_data.py     # Section 5
+  python3 verification/theorem_22_6/reproduce.py     # Section 4 (Python)
+  (cd verification/theorem_22_6/rust && cargo run --release)   # (Rust)
+  verification/theorem_22_6/run.sh                   # (authors' Julia code)
+  cd lean4_formalization && lake exe cache get && lake build   # proofs
 \end{verbatim}
 
+The experiments of Section~\ref{sec:thm226}, with their run times, are listed in
+\code{verification/theorem\_22\_6/EXPERIMENTS.md}; \code{verification/THEORY\_EXPERIMENT\_LINKS.md}
+maps each theorem to the experiment that tests it.
+
 The Lean toolchain is \code{leanprover/lean4:v4.31.0} with mathlib pinned at
-\code{ec6e08b4dfb414460f0ee7b4ce9678e7e04fb584}. Note that
+\code{ec6e08b4dfb4\-14460f0ee7\-b4ce9678e7\-e04fb584}. Note that
 \code{lake exe cache get} is required: compiling mathlib from source takes hours,
 and the build that produced the evidence reported here initially failed because
 an interrupted clone left the dependency incomplete.
@@ -620,6 +915,14 @@ the weak-coupling mode sits exponentially close to a branch point and is
 unreachable by rational approximants built at the origin, which retires a
 capability this project previously advertised.
 
+Contact with real parameters sharpened this picture rather than confirming it. The
+one-parameter model, accurate as mathematics, is wrong as physics for $^3$He: it puts zero
+sound below first sound, and the second Landau parameter restores the observed ordering, still
+within the exact framework. The threshold law is now a theorem, and the numerics show it is
+sharp. Re-examining the numerics behind a published theorem found them sound and slightly
+conservative. It also produced evidence that the one case the author left open is covered, which
+is offered to the author to check.
+
 The methodological lesson is narrower than the physics but likely more durable.
 Every claim in this paper that survived did so because something executable
 would fail if it were false: a kernel re-derived from its closed form rather
@@ -631,15 +934,15 @@ uniformly the ones supported by prose alone, including prose written by an
 automated audit about its own work.
 
 %---------------------------------------------------------------------------
-\begin{thebibliography}{9}
+\begin{thebibliography}{99}
 
 \bibitem{villani2025}
 C.~Villani,
 \emph{Fisher Information in Kinetic Theory},
 arXiv:2501.00925 (2025).
-Cited for the general subject of Fisher-information monotonicity in kinetic
-theory. The specific attribution of Eq.~\eqref{eq:gamma} to a numbered theorem
-of this work is \emph{not} asserted here; see Section~\ref{sec:results}.
+Lecture notes; Section~22, Theorem~22.6 and Remarks~22.7--22.8 are the subject of
+Section~\ref{sec:thm226}. The earlier attribution of Eq.~\eqref{eq:gamma} to Theorem~22.6 was
+checked and found mismatched.
 
 \bibitem{godfrin2022}
 H.~Godfrin and E.~Krotscheck,
@@ -647,6 +950,39 @@ H.~Godfrin and E.~Krotscheck,
 arXiv:2206.06039 (2022).
 Cited as a review of $^4$He and $^3$He dynamics. Neither author has reviewed or
 endorsed this code.
+
+\bibitem{isv2024}
+C.~Imbert, L.~Silvestre and C.~Villani,
+\emph{On the monotonicity of the Fisher information for the Boltzmann equation},
+arXiv:2409.01183 (2024).
+
+\bibitem{silvestre2024}
+L.~Silvestre, \emph{Collision kernels} (Julia code),
+\url{https://github.com/luissilvestre/collisionkernel}, commit \code{01a9d44} (2024).
+
+\bibitem{godfrin2021}
+H.~Godfrin, K.~Beauvois, A.~Sultan, E.~Krotscheck, J.~Dawidowski, B.~F\aa k and J.~Ollivier,
+\emph{Dispersion relation of Landau elementary excitations and thermodynamic properties of
+superfluid $^4$He}, Phys.\ Rev.\ B \textbf{103}, 104516 (2021), arXiv:2012.09067, with
+ancillary data files.
+
+\bibitem{beauvois2018}
+K.~Beauvois, J.~Dawidowski, B.~F\aa k, H.~Godfrin, E.~Krotscheck, J.~Ollivier and A.~Sultan,
+\emph{Microscopic dynamics of superfluid $^4$He: a comprehensive study by inelastic neutron
+scattering}, Phys.\ Rev.\ B \textbf{97}, 184520 (2018).
+
+\bibitem{kollar2000}
+M.~Kollar and D.~Vollhardt,
+\emph{Thermodynamically consistent equilibrium properties of normal-liquid Helium-3},
+Phys.\ Rev.\ B \textbf{61}, 15347 (2000), arXiv:cond-mat/9906222.
+
+\bibitem{greywall1983}
+D.~Greywall, Phys.\ Rev.\ B \textbf{27}, 2747 (1983). The specific-heat data from which the
+tables of~\cite{kollar2000} are derived (their ref.~16).
+
+\bibitem{krookwu1976}
+M.~Krook and T.~T.~Wu, \emph{Formation of Maxwellian tails},
+Phys.\ Rev.\ Lett.\ \textbf{36}, 1107 (1976).
 
 \bibitem{pinesnozieres}
 D.~Pines and P.~Nozi\`eres,

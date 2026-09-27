@@ -41,6 +41,23 @@ calcul lui-même reste exact et correct ; seule l'interprétation « écho » es
 du protocole Q-RHK-02 au « Théorème 22.6 » de Villani, mentionnée plus bas, a été vérifiée directement
 contre la source et jugée non fondée (RETRACTIONS.md, R8) ; le théorème existe mais borne une quantité
 différente.
+
+\smallskip
+\noindent\textbf{Note (27 septembre 2026) : résultats depuis ce document.} Le compte rendu à jour se
+trouve dans \texttt{docs/agora\_engine\_paper.pdf}. Les points principaux sont les suivants.
+\begin{itemize}
+\item \textbf{QVE-02.} L'entrée $\mathrm{sinc}(t)$ est démontrée en Lean
+(\texttt{PhaseMixingLink.lean}) : c'est le mode de mélange de phase du transport libre pour la
+distribution plate, et il décroît en $1/t$.
+\item \textbf{Q-RHK-02.} Le Théorème~22.6, appliqué littéralement au noyau ci-dessous
+(comparaison avec des noyaux de la chaleur, calculée indépendamment en Julia, Python et Rust), donne
+$\bar\gamma = 2\sqrt{3\,m/M} = 3{,}458$ avec $m/M = 0{,}99654$. C'est l'énoncé qui remplace la
+borne $1{,}9513$ ; les deux nombres ne se comparent pas.
+\item \textbf{Données.} Des données neutroniques ouvertes sur $^4$He existent (Godfrin et al.\ 2021,
+arXiv:2012.09067 ; RETRACTIONS.md, R9).
+\item \textbf{QV-01.} Sur les paramètres réels de $^3$He, le modèle zéro-son à un seul paramètre
+$F_0^s$ est faux ; il faut ajouter $F_1^s$.
+\end{itemize}
 \end{mdframed}
 
 \begin{abstract}
