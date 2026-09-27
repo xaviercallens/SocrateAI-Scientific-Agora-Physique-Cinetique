@@ -6,6 +6,9 @@ rules outrank speed.
 
 ## Setup and checks
 
+`scripts/restart.sh` shows where the project stands (git, toolchains, CI, open issues, live roadmap);
+`scripts/restart.sh check` adds the fast checks (~2 min), and `full` runs everything CI runs plus `lake build`.
+
 ```bash
 pip install -r requirements.txt
 export PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
