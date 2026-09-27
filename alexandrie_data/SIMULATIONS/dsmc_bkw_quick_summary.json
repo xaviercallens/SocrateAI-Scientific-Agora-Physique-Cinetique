@@ -1,0 +1,75 @@
+{
+  "what": "DSMC (Nanbu/Bird, Poisson pair collisions) for the homogeneous Boltzmann equation, 3D Maxwell molecules, isotropic scattering, collision rate 1 per particle, against the exact BKW solution",
+  "exact_reference": "K(t) = 1 - (1-K0) exp(-t/6), derived from dm4/dt = -(m4-15)/3 (checked symbolically)",
+  "K0": 0.6,
+  "t_end": 8.0,
+  "mode": "quick",
+  "per_run": [
+    {
+      "N": 10000,
+      "seed": 1,
+      "wall_s": 0.7874306300072931,
+      "collisions": 39967,
+      "rms_rel_m4": 0.008071033582373866,
+      "rms_rel_m6": 0.029912565853423008,
+      "max_abs_m4": 0.2383829665087216,
+      "rms_abs_H": 0.0016166659062887443,
+      "energy_drift": 4.440892098500626e-16,
+      "momentum_max": 7.340794638821535e-17,
+      "dt": 0.01,
+      "dt_bias_rel_m4": 0.00010457403817883418
+    },
+    {
+      "N": 10000,
+      "seed": 2,
+      "wall_s": 0.6660685740062036,
+      "collisions": 40200,
+      "rms_rel_m4": 0.007791353206178944,
+      "rms_rel_m6": 0.03546634563283034,
+      "max_abs_m4": 0.23907197759180399,
+      "rms_abs_H": 0.002489487212005583,
+      "energy_drift": 4.440892098500626e-16,
+      "momentum_max": 7.470690732702679e-17,
+      "dt": 0.01,
+      "dt_bias_rel_m4": 0.00010457403817883418
+    },
+    {
+      "N": 50000,
+      "seed": 1,
+      "wall_s": 1.7013265460263938,
+      "collisions": 199498,
+      "rms_rel_m4": 0.003711289029600478,
+      "rms_rel_m6": 0.010746409894178258,
+      "max_abs_m4": 0.12429120480840083,
+      "rms_abs_H": 0.0007047479934747157,
+      "energy_drift": 1.3322676295501878e-15,
+      "momentum_max": 7.485567721232655e-17,
+      "dt": 0.01,
+      "dt_bias_rel_m4": 0.00010457403817883418
+    }
+  ],
+  "by_N": {
+    "10000": {
+      "rms_rel_m4": 0.007931193394276405,
+      "rms_rel_m6": 0.03268945574312668,
+      "rms_abs_H": 0.0020530765591471635,
+      "wall_s": 0.7267496020067483,
+      "seeds": 2
+    },
+    "50000": {
+      "rms_rel_m4": 0.003711289029600478,
+      "rms_rel_m6": 0.010746409894178258,
+      "rms_abs_H": 0.0007047479934747157,
+      "wall_s": 1.7013265460263938,
+      "seeds": 1
+    }
+  },
+  "convergence_slope_m4": -0.4718568177954229,
+  "dt_bias_m4_max_rel": 0.00010457403817883418,
+  "entropy_exact_start_end": [
+    0.06392996818606608,
+    0.0001246297082980309
+  ],
+  "entropy_exact_strictly_decreasing": true,
+  "raw_data": "/media/xavkal/3ada43de-fc4a-43bd-a9f8-cf396fd17033/home/xavkal/agora-data/simulations"
+}
