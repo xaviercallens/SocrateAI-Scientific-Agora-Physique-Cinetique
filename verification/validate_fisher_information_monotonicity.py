@@ -143,6 +143,28 @@ def main():
           f"(K -> 1); Maxwellian value is exactly 3.")
     print(f"  Monotonically non-increasing over the whole trajectory: {monotone}")
 
+    # Step 4 -- the H-theorem on the same exact trajectory. Relative entropy to the equilibrium
+    # Maxwellian M (the K = 1 member), H(t) = int f log(f/M). Its discrete counterpart is machine-
+    # checked in SocrateAI-Scientific-QuantumFluids, lean_src/Villani.lean,
+    # `klDiv_nonincreasing_to_invariant` (from Mathlib's data-processing inequality): relative entropy
+    # to an invariant measure never increases under a Markov kernel. Here the continuous version is
+    # observed on an exact solution; it is not derived from that Lean theorem.
+    print("\nStep 4: relative entropy H(t) = int f log(f/M) along the same trajectory (H-theorem):")
+    H_values = []
+    for t, K, _ in I_values:
+        H = 4 * mp.pi * mp.quad(lambda r: r * r * f_K(r, K) * mp.log(f_K(r, K) / f_K(r, mp.mpf(1))),
+                                [0, mp.inf])
+        H_values.append((t, H))
+    for t, H in H_values[::3]:
+        print(f"  t={float(t):>5.1f}  H(t)={mp.nstr(H, 10)}")
+    h_monotone = all(H2 <= H1 + mp.mpf("1e-15") for (_, H1), (_, H2) in zip(H_values, H_values[1:]))
+    h_limit = abs(H_values[-1][1]) < mp.mpf("1e-8")
+    print(f"  non-increasing: {h_monotone};  H(t) -> 0 (reaches equilibrium): {h_limit}")
+    if not h_monotone:
+        failures.append("relative entropy increased along the BKW trajectory")
+    if not h_limit:
+        failures.append("relative entropy does not tend to 0")
+
     print()
     if failures:
         print("VALIDATION FAILED:")

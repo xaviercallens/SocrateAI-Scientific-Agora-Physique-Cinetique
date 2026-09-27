@@ -104,6 +104,25 @@ def main():
         print(f"  F_0^s = {F0s:>5}   s-1 = {mp.nstr(r - 1, 10):>16}   "
               f"2exp(-2-2/F) = {mp.nstr(asym, 10):>16}   ratio = {mp.nstr((r - 1) / asym, 8)}")
 
+    # Theory <-> experiment. lean4_formalization/AgoraPhysics/ZeroSoundBracket.lean proves, over R,
+    # that every undamped root satisfies 2 exp(-(2 + 2/F)) <= s - 1 <= F (`zero_sound_bracket`),
+    # and QuantumFluids' `zero_sound_iff` proves such a root exists for every F > 0. Every
+    # 60-digit reference root must fall inside the bracket; a violation would mean either the
+    # numerics or the formalisation is wrong.
+    print()
+    print("Machine-checked bracket (ZeroSoundBracket.lean):  2 exp(-(2+2/F)) <= s - 1 <= F")
+    bracket_Fs = ['1/20', '1/10', '3/20', '3/10', '1/2', '1', '93/10', '30']
+    for F0s in bracket_Fs:
+        F = mp.mpf(str(sp.Rational(F0s)))
+        r = reference_root(sp.Rational(F0s))
+        lower, upper = 2 * mp.e ** (-(2 + 2 / F)), F
+        inside = lower <= r - 1 <= upper
+        print(f"  F_0^s = {F0s:>5}   {mp.nstr(lower, 6):>12} <= {mp.nstr(r - 1, 8):>12} <= {mp.nstr(upper, 6):>6}"
+              f"   lower edge ratio (s-1)/bound = {mp.nstr((r - 1) / lower, 8):>10}   {'OK' if inside else 'VIOLATED'}")
+        if not inside:
+            failures.append((sp.Rational(F0s), "bracket", r - 1))
+    print("  (ratio -> 1 as F -> 0: the proved lower edge is asymptotically sharp)")
+
     print()
     if failures:
         print("VALIDATION FAILED in the strong-coupling regime:")

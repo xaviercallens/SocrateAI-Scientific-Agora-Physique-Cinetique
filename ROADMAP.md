@@ -164,6 +164,13 @@ $\rho^{(1)} = \operatorname{sinc}(t)$ is the free (non-interacting) Fermi-sphere
 from any real interacting system; Q-RIP-03's $L_*=2d$ is a bare conjecture with no physical input at all.
 Closing this gap needs real data or a real numerical check for each, not more symbolic computation.
 
+> [!IMPORTANT]
+> **Correction (2026-09-27, see [RETRACTIONS.md §R9](./RETRACTIONS.md)):** the conclusion below that no
+> open dataset exists is wrong for ⁴He. Godfrin et al. (2021, PRB 103, 104516) published their IN5
+> dispersion at 7 pressures as arXiv ancillary files (arXiv:2012.09067), which this search missed. It
+> constrains the dispersion, not the angular kernel β, and it is now used in E5
+> (`verification/helium_kinematics_data.py`).
+
 **What was checked (2026-09-26, two passes — QV-01/Q-RHK-02/Villani first, then QVE-02/Q-RIP-03):**
 searched Zenodo, Hugging Face Datasets, Materials Cloud, and the ILL data portal for an open, structured
 dataset covering all four protocols plus the Villani-side numerical bound. Result: **none exists in

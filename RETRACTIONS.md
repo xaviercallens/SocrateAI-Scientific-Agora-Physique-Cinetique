@@ -141,3 +141,22 @@ closure note.
 the theorem as stated, rather than from the retracted formula: $\bar\gamma=3.458$ for
 $B=|v-v_*|^\gamma\beta(\cos\theta)$, $d=3$ (`verification/theorem_22_6/EXPERIMENTS.md`, E3). This
 retraction stands unchanged: 1.95 was never that quantity.
+
+## R9 — Gap 4 said no open ⁴He dataset exists. One does.
+
+`ROADMAP.md` Gap 4 (2026-09-26) stated, after searching Zenodo, Hugging Face, Materials Cloud and
+the ILL portal, that "none exists in ready-to-use open form" for the roton/maxon regime. That was
+wrong. The authors of Godfrin, Beauvois, Sultan, Krotscheck, Dawidowski, Fåk, Ollivier,
+Phys. Rev. B 103, 104516 (2021), arXiv:2012.09067, published their ILL IN5 dispersion ε(Q) as
+**arXiv ancillary files**: 7 pressures (0–24.08 bar) with per-point uncertainties, plus a fine
+full-range curve at SVP. The search never looked at arXiv `anc/` files. The sibling project
+SocrateAI-Scientific-QuantumFluids had already found and used them.
+
+What this does and does not change:
+- It is author-processed dispersion data, not raw ILL numors. The data-access request for raw
+  data still stands.
+- It constrains the dispersion, **not** the angular scattering kernel β of Q-RHK-02, so it still
+  does not validate that kernel.
+- It is now used, fetched from arXiv and verified by SHA-256, in
+  `verification/helium_kinematics_data.py` (E5). There it tests machine-checked helium kinematics
+  (QuantumFluids `HeliumKinematics.lean`) against the real data; see `verification/THEORY_EXPERIMENT_LINKS.md`.

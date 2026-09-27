@@ -42,6 +42,13 @@ This document catalogs the formalized, automated scientific protocols used by th
   $F_0^s < 6/5$. The previously registered step *"track the velocity ratio drop into the Landau damping
   continuum"* is **not attainable by this method** and was never implemented. The threshold is instead
   characterised analytically and validated to 10 digits.
+* **Machine-checked theory (2026-09-27):** `lean4_formalization/AgoraPhysics/ZeroSoundBracket.lean`
+  proves over ℝ that every undamped root satisfies $2e^{-(2+2/F_0^s)}\le s-1\le F_0^s$. It builds on
+  lemmas from SocrateAI-Scientific-QuantumFluids `ZeroSound.lean`, whose `zero_sound_iff` proves such a
+  root **exists for every** $F_0^s>0$. So the weak-coupling negative result above is a limitation of
+  Padé, not an absence of the mode. The threshold law is now a proved lower bound, and
+  `verification/validate_zero_sound.py` asserts the bracket at every 60-digit reference root: all 8
+  lie inside it, and the lower edge is asymptotically sharp (ratio 1.0000 at $F_0^s=1/20$).
 
 ## Protocol QVE-02: Second-order Volterra response (formerly "Quantum Volterra Echo")
 * **Objective:** Extract the exact rational $\mathcal{O}(\epsilon^2)$ density response of a

@@ -32,3 +32,5 @@ jobs:
         run: python3 verification/validate_fisher_information_monotonicity.py
       - name: Theorem 22.6 worked examples, independent Python implementation vs authors' reference
         run: python3 verification/theorem_22_6/reproduce.py
+      - name: Machine-checked helium kinematics vs real 4He data (Godfrin et al. 2021, fetched from arXiv, SHA-256 checked)
+        run: python3 verification/helium_kinematics_data.py
