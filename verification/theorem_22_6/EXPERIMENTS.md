@@ -1,4 +1,4 @@
-# Theorem 22.6 experiments (E1–E3)
+# Theorem 22.6 experiments (E1–E4)
 
 Built on the independent Python/Rust implementation in this directory (`kernels.py`, `rust/`),
 which reproduces the numerical worked examples after Theorem 22.6 of C. Villani, *Fisher
@@ -113,6 +113,71 @@ $5e^{-6t}=\tfrac12$, i.e. $t=\ln(10)/6=0.3838$. The optimiser found 0.3846 witho
 
 Figure: `docs/figures/theorem_22_6/e3_roton_theorem_22_6.png`.
 
+
+## E4 — The case Remark 22.8 leaves open: d = 4, γ ∈ (−3, −2√2]
+
+Remark 22.8 of the notes: *"there is actually one little bit still not covered: γ ∈ (−3, −2√2] in
+dimension d = 4."* E4 runs the kernel comparison there. `literal_criterion.py` does the fit and
+`recheck_small_angles.py` the stress test.
+
+**Criterion.** E4 uses the literal form of Theorem 22.6, $\bar\gamma=2\sqrt{d\,m/M}$. Three of the
+notes' own worked statements follow exactly from it: $M/m\approx1.6\Rightarrow\bar\gamma>\sqrt{7.5}$
+(d=3), $M/m\le1.1\Rightarrow\sqrt{12/1.1}$ (d=3), and $M/m<\sqrt2\Rightarrow2\cdot2^{1/4}$ (d=2).
+The refined $\Lambda_b$ bound behind 4.3/3.3 is not used, because its validity in d=4 has not been
+checked. For a force $\propto r^{-s}$ in dimension d, classical scattering gives
+$\nu=(d-1)/(s-1)$ and $\gamma=1-2\nu$ (in d=3 this is the authors' $(s-5)/(s-1)$). The open range is
+therefore $\nu\in[1.9142,2)$, and covering it needs $m/M>((2\nu-1)/4)^2$, which is at most $9/16$.
+
+**Method.** One linear program maximises $m/M$ over the cone of admissible comparison kernels, all
+nonnegative combinations of:
+- singular kernels with weight $t^{-1-\nu/2}e^{-\mu t}$;
+- bounded kernels with weight $t^{-1-\nu/2}(1-e^{-bt})$;
+- pure heat kernels on $S^3$.
+
+Every member satisfies the theorem's integrability conditions for ν < 2. The fit uses 150 angles on
+$[0.10,\pi/2]$ plus the exact θ→0 limit, and the found mixture is then re-evaluated independently.
+New d=4 ingredients, each checked against an exact result:
+- the S³ heat kernel (eigenvalues ℓ(ℓ+2), zonal functions $\sin((\ell+1)\theta)/\sin\theta$): mass
+  exactly 2, positive;
+- the 4D collision kernel: Rutherford $1/(64\sin^6(\theta/2))$ reproduced to $10^{-14}$;
+- both normalisations tend to 1 as θ→0;
+- Rust and Python agree on the d=4 kernels to $10^{-8}$.
+
+**Validation first.** With the plain fractional Laplacian alone, d=3, ν=1 gives $M/m=1.5723$ and
+$\bar\gamma=2.763$. The notes say "approaches 1.6" and "> √7.5 = 2.739". With the full cone, d=3
+reaches $m/M\approx0.9999$, i.e. the literal ceiling $2\sqrt3$.
+
+| ν | γ = 1−2ν | m/M needed | m/M found, 400 angles on [0.05, π/2] | m/M, 800 angles on [0.01, π/2] | γ̄ | covered |
+|---|---|---|---|---|---|---|
+| 1.9142 | −2.828 | 0.500 | 0.9978 | 0.9965 | 3.993 | yes |
+| 1.93 | −2.860 | 0.511 | 0.9978 | 0.9965 | 3.993 | yes |
+| 1.95 | −2.900 | 0.526 | 0.9978 | 0.9965 | 3.993 | yes |
+| 1.97 | −2.940 | 0.540 | 0.9978 | 0.9965 | 3.993 | yes |
+| 1.99 | −2.980 | 0.555 | 0.9978 | 0.9964 | 3.993 | yes |
+| 1.995 | −2.990 | 0.559 | 0.9978 | 0.9964 | 3.993 | yes |
+| 1.999 | −2.998 | 0.562 | 0.9977 | 0.9964 | 3.993 | yes |
+
+**Reading.** In d=4, over the whole range the notes leave open, the power-law collision kernel is
+matched by a heat-kernel mixture to better than 0.4%. The literal Theorem 22.6 then gives
+$\bar\gamma\approx3.99$, which exceeds $|\gamma|\le3$ by a wide margin: $m/M$ would have to fall from
+0.996 to about 0.56 for the conclusion to fail.
+
+**What this is and is not.**
+- It is numerical evidence at the same standard as the notes' own worked examples, which the notes
+  call "not a purely mathematical proof". It is not a proof.
+- It assumes Theorem 22.6 holds as stated in d=4. The statement is for general d, and Remark 22.7
+  discusses its d-dependence.
+- ν is sampled at 7 points. Angles below θ=0.01 are covered only through the exact θ→0 limit. The
+  extremes sit at θ≈0.03–0.11 and move by less than 0.2% between the two re-checks.
+- The finding is offered for the authors to check. It is not a claim that the case is settled.
+
+**A numerical artefact, found and fixed on the way.** The first stress test reported m/M = 0.937, with
+min and max on adjacent angles near θ≈1.43. The cause was a single spectral cut-off chosen for the
+smallest angle, 0.01: the sum's terms reach ~10¹⁴ while the kernel near π/2 is ~0.3, a ±3% noise
+floor. `subordinate_raw(adaptive=True)` now gives each block of angles its own cut-off. The artefact
+output is kept on the data disk as `recheck_single_cutoff_ARTEFACT.log`. The same analysis bounds the
+single-cut-off noise in E1–E3 (smallest angle ≥ 0.05) at ≲10⁻⁴, far below their margins.
+
 ---
 
 ## Reproduce
@@ -125,4 +190,6 @@ $CARGO_TARGET_DIR/release/theorem_22_6 sweep    $DATA    # E1, ~1.5 min on 8 cor
 $CARGO_TARGET_DIR/release/theorem_22_6 optimize $DATA    # E2, ~1 min on 8 cores
 python3 verification/theorem_22_6/roton_application.py $DATA/roton_application.json   # E3, ~5 min
 python3 verification/theorem_22_6/summarize_experiments.py $DATA   # summary JSON + figures
+python3 verification/theorem_22_6/literal_criterion.py $DATA/literal_criterion.json          # E4, ~15 min
+python3 verification/theorem_22_6/recheck_small_angles.py $DATA/literal_criterion.json       # E4 stress test, ~20 min
 ```

@@ -165,12 +165,20 @@ def _spectrum(d, L):
         ns = np.arange(0, L + 1, 2)
         coef = np.where(ns == 0, 1.0 / math.pi, 2.0 / math.pi)
         return ns, ns * ns * 1.0, coef
-    raise ValueError("d must be 2 or 3")
+    if d == 4:
+        # S^3 (volume 2 pi^2): eigenvalue l(l+2), multiplicity (l+1)^2, zonal function
+        # U_l(cos th)/(l+1) = sin((l+1) th) / ((l+1) sin th); symmetrised -> even l, x2.
+        ells = np.arange(0, L + 1, 2)
+        return ells, ells * (ells + 2.0), 2.0 * (ells + 1) / (2 * math.pi ** 2)
+    raise ValueError("d must be 2, 3 or 4")
 
 
 def _eigenfunctions(d, modes, thetas):
     if d == 2:
         return np.cos(np.outer(modes, thetas))
+    if d == 4:
+        th = np.asarray(thetas)
+        return np.sin(np.outer(modes + 1, th)) / np.sin(th)
     x = np.cos(thetas)
     Lmax = int(modes[-1])
     P = np.zeros((Lmax + 1, len(thetas)))
@@ -182,20 +190,59 @@ def _eigenfunctions(d, modes, thetas):
     return P[modes]
 
 
-def subordinate_normalised(thetas, nu, d, weight):
-    """b_w(theta) / (its theta -> 0 constant), weight w(t) = sum_j A_j exp(-mu_j t)."""
-    s = nu / 2.0
+def fractional_laplacian_constant(nu, d):
+    """theta -> 0 constant of the w = 1 subordinate kernel: b ~ C theta^-(d-1+nu)."""
+    n = d - 1
+    return (4 * math.pi) ** (-n / 2) * 4 ** ((nu + n) / 2) * math.gamma((nu + n) / 2)
+
+
+def _spectral_setup(thetas, d):
     tmin = min(thetas) ** 2 / 400.0          # h_t(theta) ~ exp(-100) below this
     L = int(math.ceil(math.sqrt(60.0 / tmin)))
     modes, lams, coef = _spectrum(d, L)
-    Y = _eigenfunctions(d, modes, np.asarray(thetas))
+    return tmin, lams, coef, _eigenfunctions(d, modes, np.asarray(thetas))
+
+
+def subordinate_raw(thetas, nu, d, weight, adaptive=False):
+    """b_w(theta) / C_FL, for any real weight w(t) = sum_j A_j exp(-mu_j t) (w >= 0 is the
+    caller's business). Tends to w(0) theta^-(d-1+nu) as theta -> 0.
+
+    The spectral sum cancels heavily: its terms reach ~L^2 t_min^-(nu/2) while the result at large
+    theta is O(1), so a single cut-off chosen for the SMALLEST angle loses accuracy at the largest
+    ones (about 4% at theta ~ 1.4 when the grid starts at 0.01 in d = 4). adaptive=True evaluates
+    blocks of angles within a factor 2 of each other, each with its own cut-off. The default keeps
+    the single cut-off, which is accurate to ~1e-5 on the grids used elsewhere (smallest angle >= 0.05)."""
+    if adaptive:
+        th = np.asarray(thetas, dtype=float)
+        out = np.empty_like(th)
+        lo = th.min()
+        while lo <= th.max():
+            m = (th >= lo) & (th < 2 * lo)
+            if m.any():
+                out[m] = subordinate_raw(th[m], nu, d, weight)
+            lo *= 2
+        return out
+    s = nu / 2.0
+    tmin, lams, coef, Y = _spectral_setup(thetas, d)
     mult = np.array([sum(A * _tail_integral(lam + mu, s, tmin) for A, mu in weight)
                      for lam in lams])
-    b = (coef * mult) @ Y
-    n = d - 1
-    w0 = sum(A for A, _ in weight)
-    C = w0 * (4 * math.pi) ** (-n / 2) * 4 ** ((nu + n) / 2) * math.gamma((nu + n) / 2)
-    return b / C
+    return ((coef * mult) @ Y) / fractional_laplacian_constant(nu, d)
+
+
+def subordinate_normalised(thetas, nu, d, weight):
+    """b_w(theta) / (its theta -> 0 constant), weight w(t) = sum_j A_j exp(-mu_j t)."""
+    return subordinate_raw(thetas, nu, d, weight) / sum(A for A, _ in weight)
+
+
+def heat_kernel_raw(thetas, t, nu, d):
+    """Symmetrised heat kernel K_t on S^(d-1) (a finite-measure comparison kernel,
+    lambda = delta_t), on the same scale as subordinate_raw: divided by C_FL(nu, d).
+    Bounded, so it contributes nothing to the theta -> 0 limit."""
+    th = np.asarray(thetas)
+    L = int(math.ceil(math.sqrt(60.0 / t))) + 2
+    modes, lams, coef = _spectrum(d, L)
+    Y = _eigenfunctions(d, modes, th)
+    return ((coef * np.exp(-lams * t)) @ Y) / fractional_laplacian_constant(nu, d)
 
 
 # ------------------------------------------------------------------- weights

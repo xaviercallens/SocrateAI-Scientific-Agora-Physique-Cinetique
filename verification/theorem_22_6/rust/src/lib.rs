@@ -196,10 +196,10 @@ pub fn subordinate_normalised(thetas: &[f64], nu: f64, d: i32, weight: &Weight) 
                 return 0.0;
             }
             let lf = l as f64;
-            let (lam, coef) = if d == 3 {
-                (lf * (lf + 1.0), 2.0 * (2.0 * lf + 1.0) / (4.0 * PI))
-            } else {
-                (lf * lf, if l == 0 { 1.0 / PI } else { 2.0 / PI })
+            let (lam, coef) = match d {
+                3 => (lf * (lf + 1.0), 2.0 * (2.0 * lf + 1.0) / (4.0 * PI)),
+                4 => (lf * (lf + 2.0), 2.0 * (lf + 1.0) / (2.0 * PI * PI)), // S^3, zonal U_l/(l+1)
+                _ => (lf * lf, if l == 0 { 1.0 / PI } else { 2.0 / PI }),
             };
             coef * weight.iter().map(|&(aa, mu)| aa * tail_integral(lam + mu, s, tmin)).sum::<f64>()
         })
@@ -212,7 +212,11 @@ pub fn subordinate_normalised(thetas: &[f64], nu: f64, d: i32, weight: &Weight) 
         let mut total = 0.0;
         for l in 0..=lmax {
             if l % 2 == 0 {
-                let y = if d == 3 { p_prev } else { (l as f64 * th).cos() };
+                let y = match d {
+                    3 => p_prev,
+                    4 => ((l + 1) as f64 * th).sin() / th.sin(),
+                    _ => (l as f64 * th).cos(),
+                };
                 total += cm[l] * y;
             }
             // advance Legendre recurrence: after this, p_prev = P_{l+1}, p_cur = P_{l+2}
@@ -307,6 +311,16 @@ mod tests {
             let s = (th / 2.0f64).sin();
             assert!((b3 * 16.0 * s.powi(4) - 1.0).abs() < 1e-12, "3D theta={th}");
             assert!((b2 * 4.0 * s.powi(2) - 1.0).abs() < 1e-12, "2D theta={th}");
+        }
+    }
+
+    #[test]
+    fn rutherford_cross_section_4d() {
+        // Coulomb in d=4: b = (p/sin th)^2 |dp/dth| = 1/(64 sin^6(th/2)).
+        let q = Quad::new();
+        for &th in &[0.1, 0.5, 1.0, 2.0, 3.0] {
+            let b = collision_kernel(&q, th, 2.0, 4);
+            assert!((b * 64.0 * (th / 2.0f64).sin().powi(6) - 1.0).abs() < 1e-12, "4D theta={th}");
         }
     }
 

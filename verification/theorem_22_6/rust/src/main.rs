@@ -244,6 +244,17 @@ fn main() {
         Some("sweep") => sweep(args.get(2).expect("usage: sweep <outdir>")),
         Some("optimize") => optimize(args.get(2).expect("usage: optimize <outdir>")),
         Some("--json") => reproduce(true),
+        Some("kernels") => {
+            // kernels <d> <nu>: normalised collision and plain-fractional-Laplacian kernels on
+            // 60 angles in [0.1, pi/2], as JSON (used by ../cross_check_rust.py for d=4).
+            let d: i32 = args[2].parse().unwrap();
+            let nu: f64 = args[3].parse().unwrap();
+            let q = Quad::new();
+            let th = uniform_grid(0.1, 60);
+            let col = collision_normalised(&q, &th, nu, d);
+            let sub = subordinate_normalised(&th, nu, d, &weight_fractional_laplacian(nu));
+            println!("{{\"theta\":{},\"col\":{},\"sub\":{}}}", jarr(&th), jarr(&col), jarr(&sub));
+        }
         None => reproduce(false),
         Some(other) => {
             eprintln!("unknown argument {other}");

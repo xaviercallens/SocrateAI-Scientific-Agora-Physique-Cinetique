@@ -93,3 +93,28 @@ def test_2d_coulomb_equals_fractional_laplacian_exactly():
     sub = K.subordinate_normalised(th, 1.0, 2, K.weight_fractional_laplacian(1.0))
     assert np.allclose(col * np.sin(th) ** 2, 1.0, rtol=1e-12)
     assert np.allclose(sub / col, 1.0, rtol=1e-9)
+
+
+# ----------------------------------------------------------------- E4 (d = 4)
+@pytest.mark.parametrize("theta", [0.1, 0.5, 1.0, 2.0, 3.0])
+def test_collision_kernel_reproduces_rutherford_4d(theta):
+    # Coulomb in d=4: b = (p/sin th)^2 |dp/dth| = 1/(64 sin^6(th/2)).
+    assert K.collision_kernel(theta, 2.0, 4) * 64 * math.sin(theta / 2) ** 6 == pytest.approx(1, rel=1e-12)
+
+
+@pytest.mark.parametrize("t", [0.05, 0.5])
+def test_s3_heat_kernel_mass(t):
+    # Symmetrised heat kernel on S^3 (surface element 4 pi sin^2 th d th): mass 2, positive.
+    th = np.linspace(1e-6, math.pi - 1e-6, 40001)
+    H = K.heat_kernel_raw(th, t, 1.5, 4) * K.fractional_laplacian_constant(1.5, 4)
+    y = H * 4 * math.pi * np.sin(th) ** 2
+    assert np.sum((y[1:] + y[:-1]) / 2 * np.diff(th)) == pytest.approx(2.0, rel=1e-6)
+    assert H.min() > 0
+
+
+def test_adaptive_cutoff_agrees_where_single_cutoff_is_accurate():
+    th = np.linspace(0.3, math.pi / 2, 40)
+    w = K.weight_fractional_laplacian(1.9)
+    a = K.subordinate_raw(th, 1.9, 4, w)
+    b = K.subordinate_raw(th, 1.9, 4, w, adaptive=True)
+    assert np.allclose(a, b, rtol=1e-9)

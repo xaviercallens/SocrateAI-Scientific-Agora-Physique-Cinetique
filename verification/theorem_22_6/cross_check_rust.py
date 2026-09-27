@@ -54,6 +54,21 @@ def main():
         bad = {k: v for k, v in diffs.items() if v > TOLS[k]}
         if bad:
             failures.append(f"d={e['d']} nu={e['nu']} {e['weight']}: {bad}")
+    # d=4 kernels (E4): collision and plain fractional Laplacian on 60 angles in [0.1, pi/2]
+    for nu in (1.5, 1.95):
+        out4 = subprocess.run(["cargo", "run", "--release", "--quiet", "--", "kernels", "4", str(nu)],
+                              cwd=HERE / "rust", check=True, capture_output=True, text=True).stdout
+        r4 = json.loads(out4)
+        th = np.array(r4["theta"])
+        col = K.collision_normalised(th, nu, 4)
+        sub = K.subordinate_normalised(th, nu, 4, K.weight_fractional_laplacian(nu))
+        diffs = {"col": float(np.max(np.abs(np.array(r4["col"]) / col - 1))),
+                 "sub": float(np.max(np.abs(np.array(r4["sub"]) / sub - 1)))}
+        worst = max(worst, *diffs.values())
+        print(f"d=4 nu={nu:<6} fractional_laplacian   " + "  ".join(f"{k} {v:.1e}" for k, v in diffs.items()))
+        bad = {k: v for k, v in diffs.items() if v > TOLS[k]}
+        if bad:
+            failures.append(f"d=4 nu={nu}: {bad}")
     print(f"\nworst relative difference Rust vs Python: {worst:.1e} (tolerances {TOLS})")
     if failures:
         print("MISMATCH:")
